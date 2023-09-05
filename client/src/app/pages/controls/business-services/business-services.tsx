@@ -48,7 +48,7 @@ export const BusinessServices: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [businessServiceIdToDelete, setBusinessServiceIdToDelete] =
     React.useState<number>();
@@ -145,12 +145,25 @@ export const BusinessServices: React.FC = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     useLegacyPaginationState(sortedItems, 10);
 
-  const columns: ICell[] = [
-    { title: t("terms.name"), transforms: [sortable, cellWidth(25)] },
-    { title: t("terms.description"), transforms: [cellWidth(40)] },
-    { title: t("terms.owner"), transforms: [sortable] },
+  const columns: ICell[] | any = [
+    {
+      title: t("terms.name"),
+      transforms: [sortable, cellWidth(25)],
+      options: { sortable: true, width: 25 },
+    },
+    {
+      title: t("terms.description"),
+      transforms: [cellWidth(40)],
+      options: { width: 40 },
+    },
+    {
+      title: t("terms.owner"),
+      transforms: [sortable],
+      options: { sortable: true },
+    },
     {
       title: "",
+      options: { isActionCell: true },
       props: {
         className: "pf-v5-u-text-align-right",
       },
