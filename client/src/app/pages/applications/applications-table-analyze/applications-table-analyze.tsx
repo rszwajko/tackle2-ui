@@ -213,28 +213,37 @@ export const ApplicationsTableAnalyze: React.FC = () => {
   );
 
   // Table
-  const columns: ICell[] = [
+  const columns: ICell[] | any = [
     {
       title: t("terms.name"),
+      options: { sortable: true, width: 20 },
       transforms: [sortable, cellWidth(20)],
     },
-    { title: t("terms.description"), transforms: [cellWidth(25)] },
+    {
+      title: t("terms.description"),
+      transforms: [cellWidth(25)],
+      options: { width: 25 },
+    },
     {
       title: t("terms.businessService"),
+      options: { sortable: true, width: 20 },
       transforms: [sortable, cellWidth(20)],
     },
     {
       title: t("terms.analysis"),
       transforms: [cellWidth(10)],
+      options: { nowrap: true, width: 10 },
       cellTransforms: [nowrap],
     },
     {
       title: t("terms.tagCount"),
       transforms: [sortable, cellWidth(10)],
       cellTransforms: [nowrap],
+      options: { sortable: true, nowrap: true, width: 10 },
     },
     {
       title: "",
+      options: { modifier: "fitContent" },
       props: {
         className: "pf-v5-c-table__inline-edit-action",
       },
@@ -291,6 +300,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           ),
         },
         {
+          options: { isActionCell: true },
           title: (
             <RBAC
               allowedPermissions={applicationsWriteScopes}
@@ -374,6 +384,7 @@ export const ApplicationsTableAnalyze: React.FC = () => {
     _extraData: IExtraData
   ) => {
     const row = getRow(rowData);
+    console.log("selectrow", { rowData, row });
     toggleRowSelected(row);
   };
 
@@ -477,6 +488,8 @@ export const ApplicationsTableAnalyze: React.FC = () => {
           paginationIdPrefix="app-analysis"
           sortBy={sortBy}
           onSort={onSort}
+          // onSort={(...args:any) => ( console.log({args}))}
+          // onSelect={(...args:any) => ( console.log('select', {args}))}
           onSelect={selectRow}
           canSelectAll={false}
           cells={columns}

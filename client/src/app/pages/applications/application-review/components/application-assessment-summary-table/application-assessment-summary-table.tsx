@@ -176,23 +176,26 @@ export const ApplicationAssessmentSummaryTable: React.FC<
   });
 
   return (
-    <AppTableWithControls
-      count={filteredItems.length}
-      sortBy={sortBy}
-      onSort={onSort}
-      cells={columns}
-      rows={rows}
-      isLoading={false}
-      paginationProps={paginationProps}
-      paginationIdPrefix="app-assessment-summary"
-      toolbarClearAllFilters={handleOnClearAllFilters}
-      toolbarToggle={
-        <FilterToolbar
-          filterCategories={filterCategories}
-          filterValues={filterValues}
-          setFilterValues={setFilterValues}
-        />
-      }
-    />
+    <>
+      <h1>APPTABLEWITHCONTROLS</h1>
+      <AppTableWithControls
+        count={filteredItems.length}
+        sortBy={sortBy}
+        onSort={onSort}
+        cells={columns}
+        rows={rows}
+        isLoading={false}
+        paginationProps={paginationProps}
+        paginationIdPrefix="app-assessment-summary"
+        toolbarClearAllFilters={handleOnClearAllFilters}
+        toolbarToggle={
+          <FilterToolbar
+            filterCategories={filterCategories}
+            filterValues={filterValues}
+            setFilterValues={setFilterValues}
+          />
+        }
+      />
+    </>
   );
 };
