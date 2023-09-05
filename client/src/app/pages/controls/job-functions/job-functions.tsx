@@ -47,7 +47,7 @@ export const JobFunctions: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [
     jobFunctionstakeholderIdToDelete,
@@ -115,14 +115,16 @@ export const JobFunctions: React.FC = () => {
     onDeleteJobFunctionError
   );
 
-  const columns: ICell[] = [
+  const columns: ICell[] | any = [
     {
       title: t("terms.name"),
       transforms: [sortable, cellWidth(70)],
+      options: { width: 70, sortable: true },
       cellFormatters: [],
     },
     {
       title: "",
+      options: { isActionCell: true },
       props: {
         className: "pf-v5-u-text-align-right",
       },

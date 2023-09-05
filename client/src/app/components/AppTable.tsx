@@ -63,7 +63,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
 
   onAppClick,
   onSort = () => {},
-  onSelect = () => {},
+  onSelect,
   actionResolver = () => {},
   ...rest
 }) => {
