@@ -55,7 +55,7 @@ export const Identities: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [identityToDelete, setIdentityToDelete] = React.useState<Identity>();
 
@@ -163,19 +163,35 @@ export const Identities: React.FC = () => {
   const { currentPageItems, setPageNumber, paginationProps } =
     useLegacyPaginationState(sortedItems, 10);
 
-  const columns: ICell[] = [
+  const columns: ICell[] | any = [
     {
       title: "Name",
       transforms: [sortable, cellWidth(20)],
+      options: { sortable: true, cellWidth: 20, expandable: true },
       cellFormatters: [expandable],
     },
-    { title: "Description", transforms: [cellWidth(25)] },
-    { title: "Type", transforms: [sortable, cellWidth(20)] },
+    {
+      title: "Description",
+      options: { cellWidth: 25 },
+      transforms: [cellWidth(25)],
+    },
+    {
+      title: "Type",
+      options: { sortable: true, cellWidth: 20 },
+      transforms: [sortable, cellWidth(20)],
+    },
     ...(isAuthRequired
-      ? [{ title: "Created by", transforms: [sortable, cellWidth(10)] }]
+      ? [
+          {
+            title: "Created by",
+            options: { sortable: true, cellWidth: 10 },
+            transforms: [sortable, cellWidth(10)],
+          },
+        ]
       : []),
     {
       title: "",
+      options: { isActionCell: true },
       props: {
         className: "pf-v5-u-text-align-right",
       },
@@ -243,8 +259,9 @@ export const Identities: React.FC = () => {
 
   const dependentApplications = React.useMemo(() => {
     if (identityToDelete) {
-      const res = applications?.filter((app) =>
-        app?.identities?.map((id) => id.id).includes(identityToDelete.id)
+      const res = applications?.filter(
+        (app) =>
+          app?.identities?.map((id) => id.id).includes(identityToDelete.id)
       );
       return res;
     }

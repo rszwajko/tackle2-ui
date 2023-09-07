@@ -215,7 +215,6 @@ export const AppTable: React.FC<IAppTableProps> = ({
         <Tbody>
           {rows.map((r: any, rowIndex: number) => {
             const actions = actionResolver(r);
-            //const expandable
             if (Object.prototype.hasOwnProperty.call(r, "parent")) {
               return (
                 <Tr key={"row" + rowIndex} isExpanded={rows[r.parent].isOpen}>
