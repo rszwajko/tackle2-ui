@@ -90,14 +90,14 @@ export const TagTable: React.FC<TabTableProps> = ({
         </Tr>
       </Thead>
       <Tbody>
-        {rows.map((row: IRow) => {
+        {rows.map((row: IRow, rowIndex: number) => {
           const rowActions = defaultActions(row);
           return (
-            <Tr>
+            <Tr key={"row" + rowIndex}>
               {row.cells?.map((cell: any) => (
-                <Td>{cell.title}</Td>
+                <Td key={cell.title}>{cell.title}</Td>
               ))}
-              <Td isActionCell>
+              <Td key="actionCell" isActionCell>
                 {rowActions && <ActionsColumn items={rowActions} />}
               </Td>
             </Tr>

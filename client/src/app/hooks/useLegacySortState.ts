@@ -26,7 +26,6 @@ export const useLegacySortState = <T>(
   getSortValues?: (item: T) => (string | number | boolean)[],
   initialSort: ISortBy = { index: 0, direction: "asc" }
 ): ILegacySortStateHook<T> => {
-  console.log({ items, initialSort });
   const [sortBy, setSortBy] = React.useState<ISortBy>(initialSort);
 
   const onSort = (
@@ -34,7 +33,6 @@ export const useLegacySortState = <T>(
     index: number,
     direction: SortByDirection
   ) => {
-    console.log("legacy", { event, index, direction });
     setSortBy({ index, direction });
   };
 

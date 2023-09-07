@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useSelectionState } from "@migtools/lib-ui";
 import {
@@ -60,12 +60,12 @@ export const Tags: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [isTagToDeleteConfirmDialogOpen, setIsTagToDeleteConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const [
     isTagCategoryToDeleteConfirmDialogOpen,
     setIsTagCategoryToDeleteConfirmDialogOpen,
-  ] = React.useState<Boolean>(false);
+  ] = React.useState<boolean>(false);
 
   const [tagIdToDelete, setTagIdToDelete] = React.useState<number>();
   const [tagCategoryIdToDelete, setTagCategoryIdToDelete] =
@@ -186,8 +186,8 @@ export const Tags: React.FC = () => {
           what: t("terms.name").toLowerCase(),
         }) + "...",
       getItemValue: (item) => {
-        let tagCategoryNames = item.name?.toString() || "";
-        let tagNames = item?.tags
+        const tagCategoryNames = item.name?.toString() || "";
+        const tagNames = item?.tags
           ?.map((tag) => tag.name)
           .concat(tagCategoryNames)
           .join("");
@@ -269,19 +269,25 @@ export const Tags: React.FC = () => {
     setIsTagToDeleteConfirmDialogOpen(true);
   };
 
-  const columns: ICell[] = [
+  const columns: ICell[] | any = [
     {
       title: t("terms.tagCategory"),
+      options: { sortable: true, expandable: true },
       transforms: [sortable],
       cellFormatters: [expandable],
     },
-    { title: t("terms.rank"), transforms: [sortable] },
+    {
+      title: t("terms.rank"),
+      transforms: [sortable],
+      options: { sortable: true },
+    },
     {
       title: t("terms.color"),
       transforms: [],
     },
     {
       title: t("terms.tagCount"),
+      options: { sortable: true },
       transforms: [sortable],
     },
     {

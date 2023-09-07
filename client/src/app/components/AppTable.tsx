@@ -17,6 +17,7 @@ import {
   ThProps,
   SortByDirection,
   ActionsColumn,
+  ExpandableRowContent,
 } from "@patternfly/react-table";
 import { StateNoData } from "./StateNoData";
 import { StateNoResults } from "./StateNoResults";
@@ -28,6 +29,7 @@ import "./AppTable.css";
 const ENTITY_FIELD = "entity";
 
 export interface IAppTableProps extends TableProps4 {
+  rows: any;
   isLoading: boolean;
   loadingVariant?: "skeleton" | "spinner" | "none";
   fetchError?: any;
@@ -44,6 +46,7 @@ export interface IAppTableProps extends TableProps4 {
   ) => void;
   canSelectAll?: boolean;
   onSelect?: any;
+  onCollapse?: any;
   actionResolver?: any;
 }
 
@@ -64,6 +67,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   onAppClick,
   onSort = () => {},
   onSelect,
+  onCollapse,
   actionResolver = () => {},
   ...rest
 }) => {
@@ -184,7 +188,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
       </>
     );
   }
-  console.log({ cells, rows, rest });
+  const extraColumns = (onSelect ? 1 : 0) + (onCollapse ? 1 : 0);
   return (
     <>
       <h1>AppTable App Inventory Analysis normal</h1>
@@ -192,8 +196,9 @@ export const AppTable: React.FC<IAppTableProps> = ({
         <Thead>
           <Tr>
             {onSelect && <Th />}
+            {onCollapse && <Th />}
             {cells.map((c: any, index: number) => {
-              index += onSelect ? 1 : 0;
+              index += extraColumns;
               return (
                 <Th
                   key={c.title}
@@ -208,38 +213,72 @@ export const AppTable: React.FC<IAppTableProps> = ({
           </Tr>
         </Thead>
         <Tbody>
-          {rows.map((r: any, index: number) => {
+          {rows.map((r: any, rowIndex: number) => {
             const actions = actionResolver(r);
-            return (
-              <Tr
-                key={"row" + index}
-                isClickable={r.isClickable}
-                isRowSelected={r.isRowSelected}
-                onRowClick={(event) => {
-                  handlePropagatedRowClick(event, () => {
-                    onAppClick?.(r[ENTITY_FIELD] || null);
-                  });
-                }}
-              >
-                {onSelect && (
-                  <Td
-                    select={{
-                      rowIndex: index,
-                      onSelect: (event: any, isSelecting: boolean) =>
-                        onSelect(event, isSelecting, index, r),
-                      isSelected: r.selected,
-                      isDisabled: !r.isClickable,
-                    }}
-                  />
-                )}
-                {r.cells.map((c: any, index: number) => (
-                  <Td isActionCell={c.options?.isActionCell}>{c.title}</Td>
-                ))}
-                <Td isActionCell>
-                  {actions && <ActionsColumn items={actions} />}
-                </Td>
-              </Tr>
-            );
+            //const expandable
+            if (Object.prototype.hasOwnProperty.call(r, "parent")) {
+              return (
+                <Tr key={"row" + rowIndex} isExpanded={rows[r.parent].isOpen}>
+                  {r.cells.map((c: any, cellIndex: number) => (
+                    <Td
+                      colSpan={rows[r.parent].cells.length + extraColumns}
+                      key={rowIndex + "-" + cellIndex}
+                      isActionCell={c.options?.isActionCell}
+                    >
+                      <ExpandableRowContent>{c.title}</ExpandableRowContent>
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            } else {
+              return (
+                <Tr
+                  key={"row" + rowIndex}
+                  isClickable={r.isClickable}
+                  isRowSelected={r.isRowSelected}
+                  onRowClick={(event) => {
+                    handlePropagatedRowClick(event, () => {
+                      onAppClick?.(r[ENTITY_FIELD] || null);
+                    });
+                  }}
+                >
+                  {onSelect && (
+                    <Td
+                      key={rowIndex + "-select"}
+                      select={{
+                        rowIndex,
+                        onSelect: (event: any, isSelecting: boolean) =>
+                          onSelect(event, isSelecting, rowIndex, r),
+                        isSelected: r.selected,
+                        isDisabled: !r.isClickable,
+                      }}
+                    />
+                  )}
+                  {onCollapse && (
+                    <Td
+                      key={rowIndex + "-expand"}
+                      expand={{
+                        rowIndex: rowIndex,
+                        isExpanded: r.isOpen,
+                        onToggle: () =>
+                          onCollapse(undefined, rowIndex, r.isExpanded, r),
+                      }}
+                    />
+                  )}
+                  {r.cells.map((c: any, cellIndex: number) => (
+                    <Td
+                      key={rowIndex + "-" + cellIndex}
+                      isActionCell={c.options?.isActionCell}
+                    >
+                      {c.title}
+                    </Td>
+                  ))}
+                  <Td key={rowIndex + "-actionCell"} isActionCell>
+                    {actions && <ActionsColumn items={actions} />}
+                  </Td>
+                </Tr>
+              );
+            }
           })}
         </Tbody>
       </Table>
@@ -250,6 +289,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
         rows={rows}
         onSort={onSort}
         onSelect={onSelect}
+        onCollapse={onCollapse}
         actionResolver={actionResolver}
         {...rest}
       >
