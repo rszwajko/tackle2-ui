@@ -130,7 +130,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
 
     return (
       <>
-        <h1>App inventory analysis isloading</h1>
+        <h1>AppTable isloading</h1>
         <Table4
           className="app-table"
           aria-label={ariaLabel}
@@ -147,7 +147,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   if (fetchError) {
     return (
       <>
-        <h1>AppTable app inv analysis error</h1>
+        <h1>AppTable error</h1>
         <Table4 aria-label={ariaLabel} cells={cells} rows={[]}>
           <TableHeader4 />
           <TableBody4 />
@@ -160,7 +160,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   if (rows.length === 0) {
     return filtersApplied ? (
       <>
-        <h1>Apptable app inventory analysis empty with filters</h1>
+        <h1>Apptable app empty with filters</h1>
         <Table4
           className="app-table"
           aria-label={ariaLabel}
@@ -174,7 +174,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
       </>
     ) : (
       <>
-        <h1>Apptable app inventory analysis empty without filters</h1>
+        <h1>Apptable app empty without filters</h1>
         <Table4
           className="app-table"
           aria-label={ariaLabel}
@@ -191,7 +191,7 @@ export const AppTable: React.FC<IAppTableProps> = ({
   const extraColumns = (onSelect ? 1 : 0) + (onCollapse ? 1 : 0);
   return (
     <>
-      <h1>AppTable App Inventory Analysis normal</h1>
+      <h1>AppTable App normal</h1>
       <Table className="app-table" aria-label={ariaLabel}>
         <Thead>
           <Tr>
@@ -281,26 +281,6 @@ export const AppTable: React.FC<IAppTableProps> = ({
           })}
         </Tbody>
       </Table>
-      <Table4
-        className="app-table"
-        aria-label={ariaLabel}
-        cells={cells}
-        rows={rows}
-        onSort={onSort}
-        onSelect={onSelect}
-        onCollapse={onCollapse}
-        actionResolver={actionResolver}
-        {...rest}
-      >
-        <TableHeader4 />
-        <TableBody4
-          onRowClick={(event, row) => {
-            handlePropagatedRowClick(event, () => {
-              onAppClick?.(row[ENTITY_FIELD] || null);
-            });
-          }}
-        />
-      </Table4>
     </>
   );
 };
