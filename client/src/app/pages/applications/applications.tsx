@@ -7,6 +7,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { ApplicationForm } from "./components/application-form";
 
 const ApplicationsTable = lazy(() => import("./applications-table"));
 
@@ -18,15 +19,11 @@ export const Applications: React.FC = () => {
       <PageSection variant={PageSectionVariants.light}>
         <Level>
           <LevelItem>
-            <Title headingLevel="h1">
-              {t("composed.applicationInventory")}
-            </Title>
+            <Title headingLevel="h1">New application</Title>
           </LevelItem>
         </Level>
       </PageSection>
-      <PageSection>
-        <ApplicationsTable />
-      </PageSection>
+      <ApplicationForm application={null} onClose={() => {}} />
     </>
   );
 };

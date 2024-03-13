@@ -8,6 +8,7 @@ import {
   ButtonVariant,
   ExpandableSection,
   Form,
+  PageSection,
   Popover,
   PopoverPosition,
 } from "@patternfly/react-core";
@@ -318,35 +319,36 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
   ];
 
   return (
-    <Form onSubmit={handleSubmit(onValidSubmit)}>
-      <ExpandableSection
-        toggleText={"Basic information"}
-        className="toggle"
-        onToggle={() => setBasicExpanded(!isBasicExpanded)}
-        isExpanded={isBasicExpanded}
-      >
-        <div className="pf-v5-c-form">
-          <HookFormPFTextInput
-            control={control}
-            name="name"
-            label="Name"
-            fieldId="name"
-            isRequired
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="description"
-            label="Description"
-            fieldId="description"
-          />
-          <HookFormPFGroupController
-            control={control}
-            name="businessServiceName"
-            label={t("terms.businessService")}
-            fieldId="businessService"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <SimpleSelectTypeahead
+    <Form onSubmit={handleSubmit(onValidSubmit)} isWidthLimited>
+      <PageSection variant="light">
+        <ExpandableSection
+          toggleText={"Basic information"}
+          className="toggle"
+          onToggle={() => setBasicExpanded(!isBasicExpanded)}
+          isExpanded={isBasicExpanded}
+        >
+          <div className="pf-v5-c-form">
+            <HookFormPFTextInput
+              control={control}
+              name="name"
+              label="Name"
+              fieldId="name"
+              isRequired
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="description"
+              label="Description"
+              fieldId="description"
+            />
+            <HookFormPFGroupController
+              control={control}
+              name="businessServiceName"
+              label={t("terms.businessService")}
+              fieldId="businessService"
+              renderInput={({ field: { value, name, onChange } }) => (
+                <>
+                  {/* <SimpleSelectTypeahead
                   toggleId="business-service-toggle"
                   toggleAriaLabel="Business service select dropdown toggle"
                   id="business-service-select"
@@ -360,92 +362,96 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                     onChange(selectionValue);
                   }}
                 /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectOne", {
-                    what: t("terms.businessService").toLowerCase(),
-                  })}
-                  variant="typeahead"
-                  toggleId="business-service-toggle"
-                  id="business-service-select"
-                  toggleAriaLabel="Business service select dropdown toggle"
-                  aria-label={name}
-                  value={
-                    value
-                      ? toOptionLike(value, businessServiceOptions)
-                      : undefined
-                  }
-                  options={businessServiceOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  onClear={() => onChange("")}
-                />
-              </>
-            )}
-          />
+                  <SimpleSelect
+                    maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                    placeholderText={t("composed.selectOne", {
+                      what: t("terms.businessService").toLowerCase(),
+                    })}
+                    variant="typeahead"
+                    toggleId="business-service-toggle"
+                    id="business-service-select"
+                    toggleAriaLabel="Business service select dropdown toggle"
+                    aria-label={name}
+                    value={
+                      value
+                        ? toOptionLike(value, businessServiceOptions)
+                        : undefined
+                    }
+                    options={businessServiceOptions}
+                    onChange={(selection) => {
+                      const selectionValue =
+                        selection as OptionWithValue<string>;
+                      onChange(selectionValue.value);
+                    }}
+                    onClear={() => onChange("")}
+                  />
+                </>
+              )}
+            />
 
-          <HookFormAutocomplete<FormValues>
-            items={tagItems}
-            control={control}
-            name="tags"
-            label={t("terms.manualTags")}
-            fieldId="tags"
-            noResultsMessage={t("message.noResultsFoundTitle")}
-            placeholderText={t("composed.selectMany", {
-              what: t("terms.tags").toLowerCase(),
-            })}
-            searchInputAriaLabel="tags-select-toggle"
-          />
+            <HookFormAutocomplete<FormValues>
+              items={tagItems}
+              control={control}
+              name="tags"
+              label={t("terms.manualTags")}
+              fieldId="tags"
+              noResultsMessage={t("message.noResultsFoundTitle")}
+              placeholderText={t("composed.selectMany", {
+                what: t("terms.tags").toLowerCase(),
+              })}
+              searchInputAriaLabel="tags-select-toggle"
+            />
 
-          <HookFormPFGroupController
-            control={control}
-            name="owner"
-            label={t("terms.owner")}
-            fieldId="owner"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <SimpleSelectTypeahead
+            <HookFormPFGroupController
+              control={control}
+              name="owner"
+              label={t("terms.owner")}
+              fieldId="owner"
+              renderInput={({ field: { value, name, onChange } }) => (
+                <>
+                  {/* <SimpleSelectTypeahead
                   options={stakeholdersOptions}
                   placeholderText={t("composed.selectAn", {
                     what: t("terms.owner").toLowerCase(),
                   })}
                   onChange={onChange}
                 /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectAn", {
-                    what: t("terms.owner").toLowerCase(),
-                  })}
-                  variant="typeahead"
-                  toggleId="owner-toggle"
-                  id="owner-select"
-                  toggleAriaLabel="Owner select dropdown toggle"
-                  aria-label={name}
-                  value={
-                    value ? toOptionLike(value, stakeholdersOptions) : undefined
-                  }
-                  options={stakeholdersOptions}
-                  onClear={() => onChange("")}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    console.log({ selection });
-                    onChange(selectionValue.value);
-                  }}
-                  onBlur={onChange}
-                />
-              </>
-            )}
-          />
-          <HookFormPFGroupController
-            control={control}
-            name="contributors"
-            label={t("terms.contributors")}
-            fieldId="contributors"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <div>value: {value}</div>
+                  <SimpleSelect
+                    maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                    placeholderText={t("composed.selectAn", {
+                      what: t("terms.owner").toLowerCase(),
+                    })}
+                    variant="typeahead"
+                    toggleId="owner-toggle"
+                    id="owner-select"
+                    toggleAriaLabel="Owner select dropdown toggle"
+                    aria-label={name}
+                    value={
+                      value
+                        ? toOptionLike(value, stakeholdersOptions)
+                        : undefined
+                    }
+                    options={stakeholdersOptions}
+                    onClear={() => onChange("")}
+                    onChange={(selection) => {
+                      const selectionValue =
+                        selection as OptionWithValue<string>;
+                      console.log({ selection });
+                      onChange(selectionValue.value);
+                    }}
+                    onBlur={onChange}
+                  />
+                </>
+              )}
+            />
+            <HookFormPFGroupController
+              control={control}
+              name="contributors"
+              label={t("terms.contributors")}
+              fieldId="contributors"
+              renderInput={({ field: { value, name, onChange } }) => (
+                <>
+                  {/* <div>value: {value}</div>
                 <SimpleSelectTypeahead
                   placeholderText={t("composed.selectMany", {
                     what: t("terms.contributors").toLowerCase(),
@@ -469,181 +475,185 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   }}
                   noResultsFoundText={t("message.noResultsFoundTitle")}
                 /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectMany", {
-                    what: t("terms.contributors").toLowerCase(),
-                  })}
-                  id="contributors-select"
-                  variant="typeaheadmulti"
-                  toggleId="contributors-select-toggle"
-                  toggleAriaLabel="contributors dropdown toggle"
-                  aria-label={name}
-                  value={value
-                    .map(
-                      (formContributor) =>
-                        stakeholders?.find(
-                          (stakeholder) => stakeholder.name === formContributor
-                        )
-                    )
-                    .map((matchingStakeholder) =>
-                      matchingStakeholder
-                        ? {
-                            value: matchingStakeholder.name,
-                            toString: () => matchingStakeholder.name,
-                          }
-                        : undefined
-                    )
-                    .filter((e) => e !== undefined)}
-                  options={stakeholdersOptions}
-                  onChange={(selection) => {
-                    const selectionWithValue =
-                      selection as OptionWithValue<string>;
+                  <SimpleSelect
+                    maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                    placeholderText={t("composed.selectMany", {
+                      what: t("terms.contributors").toLowerCase(),
+                    })}
+                    id="contributors-select"
+                    variant="typeaheadmulti"
+                    toggleId="contributors-select-toggle"
+                    toggleAriaLabel="contributors dropdown toggle"
+                    aria-label={name}
+                    value={value
+                      .map(
+                        (formContributor) =>
+                          stakeholders?.find(
+                            (stakeholder) =>
+                              stakeholder.name === formContributor
+                          )
+                      )
+                      .map((matchingStakeholder) =>
+                        matchingStakeholder
+                          ? {
+                              value: matchingStakeholder.name,
+                              toString: () => matchingStakeholder.name,
+                            }
+                          : undefined
+                      )
+                      .filter((e) => e !== undefined)}
+                    options={stakeholdersOptions}
+                    onChange={(selection) => {
+                      const selectionWithValue =
+                        selection as OptionWithValue<string>;
 
-                    const currentValue = value || [];
-                    const e = currentValue.find(
-                      (f) => f === selectionWithValue.value
-                    );
-                    if (e) {
-                      onChange(
-                        currentValue.filter(
-                          (f) => f !== selectionWithValue.value
-                        )
+                      const currentValue = value || [];
+                      const e = currentValue.find(
+                        (f) => f === selectionWithValue.value
                       );
-                    } else {
-                      onChange([...currentValue, selectionWithValue.value]);
-                    }
+                      if (e) {
+                        onChange(
+                          currentValue.filter(
+                            (f) => f !== selectionWithValue.value
+                          )
+                        );
+                      } else {
+                        onChange([...currentValue, selectionWithValue.value]);
+                      }
+                    }}
+                    onClear={() => onChange([])}
+                    noResultsFoundText={t("message.noResultsFoundTitle")}
+                  />
+                </>
+              )}
+            />
+            <HookFormPFTextArea
+              control={control}
+              name="comments"
+              label={t("terms.comments")}
+              fieldId="comments"
+              resizeOrientation="vertical"
+            />
+          </div>
+        </ExpandableSection>
+        <ExpandableSection
+          toggleText={t("terms.sourceCode")}
+          className="toggle"
+          onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
+          isExpanded={isSourceCodeExpanded}
+        >
+          <div className="pf-v5-c-form">
+            <HookFormPFGroupController
+              control={control}
+              name="kind"
+              label="Repository type"
+              fieldId="repository-type-select"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <SimpleSelect
+                  toggleId="repo-type-toggle"
+                  toggleAriaLabel="Type select dropdown toggle"
+                  aria-label={name}
+                  value={value ? toOptionLike(value, kindOptions) : undefined}
+                  options={kindOptions}
+                  onChange={(selection) => {
+                    const selectionValue = selection as OptionWithValue<string>;
+                    onChange(selectionValue.value);
                   }}
-                  onClear={() => onChange([])}
-                  noResultsFoundText={t("message.noResultsFoundTitle")}
                 />
-              </>
-            )}
-          />
-          <HookFormPFTextArea
-            control={control}
-            name="comments"
-            label={t("terms.comments")}
-            fieldId="comments"
-            resizeOrientation="vertical"
-          />
-        </div>
-      </ExpandableSection>
-      <ExpandableSection
-        toggleText={t("terms.sourceCode")}
-        className="toggle"
-        onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
-        isExpanded={isSourceCodeExpanded}
-      >
-        <div className="pf-v5-c-form">
-          <HookFormPFGroupController
-            control={control}
-            name="kind"
-            label="Repository type"
-            fieldId="repository-type-select"
-            isRequired
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                toggleId="repo-type-toggle"
-                toggleAriaLabel="Type select dropdown toggle"
-                aria-label={name}
-                value={value ? toOptionLike(value, kindOptions) : undefined}
-                options={kindOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-              />
-            )}
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="sourceRepository"
-            label={t("terms.sourceRepo")}
-            fieldId="sourceRepository"
-          />
-          <HookFormPFTextInput
-            control={control}
-            type="text"
-            aria-label="Repository branch"
-            name="branch"
-            label={t("terms.sourceBranch")}
-            fieldId="branch"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="rootPath"
-            label={t("terms.sourceRootPath")}
-            fieldId="rootPath"
-          />
-        </div>
-      </ExpandableSection>
-      <ExpandableSection
-        toggleText={t("terms.binary")}
-        className="toggle"
-        onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
-        isExpanded={isBinaryExpanded}
-      >
-        <div className="pf-v5-c-form">
-          <HookFormPFTextInput
-            control={control}
-            name="group"
-            label={t("terms.binaryGroup")}
-            fieldId="group"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="artifact"
-            label={t("terms.binaryArtifact")}
-            fieldId="artifact"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="version"
-            label={t("terms.binaryVersion")}
-            fieldId="version"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="packaging"
-            fieldId="packaging"
-            label={t("terms.binaryPackaging")}
-            labelIcon={
-              <Popover
-                position={PopoverPosition.top}
-                aria-label="binary packaging details"
-                bodyContent={t("message.binaryPackaging")}
-                className="popover"
-              >
-                <span className="pf-v5-c-icon pf-m-info">
-                  <QuestionCircleIcon />
-                </span>
-              </Popover>
-            }
-          />
-        </div>
-      </ExpandableSection>
-      <ActionGroup>
-        <Button
-          type="submit"
-          id="submit"
-          aria-label="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+              )}
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="sourceRepository"
+              label={t("terms.sourceRepo")}
+              fieldId="sourceRepository"
+            />
+            <HookFormPFTextInput
+              control={control}
+              type="text"
+              aria-label="Repository branch"
+              name="branch"
+              label={t("terms.sourceBranch")}
+              fieldId="branch"
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="rootPath"
+              label={t("terms.sourceRootPath")}
+              fieldId="rootPath"
+            />
+          </div>
+        </ExpandableSection>
+        <ExpandableSection
+          toggleText={t("terms.binary")}
+          className="toggle"
+          onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
+          isExpanded={isBinaryExpanded}
         >
-          {!application ? t("actions.create") : t("actions.save")}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>
-      </ActionGroup>
+          <div className="pf-v5-c-form">
+            <HookFormPFTextInput
+              control={control}
+              name="group"
+              label={t("terms.binaryGroup")}
+              fieldId="group"
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="artifact"
+              label={t("terms.binaryArtifact")}
+              fieldId="artifact"
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="version"
+              label={t("terms.binaryVersion")}
+              fieldId="version"
+            />
+            <HookFormPFTextInput
+              control={control}
+              name="packaging"
+              fieldId="packaging"
+              label={t("terms.binaryPackaging")}
+              labelIcon={
+                <Popover
+                  position={PopoverPosition.top}
+                  aria-label="binary packaging details"
+                  bodyContent={t("message.binaryPackaging")}
+                  className="popover"
+                >
+                  <span className="pf-v5-c-icon pf-m-info">
+                    <QuestionCircleIcon />
+                  </span>
+                </Popover>
+              }
+            />
+          </div>
+        </ExpandableSection>
+      </PageSection>
+      <PageSection stickyOnBreakpoint={{ default: "bottom" }} variant="light">
+        <ActionGroup>
+          <Button
+            type="submit"
+            id="submit"
+            aria-label="submit"
+            variant={ButtonVariant.primary}
+            isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          >
+            {!application ? t("actions.create") : t("actions.save")}
+          </Button>
+          <Button
+            type="button"
+            id="cancel"
+            aria-label="cancel"
+            variant={ButtonVariant.link}
+            isDisabled={isSubmitting || isValidating}
+            onClick={onClose}
+          >
+            {t("actions.cancel")}
+          </Button>
+        </ActionGroup>
+      </PageSection>
     </Form>
   );
 };
