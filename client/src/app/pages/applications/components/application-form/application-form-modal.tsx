@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, ButtonVariant, Modal } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core";
 import { ApplicationForm, useApplicationFormHook } from "./application-form";
 import { Application } from "@app/api/models";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,7 @@ export const ApplicationFormModal: React.FC<ApplicationFormModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const formProps = useApplicationFormHook({ application, onClose });
+  const footerRef = React.useRef<HTMLDivElement>(null);
   return (
     <Modal
       title={
@@ -25,30 +26,14 @@ export const ApplicationFormModal: React.FC<ApplicationFormModalProps> = ({
       variant="medium"
       isOpen={true}
       onClose={onClose}
-      actions={[
-        <Button
-          key="submit"
-          id="submit"
-          aria-label="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={formProps.isSubmitDisabled}
-          onClick={formProps.onSubmit()}
-        >
-          {!application ? t("actions.create") : t("actions.save")}
-        </Button>,
-        <Button
-          key="cancel"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={formProps.isCancelDisabled}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>,
-      ]}
+      footer={<div ref={footerRef} />}
     >
-      <ApplicationForm {...formProps} />
+      <ApplicationForm
+        {...formProps}
+        actionsContainer={footerRef.current}
+        application={application}
+        onClose={onClose}
+      />
     </Modal>
   );
 };

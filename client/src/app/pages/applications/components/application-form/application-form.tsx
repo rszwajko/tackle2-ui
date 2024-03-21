@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { object, string } from "yup";
 import {
+  ActionGroup,
+  Button,
+  ButtonVariant,
   ExpandableSection,
   Form,
   Popover,
@@ -42,6 +45,7 @@ import {
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { createPortal } from "react-dom";
 
 export interface FormValues {
   id: number;
@@ -330,12 +334,14 @@ export const useApplicationFormHook = ({
     isCancelDisabled: isSubmitting || isValidating,
     stakeholders,
     businessServiceOptions,
-    onSubmit: () => handleSubmit(onValidSubmit),
+    onSubmit: handleSubmit(onValidSubmit),
   };
 };
 
 export const ApplicationForm: React.FC<
-  ReturnType<typeof useApplicationFormHook>
+  ReturnType<typeof useApplicationFormHook> & {
+    actionsContainer?: Element | null;
+  } & ApplicationFormProps
 > = ({
   onSubmit,
   setBasicExpanded,
@@ -350,10 +356,42 @@ export const ApplicationForm: React.FC<
   isBinaryExpanded,
   stakeholders,
   businessServiceOptions,
+  isSubmitDisabled,
+  isCancelDisabled,
+  actionsContainer,
+  application,
+  onClose,
 }) => {
   const { t } = useTranslation();
+  const formActions = (
+    <ActionGroup>
+      <Button
+        key="submit"
+        id="submit"
+        aria-label="submit"
+        variant={ButtonVariant.primary}
+        isDisabled={isSubmitDisabled}
+        onClick={onSubmit}
+      >
+        {!application ? t("actions.create") : t("actions.save")}
+      </Button>
+      ,
+      <Button
+        key="cancel"
+        id="cancel"
+        aria-label="cancel"
+        variant={ButtonVariant.link}
+        isDisabled={isCancelDisabled}
+        onClick={onClose}
+      >
+        {t("actions.cancel")}
+      </Button>
+      ,
+    </ActionGroup>
+  );
+
   return (
-    <Form onSubmit={onSubmit}>
+    <Form>
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"
@@ -658,6 +696,9 @@ export const ApplicationForm: React.FC<
           />
         </div>
       </ExpandableSection>
+      {actionsContainer
+        ? createPortal(formActions, actionsContainer)
+        : formActions}
     </Form>
   );
 };
