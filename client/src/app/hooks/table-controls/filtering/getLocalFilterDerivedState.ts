@@ -46,22 +46,26 @@ export const getLocalFilterDerivedState = <
   const filteredItems = items.filter((item) =>
     objectKeys(filterValues).every((categoryKey) => {
       const values = filterValues[categoryKey];
-      if (!values || values.length === 0) return true;
       const filterCategory = filterCategories.find(
         (category) => category.categoryKey === categoryKey
       );
-      let itemValue = (item as any)[categoryKey];
-      if (filterCategory?.getItemValue) {
-        itemValue = filterCategory.getItemValue(item);
+      if (!values || values.length === 0 || !filterCategory) {
+        return true;
       }
+
+      const defaultMatcher = (filterValue: string, item: TItem) => {
+        const itemValue =
+          filterCategory?.getItemValue?.(item) ?? (item as any)[categoryKey];
+
+        if (!itemValue) return false;
+        const lowerCaseItemValue = String(itemValue).toLowerCase();
+        const lowerCaseFilterValue = String(filterValue).toLowerCase();
+        return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
+      };
+      const matcher = filterCategory?.matcher ?? defaultMatcher;
       const logicOperator = getFilterLogicOperator(filterCategory);
-      return values[logicOperator === "AND" ? "every" : "some"](
-        (filterValue) => {
-          if (!itemValue) return false;
-          const lowerCaseItemValue = String(itemValue).toLowerCase();
-          const lowerCaseFilterValue = String(filterValue).toLowerCase();
-          return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
-        }
+      return values[logicOperator === "AND" ? "every" : "some"]((filterValue) =>
+        matcher(filterValue, item)
       );
     })
   );
