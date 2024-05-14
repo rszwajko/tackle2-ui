@@ -18,6 +18,7 @@ export enum FilterType {
   multiselect = "multiselect",
   search = "search",
   numsearch = "numsearch",
+  dateRange = "dateRange",
 }
 
 export type FilterValue = string[] | undefined | null;
