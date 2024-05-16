@@ -14,6 +14,7 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
+import { universalComparator } from "@app/utils/utils";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
@@ -24,7 +25,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
     () =>
       stakeholders
         .map(({ id, name }) => ({ id, name }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        .sort((a, b) => universalComparator(a.name, b.name)),
     [stakeholders]
   );
 
@@ -33,7 +34,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
     () =>
       stakeholderGroups
         .map(({ id, name }) => ({ id, name }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        .sort((a, b) => universalComparator(a.name, b.name)),
     [stakeholderGroups]
   );
 
