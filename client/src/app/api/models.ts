@@ -319,6 +319,11 @@ export interface Task {
   state?: TaskState;
   job?: string;
   report?: TaskReport;
+  attached?: TaskAttachment[];
+}
+
+interface TaskAttachment extends Ref {
+  activity?: number;
 }
 
 export interface TaskData {

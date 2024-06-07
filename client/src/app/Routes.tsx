@@ -64,7 +64,7 @@ const AssessmentSummary = lazy(
     )
 );
 export interface IRoute<T> {
-  path: T;
+  path: T | T[];
   comp: React.ComponentType<any>;
   exact?: boolean;
   routes?: undefined;
@@ -78,6 +78,11 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   },
   {
     path: Paths.applicationsAnalysisDetails,
+    comp: AnalysisDetails,
+    exact: true,
+  },
+  {
+    path: Paths.applicationsAnalysisDetailsAttachment,
     comp: AnalysisDetails,
     exact: false,
   },

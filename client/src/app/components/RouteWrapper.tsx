@@ -7,7 +7,7 @@ import { checkAccess } from "../utils/rbac-utils";
 interface IRouteWrapperProps {
   comp: React.ComponentType<any>;
   roles: string[];
-  path: string;
+  path: string | string[];
   exact?: boolean;
 }
 
@@ -18,7 +18,7 @@ export const RouteWrapper = ({
   exact,
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
-  let userRoles = token?.realm_access?.roles || [],
+  const userRoles = token?.realm_access?.roles || [],
     access = checkAccess(userRoles, roles);
 
   if (!token && isAuthRequired) {
