@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   cancelTask,
@@ -6,6 +6,7 @@ import {
   getServerTasks,
   getTaskById,
   getTasks,
+  updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
 import { HubPaginatedResult, HubRequestParams, Task } from "@app/api/models";
@@ -93,13 +94,32 @@ export const useDeleteTaskMutation = (
 };
 
 export const useCancelTaskMutation = (
-  onSuccess: () => void,
+  onSuccess: (statusCode: number) => void,
   onError: (err: Error | null) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTask,
-    onSuccess: () => {
-      onSuccess && onSuccess();
+    onSuccess: (response) => {
+      queryClient.invalidateQueries([TasksQueryKey]);
+      onSuccess && onSuccess(response.status);
+    },
+    onError: (err: Error) => {
+      onError && onError(err);
+    },
+  });
+};
+
+export const useUpdateTaskMutation = (
+  onSuccess: (statusCode: number) => void,
+  onError: (err: Error | null) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateTask,
+    onSuccess: (response) => {
+      queryClient.invalidateQueries([TasksQueryKey]);
+      onSuccess && onSuccess(response.status);
     },
     onError: (err: Error) => {
       onError && onError(err);

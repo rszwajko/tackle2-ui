@@ -353,6 +353,9 @@ export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
 export const cancelTask = (id: number) =>
   axios.put<Task>(`${TASKS}/${id}/cancel`);
 
+export const updateTask = (task: Partial<Task> & { id: number }) =>
+  axios.patch<Task>(`${TASKS}/${task.id}`, task);
+
 export const createTaskgroup = (obj: Taskgroup) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
