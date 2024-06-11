@@ -29,12 +29,14 @@
     "createTags": "Create tags",
     "cancelAnalysis": "Cancel analysis",
     "delete": "Delete",
+    "disablePreemption": "Disable preemption",
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
     "edit": "Edit",
+    "enablePreemption": "Enable preemption",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
     "import": "Import",
@@ -249,7 +251,8 @@
     "reports": "Reports",
     "migrationWaves": "Migration waves",
     "issues": "Issues",
-    "dependencies": "Dependencies"
+    "dependencies": "Dependencies",
+    "tasks": "Task Manager"
   },
   "terms": {
     "accepted": "Accepted",
@@ -467,7 +470,8 @@
     "YAMLTemplate": "YAML template"
   },
   "titles": {
-    "archetypeDrawer": "Archetype details"
+    "archetypeDrawer": "Archetype details",
+    "taskManager": "Task Manager"
   },
   "toastr": {
     "success": {
