@@ -308,7 +308,7 @@ export type TaskState =
 export interface Task {
   id?: number;
   createTime?: string;
-  application: { id: number };
+  application: Ref;
   name: string;
   addon: string;
   data: TaskData;
