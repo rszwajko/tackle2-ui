@@ -1,14 +1,43 @@
 import { RefObject, useLayoutEffect, useRef, useState } from "react";
 
+const isSentinelInView = (
+  loader: HTMLDivElement | null,
+  scrollContainer: HTMLDivElement | null
+) => {
+  if (!scrollContainer || !loader) {
+    return false;
+  }
+
+  //
+  // If a page fetch doesn't pull enough entities to push the sentinel out of view
+  // underlying IntersectionObserver doesn't fire another event, and the scroller
+  // gets stuck.  Manually check if the sentinel is in view, and if it is, fetch
+  // more data.  The effect is only run when the `vms` part of the redux store is
+  // updated.
+  //
+  const scrollRect = scrollContainer.getBoundingClientRect();
+  const scrollVisibleTop = scrollRect.y;
+  const scrollVisibleBottom = scrollRect.y + scrollRect.height;
+
+  const sentinelRect = loader.getBoundingClientRect();
+  const sentinelTop = sentinelRect.y;
+  const sentinelBottom = sentinelRect.y + sentinelRect.height;
+
+  return (
+    sentinelBottom >= scrollVisibleTop && sentinelTop <= scrollVisibleBottom
+  );
+};
+
 export function useInfiniteScroll({
   hasMore,
   reset = false,
-  distance = 250,
+  distance = 0,
 }: {
   hasMore: boolean;
   reset?: boolean;
   distance?: number;
-}): [number, RefObject<HTMLDivElement>, RefObject<HTMLDivElement>] {
+  hasDataChanged?: boolean;
+}): [number, boolean, RefObject<HTMLDivElement>, RefObject<HTMLDivElement>] {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
@@ -16,6 +45,11 @@ export function useInfiniteScroll({
   if (reset && page !== 0) {
     setPage(0);
   }
+
+  const sentinelStillInView = isSentinelInView(
+    loaderRef.current,
+    scrollContainerRef.current
+  );
 
   useLayoutEffect(() => {
     const loaderNode = loaderRef.current;
@@ -57,5 +91,5 @@ export function useInfiniteScroll({
     return () => observer.disconnect();
   }, [hasMore, distance]);
 
-  return [page, loaderRef, scrollContainerRef];
+  return [page, sentinelStillInView, loaderRef, scrollContainerRef];
 }

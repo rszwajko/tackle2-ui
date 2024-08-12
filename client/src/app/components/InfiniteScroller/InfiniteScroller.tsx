@@ -19,11 +19,13 @@ export const InfiniteScroller = <T,>({
   hasMore,
 }: InfiniteScrollerProps<T>) => {
   const { t } = useTranslation();
+  const hasDataChanged = false;
   // Handle the infinite scroll and pagination
-  const [page, sentinelRef, scrollerRef] = useInfiniteScroll({
-    hasMore,
-    distance: 0,
-  });
+  const [page, sentinelStillInView, sentinelRef, scrollerRef] =
+    useInfiniteScroll({
+      hasMore,
+      hasDataChanged,
+    });
 
   useEffect(() => {
     // parent will not display this component until the first page of data is loaded
@@ -33,31 +35,10 @@ export const InfiniteScroller = <T,>({
   }, [page, fetchMore]);
 
   useEffect(() => {
-    if (!scrollerRef.current || !sentinelRef.current) {
-      return;
-    }
-
-    //
-    // If a page fetch doesn't pull enough entities to push the sentinel out of view
-    // underlying IntersectionObserver doesn't fire another event, and the scroller
-    // gets stuck.  Manually check if the sentinel is in view, and if it is, fetch
-    // more data.  The effect is only run when the `vms` part of the redux store is
-    // updated.
-    //
-    const scrollRect = scrollerRef.current.getBoundingClientRect();
-    const scrollVisibleTop = scrollRect.y;
-    const scrollVisibleBottom = scrollRect.y + scrollRect.height;
-
-    const sentinelRect = sentinelRef.current.getBoundingClientRect();
-    const sentinelTop = sentinelRect.y;
-    const sentinelBottom = sentinelRect.y + sentinelRect.height;
-
-    const sentinelStillInView =
-      sentinelBottom >= scrollVisibleTop && sentinelTop <= scrollVisibleBottom;
     if (sentinelStillInView) {
       fetchMore();
     }
-  }, [entities, scrollerRef, sentinelRef, fetchMore]);
+  }, [entities, sentinelStillInView, fetchMore]);
 
   return (
     <div ref={scrollerRef} className={className}>
