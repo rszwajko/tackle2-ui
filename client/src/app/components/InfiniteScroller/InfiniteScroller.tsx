@@ -1,51 +1,48 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useInfiniteScroll } from "./useInfiniteScroller";
 import "./InfiniteScroller.css";
 
-export interface InfiniteScrollerProps<T> {
+export interface InfiniteScrollerProps {
   children: ReactNode;
-  className: string;
-  fetchMore: () => undefined;
-  entities: T[];
+  className?: string;
+  fetchMore: () => void;
   hasMore: boolean;
 }
 
-export const InfiniteScroller = <T,>({
+export const InfiniteScroller = ({
   children,
   className,
   fetchMore,
-  entities,
   hasMore,
-}: InfiniteScrollerProps<T>) => {
+}: InfiniteScrollerProps) => {
   const { t } = useTranslation();
-  const hasDataChanged = false;
   // Handle the infinite scroll and pagination
   const [page, sentinelStillInView, sentinelRef, scrollerRef] =
     useInfiniteScroll({
       hasMore,
-      hasDataChanged,
     });
+  const pageRef = useRef(0);
 
   useEffect(() => {
-    // parent will not display this component until the first page of data is loaded
-    if (page > 0) {
+    if (pageRef.current < page) {
       fetchMore();
+      pageRef.current = page;
     }
   }, [page, fetchMore]);
 
-  useEffect(() => {
-    if (sentinelStillInView) {
-      fetchMore();
-    }
-  }, [entities, sentinelStillInView, fetchMore]);
+  // useEffect(() => {
+  //   if (sentinelStillInView && hasMore) {
+  //     fetchMore();
+  //   }
+  // }, [hasMore, sentinelStillInView, fetchMore]);
 
   return (
     <div ref={scrollerRef} className={className}>
       {children}
       {hasMore && (
         <div ref={sentinelRef} className={"infinite-scroll-sentinel"}>
-          {t("loadingTripleDot")}
+          {t("message.loadingTripleDot")}
         </div>
       )}
     </div>
