@@ -1,4 +1,4 @@
-import { RefObject, useLayoutEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 
 const isSentinelInView = (
   loader: HTMLDivElement | null,
@@ -36,7 +36,6 @@ export function useInfiniteScroll({
   hasMore: boolean;
   reset?: boolean;
   distance?: number;
-  hasDataChanged?: boolean;
 }): [number, boolean, RefObject<HTMLDivElement>, RefObject<HTMLDivElement>] {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -51,14 +50,14 @@ export function useInfiniteScroll({
     scrollContainerRef.current
   );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const loaderNode = loaderRef.current;
     const scrollContainerNode = scrollContainerRef.current;
     if (!scrollContainerNode || !loaderNode || !hasMore) return;
 
     const options = {
-      root: scrollContainerNode,
-      rootMargin: `0px 0px ${distance}px 0px`,
+      // root: scrollContainerNode,
+      // rootMargin: `0px 0px ${distance}px 0px`,
     };
 
     let previousY: number | undefined = 0;
