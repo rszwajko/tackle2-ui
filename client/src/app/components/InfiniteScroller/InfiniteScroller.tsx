@@ -1,6 +1,6 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useInfiniteScroll } from "./useInfiniteScroller";
+import { useVisibilityTracker } from "./useVisibilityTracker";
 import "./InfiniteScroller.css";
 
 export interface InfiniteScrollerProps {
@@ -8,6 +8,7 @@ export interface InfiniteScrollerProps {
   className?: string;
   fetchMore: () => void;
   hasMore: boolean;
+  isReadyToFetch: boolean;
 }
 
 export const InfiniteScroller = ({
@@ -15,30 +16,22 @@ export const InfiniteScroller = ({
   className,
   fetchMore,
   hasMore,
+  isReadyToFetch,
 }: InfiniteScrollerProps) => {
   const { t } = useTranslation();
-  // Handle the infinite scroll and pagination
-  const [page, sentinelStillInView, sentinelRef, scrollerRef] =
-    useInfiniteScroll({
-      hasMore,
-    });
-  const pageRef = useRef(0);
+  const [visibilityCounter, sentinelRef] = useVisibilityTracker({
+    enable: hasMore && isReadyToFetch,
+  });
 
   useEffect(() => {
-    if (pageRef.current < page) {
+    if (visibilityCounter) {
       fetchMore();
-      pageRef.current = page;
     }
-  }, [page, fetchMore]);
-
-  // useEffect(() => {
-  //   if (sentinelStillInView && hasMore) {
-  //     fetchMore();
-  //   }
-  // }, [hasMore, sentinelStillInView, fetchMore]);
+    console.log("infinite", visibilityCounter);
+  }, [visibilityCounter, fetchMore]);
 
   return (
-    <div ref={scrollerRef} className={className}>
+    <div className={className}>
       {children}
       {hasMore && (
         <div ref={sentinelRef} className={"infinite-scroll-sentinel"}>
