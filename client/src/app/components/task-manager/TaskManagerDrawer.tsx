@@ -68,7 +68,8 @@ interface TaskManagerDrawerProps {
 export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
   (_props, ref) => {
     const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
-    const { tasks, hasNextPage, fetchNextPage } = useTaskManagerData();
+    const { tasks, hasNextPage, fetchNextPage, isReadyToFetch } =
+      useTaskManagerData();
 
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
     const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
@@ -110,7 +111,11 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
             </EmptyState>
           ) : (
             <NotificationDrawerList>
-              <InfiniteScroller fetchMore={fetchNextPage} hasMore={hasNextPage}>
+              <InfiniteScroller
+                fetchMore={fetchNextPage}
+                hasMore={hasNextPage}
+                isReadyToFetch={isReadyToFetch}
+              >
                 {tasks.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -296,5 +301,6 @@ const useTaskManagerData = () => {
     isFetching,
     hasNextPage,
     fetchNextPage: fetchMore,
+    isReadyToFetch: !isFetching && !isFetchingNextPage,
   };
 };
