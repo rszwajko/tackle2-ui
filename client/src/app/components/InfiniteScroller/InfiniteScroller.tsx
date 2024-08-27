@@ -19,19 +19,29 @@ export const InfiniteScroller = ({
   isReadyToFetch,
 }: InfiniteScrollerProps) => {
   const { t } = useTranslation();
-  const [visibilityCounter, sentinelRef] = useVisibilityTracker({
-    enable: hasMore && isReadyToFetch,
+  const {
+    isVisible,
+    loaderRef: sentinelRef,
+    visibleZoneRef,
+    hiddenZoneRef,
+  } = useVisibilityTracker({
+    enable: hasMore,
   });
 
   useEffect(() => {
-    if (visibilityCounter) {
+    if (isVisible && isReadyToFetch) {
       fetchMore();
     }
-    console.log("infinite", visibilityCounter);
-  }, [visibilityCounter, fetchMore]);
+    console.log("infinite", isVisible);
+  }, [isVisible, fetchMore]);
 
   return (
     <div className={className}>
+      <div style={{ position: "relative" }}>
+        <div ref={visibleZoneRef} className={"infinite-scroll-visible-zone"} />
+        <div ref={hiddenZoneRef} className={"infinite-scroll-hidden-zone"} />
+      </div>
+
       {children}
       {hasMore && (
         <div ref={sentinelRef} className={"infinite-scroll-sentinel"}>

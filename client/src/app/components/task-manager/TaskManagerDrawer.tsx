@@ -110,12 +110,12 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
               </EmptyStateFooter>
             </EmptyState>
           ) : (
-            <NotificationDrawerList>
-              <InfiniteScroller
-                fetchMore={fetchNextPage}
-                hasMore={hasNextPage}
-                isReadyToFetch={isReadyToFetch}
-              >
+            <InfiniteScroller
+              fetchMore={fetchNextPage}
+              hasMore={hasNextPage}
+              isReadyToFetch={isReadyToFetch}
+            >
+              <NotificationDrawerList>
                 {tasks.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -134,8 +134,8 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
                     }
                   />
                 ))}
-              </InfiniteScroller>
-            </NotificationDrawerList>
+              </NotificationDrawerList>
+            </InfiniteScroller>
           )}
         </NotificationDrawerBody>
       </NotificationDrawer>

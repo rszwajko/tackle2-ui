@@ -1,42 +1,50 @@
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export function useVisibilityTracker({
-  enable,
-}: {
-  enable: boolean;
-}): [boolean, RefObject<HTMLDivElement>] {
+const intersectionCallback =
+  (stateCallback: () => void) => (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(({ isIntersecting }) => {
+      if (isIntersecting) {
+        stateCallback();
+      }
+    });
+  };
+
+export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const loaderRef = useRef<HTMLDivElement>(null);
-  const [intersectionDetected, setIntersectionDetected] = useState(false);
+  const visibleZoneRef = useRef<HTMLDivElement>(null);
+  const hiddenZoneRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const loaderNode = loaderRef.current;
-    if (!loaderNode || !enable || intersectionDetected) {
-      console.log("infinite - clear", loaderNode, enable, intersectionDetected);
-      setIntersectionDetected(false);
+    if (
+      !enable ||
+      !loaderRef.current ||
+      !visibleZoneRef.current ||
+      !hiddenZoneRef.current
+    ) {
+      console.log("useVisibilityTracker - disabled");
       return undefined;
     }
 
-    const intersectionCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(({ isIntersecting }) => {
-        if (isIntersecting) {
-          setIntersectionDetected(true);
-          // loaderNode && observer.unobserve(loaderNode);
-          console.log("infinite - isVisible");
-        } else {
-          console.log("infinite - no change");
-        }
-      });
-    };
+    const visibleZoneObserver = new IntersectionObserver(
+      intersectionCallback(() => setIsVisible(true)),
+      { root: visibleZoneRef.current, rootMargin: "0px", threshold: 1.0 }
+    );
+    const hiddenZoneObserver = new IntersectionObserver(
+      intersectionCallback(() => setIsVisible(false)),
+      { root: hiddenZoneRef.current, rootMargin: "0px", threshold: 1.0 }
+    );
+    visibleZoneObserver.observe(loaderRef.current);
+    hiddenZoneObserver.observe(loaderRef.current);
 
-    const observer = new IntersectionObserver(intersectionCallback);
-    observer.observe(loaderNode);
-    console.log("infinite - observe");
+    console.log("useVisibilityTracker - observe");
 
     return () => {
-      observer.disconnect();
-      console.log("infinite - disconnect");
+      visibleZoneObserver.disconnect();
+      hiddenZoneObserver.disconnect();
+      console.log("useVisibilityTracker - disconnect");
     };
-  }, [enable, intersectionDetected]);
+  }, [enable]);
 
-  return [intersectionDetected, loaderRef];
+  return { isVisible, loaderRef, visibleZoneRef, hiddenZoneRef };
 }
