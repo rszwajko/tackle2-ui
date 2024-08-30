@@ -5,13 +5,6 @@ import {
   Dropdown,
   DropdownItem,
   DropdownList,
-  EmptyState,
-  EmptyStateActions,
-  EmptyStateBody,
-  EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
   NotificationDrawer,
@@ -22,8 +15,15 @@ import {
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
   Tooltip,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateBody,
+  EmptyStateVariant,
+  EmptyStateFooter,
+  EmptyStateActions,
 } from "@patternfly/react-core";
-import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import { EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
 import { Task, TaskState } from "@app/api/models";
@@ -81,6 +81,7 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
       setExpandedItems([]);
     };
 
+    console.log("tasks", tasks?.length);
     return (
       <NotificationDrawer ref={ref}>
         <NotificationDrawerHeader
@@ -113,7 +114,7 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
             <InfiniteScroller
               fetchMore={fetchNextPage}
               hasMore={hasNextPage}
-              isReadyToFetch={isReadyToFetch}
+              itemCount={tasks?.length ?? 0}
             >
               <NotificationDrawerList>
                 {tasks.map((task) => (
@@ -291,8 +292,14 @@ const useTaskManagerData = () => {
   );
 
   const fetchMore = useCallback(() => {
+    // forced fetch is not allowed when background fetch or other forced fetch is in progress
     if (!isFetching && !isFetchingNextPage) {
       fetchNextPage();
+      console.log("fetchMore - started");
+      return true;
+    } else {
+      console.log("fetchMore - blocked");
+      return false;
     }
   }, [isFetching, isFetchingNextPage, fetchNextPage]);
 

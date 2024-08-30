@@ -1,50 +1,40 @@
 import { useEffect, useRef, useState } from "react";
 
-const intersectionCallback =
-  (stateCallback: () => void) => (entries: IntersectionObserverEntry[]) => {
-    entries.forEach(({ isIntersecting }) => {
-      if (isIntersecting) {
-        stateCallback();
-      }
-    });
-  };
-
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
-  const loaderRef = useRef<HTMLDivElement>(null);
-  const visibleZoneRef = useRef<HTMLDivElement>(null);
-  const hiddenZoneRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const node = nodeRef.current;
 
   useEffect(() => {
-    if (
-      !enable ||
-      !loaderRef.current ||
-      !visibleZoneRef.current ||
-      !hiddenZoneRef.current
-    ) {
+    if (!enable || !node) {
       console.log("useVisibilityTracker - disabled");
       return undefined;
     }
 
-    const visibleZoneObserver = new IntersectionObserver(
-      intersectionCallback(() => setIsVisible(true)),
-      { root: visibleZoneRef.current, rootMargin: "0px", threshold: 1.0 }
+    // observer with default options - the whole view port used
+    // using a parent is hard
+    const observer = new IntersectionObserver(
+      (entries: IntersectionObserverEntry[]) =>
+        entries.forEach(({ isIntersecting, ...rest }) => {
+          if (isIntersecting) {
+            setVisible(true);
+            console.log("useVisibilityTracker - intersection", rest);
+          } else {
+            setVisible(false);
+            console.log("useVisibilityTracker - out-of-box", rest);
+          }
+        })
     );
-    const hiddenZoneObserver = new IntersectionObserver(
-      intersectionCallback(() => setIsVisible(false)),
-      { root: hiddenZoneRef.current, rootMargin: "0px", threshold: 1.0 }
-    );
-    visibleZoneObserver.observe(loaderRef.current);
-    hiddenZoneObserver.observe(loaderRef.current);
+    observer.observe(node);
 
     console.log("useVisibilityTracker - observe");
 
     return () => {
-      visibleZoneObserver.disconnect();
-      hiddenZoneObserver.disconnect();
+      observer.disconnect();
+      setVisible(false);
       console.log("useVisibilityTracker - disconnect");
     };
-  }, [enable]);
+  }, [enable, node]);
 
-  return { isVisible, loaderRef, visibleZoneRef, hiddenZoneRef };
+  return { visible, nodeRef };
 }

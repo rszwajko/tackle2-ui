@@ -1,50 +1,56 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useVisibilityTracker } from "./useVisibilityTracker";
 import "./InfiniteScroller.css";
 
 export interface InfiniteScrollerProps {
   children: ReactNode;
-  className?: string;
-  fetchMore: () => void;
+  fetchMore: () => boolean;
   hasMore: boolean;
-  isReadyToFetch: boolean;
+  itemCount: number;
 }
 
 export const InfiniteScroller = ({
   children,
-  className,
   fetchMore,
   hasMore,
-  isReadyToFetch,
+  itemCount,
 }: InfiniteScrollerProps) => {
   const { t } = useTranslation();
-  const {
-    isVisible,
-    loaderRef: sentinelRef,
-    visibleZoneRef,
-    hiddenZoneRef,
-  } = useVisibilityTracker({
-    enable: hasMore,
-  });
+  // track how many items were known at time of triggering the fetch
+  // parent is expected to display empty state until some items are available
+  // initializing with zero ensures that the effect will be triggered immediately
+  const itemCountRef = useRef(0);
+  const { visible: isSentinelVisible, nodeRef: sentinelRef } =
+    useVisibilityTracker({
+      enable: hasMore,
+    });
 
+  console.log("infinite props ", hasMore, itemCount, itemCountRef.current);
   useEffect(() => {
-    if (isVisible && isReadyToFetch) {
-      fetchMore();
+    console.log(
+      `infinite [visible= >${isSentinelVisible}<] `,
+      itemCount,
+      itemCountRef.current
+    );
+    if (
+      isSentinelVisible &&
+      itemCountRef.current !== itemCount &&
+      fetchMore()
+    ) {
+      itemCountRef.current = itemCount;
+    } else if (isSentinelVisible && itemCountRef.current === itemCount) {
+      // network call may fail which would block fetching
+      // TODO: implement reset based on hit counter  i.e.
+      // if (hitCounter > maxHits) itemCountRef.current = 0
     }
-    console.log("infinite", isVisible);
-  }, [isVisible, fetchMore]);
+  }, [isSentinelVisible, fetchMore, itemCount]);
 
   return (
-    <div className={className}>
-      <div style={{ position: "relative" }}>
-        <div ref={visibleZoneRef} className={"infinite-scroll-visible-zone"} />
-        <div ref={hiddenZoneRef} className={"infinite-scroll-hidden-zone"} />
-      </div>
-
+    <div>
       {children}
       {hasMore && (
-        <div ref={sentinelRef} className={"infinite-scroll-sentinel"}>
+        <div ref={sentinelRef} className="infinite-scroll-sentinel">
           {t("message.loadingTripleDot")}
         </div>
       )}
