@@ -76,6 +76,15 @@ export const useActiveItemState = <
           persistTo,
           key: "activeItem",
         }
+      : persistTo === "custom"
+      ? {
+          persistTo,
+          key: "filters",
+          serialize: (val) =>
+            args.customPersistance?.write(JSON.stringify(val)),
+          deserialize: () =>
+            JSON.parse(args.customPersistance?.read() ?? "{}") ?? {},
+        }
       : { persistTo }),
   });
   return { activeItemId, setActiveItemId };

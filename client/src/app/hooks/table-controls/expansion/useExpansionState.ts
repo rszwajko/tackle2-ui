@@ -93,7 +93,9 @@ export const useExpansionState = <
       ? {
           persistTo,
           keys: ["expandedCells"],
-          serialize: (expandedCellsObj) => {
+          serialize: (
+            expandedCellsObj: Partial<TExpandedCells<TColumnKey>>
+          ) => {
             if (!expandedCellsObj || objectKeys(expandedCellsObj).length === 0)
               return { expandedCells: null };
             return { expandedCells: JSON.stringify(expandedCellsObj) };
@@ -110,6 +112,15 @@ export const useExpansionState = <
       ? {
           persistTo,
           key: "expandedCells",
+        }
+      : persistTo === "custom"
+      ? {
+          persistTo,
+          key: "filters",
+          serialize: (val: TExpandedCells<TColumnKey>) =>
+            args.customPersistance?.write(JSON.stringify(val)),
+          deserialize: () =>
+            JSON.parse(args.customPersistance?.read() ?? "{}") ?? {},
         }
       : { persistTo }),
   });

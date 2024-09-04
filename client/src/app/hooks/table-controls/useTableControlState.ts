@@ -1,7 +1,8 @@
 import {
+  IFeaturePersistenceArgs,
   ITableControlState,
+  ITablePersistenceArgs,
   IUseTableControlStateArgs,
-  PersistTarget,
   TableFeature,
 } from "./types";
 import { useFilterState } from "./filtering";
@@ -10,6 +11,30 @@ import { usePaginationState } from "./pagination";
 import { useActiveItemState } from "./active-item";
 import { useExpansionState } from "./expansion";
 import { useColumnState } from "./column/useColumnState";
+
+const getPersistTo = ({
+  feature,
+  persistTo,
+  customPersistance,
+}: {
+  feature: TableFeature;
+  persistTo: ITablePersistenceArgs["persistTo"];
+  customPersistance: ITablePersistenceArgs["customPersistance"];
+}): {
+  persistTo: IFeaturePersistenceArgs["persistTo"];
+  customPersistance?: IFeaturePersistenceArgs["customPersistance"];
+} => ({
+  persistTo:
+    !persistTo || typeof persistTo === "string"
+      ? persistTo
+      : persistTo[feature] || persistTo.default,
+  customPersistance: customPersistance
+    ? {
+        read: () => customPersistance?.read(feature) ?? "",
+        write: (val: string) => customPersistance?.write(val, feature),
+      }
+    : undefined,
+});
 
 /**
  * Provides the "source of truth" state for all table features.
@@ -41,31 +66,30 @@ export const useTableControlState = <
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > => {
-  const getPersistTo = (feature: TableFeature): PersistTarget | undefined =>
-    !args.persistTo || typeof args.persistTo === "string"
-      ? args.persistTo
-      : args.persistTo[feature] || args.persistTo.default;
-
+  const { customPersistance, persistTo, ...rest } = args;
   const filterState = useFilterState<
     TItem,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
-  >({ ...args, persistTo: getPersistTo("filter") });
+  >({
+    ...rest,
+    ...getPersistTo({ feature: "filter", customPersistance, persistTo }),
+  });
   const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("sort"),
+    ...rest,
+    ...getPersistTo({ feature: "sort", customPersistance, persistTo }),
   });
   const paginationState = usePaginationState<TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("pagination"),
+    ...rest,
+    ...getPersistTo({ customPersistance, persistTo, feature: "pagination" }),
   });
   const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("expansion"),
+    ...rest,
+    ...getPersistTo({ customPersistance, persistTo, feature: "expansion" }),
   });
   const activeItemState = useActiveItemState<TPersistenceKeyPrefix>({
-    ...args,
-    persistTo: getPersistTo("activeItem"),
+    ...rest,
+    ...getPersistTo({ customPersistance, persistTo, feature: "activeItem" }),
   });
 
   const { columnNames, tableName, initialColumns } = args;

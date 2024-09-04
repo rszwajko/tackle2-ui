@@ -96,7 +96,9 @@ export const useSortState = <
       ? {
           persistTo,
           keys: ["sortColumn", "sortDirection"],
-          serialize: (activeSort) => ({
+          serialize: (
+            activeSort: Partial<IActiveSort<TSortableColumnKey> | null>
+          ) => ({
             sortColumn: activeSort?.columnKey || null,
             sortDirection: activeSort?.direction || null,
           }),
@@ -112,6 +114,15 @@ export const useSortState = <
       ? {
           persistTo,
           key: "sort",
+        }
+      : persistTo === "custom"
+      ? {
+          persistTo,
+          key: "sort",
+          serialize: (val: IActiveSort<TSortableColumnKey> | null) =>
+            args.customPersistance?.write(JSON.stringify(val)),
+          deserialize: () =>
+            JSON.parse(args.customPersistance?.read() ?? "{}") ?? {},
         }
       : { persistTo }),
   });

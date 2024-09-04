@@ -70,12 +70,14 @@ export type TableFeature =
  * - "urlParams" (recommended) - URL query parameters. Persists on page reload, browser history buttons (back/forward) or loading a bookmark. Resets on page navigation.
  * - "localStorage" - Browser localStorage API. Persists semi-permanently and is shared across all tabs/windows. Resets only when the user clears their browsing data.
  * - "sessionStorage" - Browser sessionStorage API. Persists on page/history navigation/reload. Resets when the tab/window is closed.
+ * - callback - custom solutions
  */
 export type PersistTarget =
   | "state"
   | "urlParams"
   | "localStorage"
-  | "sessionStorage";
+  | "sessionStorage"
+  | "custom";
 
 /**
  * Common persistence-specific args
@@ -107,6 +109,10 @@ export type IFeaturePersistenceArgs<
    * Where to persist state for this feature.
    */
   persistTo?: PersistTarget;
+  customPersistance?: {
+    write: (params: string) => void;
+    read: () => string;
+  };
 };
 
 export interface ColumnSetting {
@@ -132,6 +138,10 @@ export type ITablePersistenceArgs<
   persistTo?:
     | PersistTarget
     | Partial<Record<TableFeature | "default", PersistTarget>>;
+  customPersistance?: {
+    write: (value: string, key: TableFeature) => void;
+    read: (key: TableFeature) => string;
+  };
 };
 
 /**

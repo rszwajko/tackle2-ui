@@ -166,6 +166,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       mode: "source-code-deps",
       formLabels: [],
       selectedTargets: [],
+      targetFilters: { filter: "{}" },
       selectedSourceLabels: [],
       withKnownLibs: "app",
       includedPackages: [],

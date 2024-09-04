@@ -75,6 +75,12 @@ export const useFilterState = <
       ? args?.initialFilterValues ?? {}
       : {};
   }
+  // console.log(
+  //   "useFilter",
+  //   isInitialLoad,
+  //   initialFilterValues,
+  //   isFilterEnabled && args.initialFilterValues
+  // );
 
   useEffect(() => {
     if (isInitialLoad) {
@@ -104,6 +110,19 @@ export const useFilterState = <
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
       ? { persistTo, key: "filters" }
+      : persistTo === "custom"
+      ? {
+          persistTo,
+          key: "filters",
+          serialize: (val) => {
+            console.log("serialize", val);
+            args.customPersistance?.write(JSON.stringify(val));
+          },
+          deserialize: () => {
+            console.log("dserialize", args.customPersistance?.read());
+            return JSON.parse(args.customPersistance?.read() ?? "{}") ?? {};
+          },
+        }
       : { persistTo }),
   });
   return { filterValues, setFilterValues };

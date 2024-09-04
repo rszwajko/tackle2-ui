@@ -9,6 +9,15 @@ import { DisallowCharacters } from "@app/utils/type-utils";
 
 type PersistToStateOptions = { persistTo?: "state" };
 
+type PersistToCustomHookOptions<TValue> = {
+  persistTo: "custom";
+  key: string;
+  defaultValue: TValue;
+  isEnabled?: boolean;
+  serialize: (params: TValue) => void;
+  deserialize: () => TValue;
+};
+
 type PersistToUrlParamsOptions<
   TValue,
   TPersistenceKeyPrefix extends string,
@@ -33,6 +42,7 @@ export type UsePersistentStateOptions<
   | PersistToStateOptions
   | PersistToUrlParamsOptions<TValue, TPersistenceKeyPrefix, TURLParamKey>
   | PersistToStorageOptions<TValue>
+  | PersistToCustomHookOptions<TValue>
 );
 
 export const usePersistentState = <
@@ -92,7 +102,38 @@ export const usePersistentState = <
         ? { ...options, key: prefixKey(options.key) }
         : { ...options, isEnabled: false, key: "" }
     ),
+    custom: useCustomHook(
+      isCustomHookOptions(options)
+        ? options
+        : {
+            key: "",
+            serialize: () => {},
+            deserialize: () => defaultValue,
+            defaultValue,
+            isEnabled: false,
+            persistTo: "custom",
+          }
+    ),
   };
   const [value, setValue] = persistence[persistTo || "state"];
   return isEnabled ? [value, setValue] : [defaultValue, () => {}];
 };
+
+const useCustomHook = <TValue>({
+  serialize,
+  deserialize,
+  defaultValue,
+}: PersistToCustomHookOptions<TValue>): [TValue, (val: TValue) => void] => {
+  // TODO implement default value
+  return [deserialize(), serialize];
+};
+
+export const isCustomHookOptions = <
+  TValue,
+  TPersistenceKeyPrefix extends string,
+  TURLParamKey extends string,
+>(
+  o: Partial<
+    UsePersistentStateOptions<TValue, TPersistenceKeyPrefix, TURLParamKey>
+  >
+): o is PersistToCustomHookOptions<TValue> => o.persistTo === "custom";

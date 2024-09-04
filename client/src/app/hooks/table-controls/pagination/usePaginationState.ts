@@ -94,7 +94,7 @@ export const usePaginationState = <
       ? {
           persistTo,
           keys: ["pageNumber", "itemsPerPage"],
-          serialize: (state) => {
+          serialize: (state: Partial<IActivePagination>) => {
             const { pageNumber, itemsPerPage } = state || {};
             return {
               pageNumber: pageNumber ? String(pageNumber) : undefined,
@@ -115,6 +115,15 @@ export const usePaginationState = <
       ? {
           persistTo,
           key: "pagination",
+        }
+      : persistTo === "custom"
+      ? {
+          persistTo,
+          key: "filters",
+          serialize: (val: IActivePagination) =>
+            args.customPersistance?.write(JSON.stringify(val)),
+          deserialize: () =>
+            JSON.parse(args.customPersistance?.read() ?? "{}") ?? {},
         }
       : { persistTo }),
   });

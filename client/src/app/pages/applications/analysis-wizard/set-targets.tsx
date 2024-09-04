@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Title,
   TextContent,
@@ -173,17 +173,46 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     setValue("formLabels", updatedFormLabels);
   };
 
+  const storedFilters = getValues().targetFilters["filter"];
+  console.log("init with", storedFilters, initialFilters);
+
+  useEffect(() => {
+    if (!storedFilters) {
+      setValue("targetFilters", {
+        ...getValues().targetFilters,
+        ["filter"]: JSON.stringify({ name: initialFilters }),
+      });
+    }
+  }, [storedFilters, initialFilters, setValue, getValues]);
+
   const tableControls = useLocalTableControls({
     tableName: "target-cards",
     items: targets,
     idProperty: "name",
-    initialFilterValues: { name: initialFilters },
+    // initialFilterValues: {
+    //   name:
+    //     JSON.parse(getValues().targetFilters["filter"])?.name ?? initialFilters,
+    // },
     columnNames: {
       name: "name",
     },
     isFilterEnabled: true,
     isPaginationEnabled: false,
     isLoading,
+    persistTo: { filter: "custom" },
+    customPersistance: {
+      write(value, key) {
+        console.log("write", value, key);
+        setValue("targetFilters", {
+          ...getValues().targetFilters,
+          [key]: value,
+        });
+      },
+      read(key) {
+        console.log("read", key, getValues().targetFilters?.[key]);
+        return getValues().targetFilters?.[key];
+      },
+    },
     filterCategories: [
       {
         selectOptions: languageProviders?.map((language) => ({
