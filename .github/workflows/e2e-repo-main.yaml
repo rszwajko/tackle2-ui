@@ -25,7 +25,7 @@ jobs:
     outputs:
       ui_image: ${{ steps.build-ui-image.outputs.ui_image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build UI image
         id: build-ui-image
@@ -46,3 +46,4 @@ jobs:
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
+    secrets: inherit

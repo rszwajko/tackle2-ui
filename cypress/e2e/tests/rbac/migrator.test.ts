@@ -15,48 +15,26 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import * as data from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../utils/data_utils";
 import {
-  getRandomCredentialsData,
-  getRandomUserData,
-} from "../../../utils/data_utils";
-import {
-  deleteByList,
+  deleteApplicationTableRows,
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
-import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
-import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { CredentialType, legacyPathfinder } from "../../types/constants";
-
-const stakeholdersList: Array<Stakeholders> = [];
-const stakeholdersNameList: Array<string> = [];
 
 describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   const userMigrator = new UserMigrator(getRandomUserData());
   const application = new Application(getRandomApplicationData());
 
-  const appCredentials = new CredentialsSourceControlUsername(
-    getRandomCredentialsData(CredentialType.sourceControl)
-  );
-
   before("Creating RBAC users, adding roles for them", () => {
-    cy.clearLocalStorage();
     login();
     cy.visit("/");
-    AssessmentQuestionnaire.enable(legacyPathfinder);
-    const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
-    stakeholder.create();
 
-    stakeholdersList.push(stakeholder);
-    stakeholdersNameList.push(stakeholder.name);
-
-    appCredentials.create();
     application.create();
     application.perform_review("low");
     User.loginKeycloakAdmin();
@@ -74,7 +52,7 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     Application.validateCreateAppButton(this.rbacRules);
   });
 
-  it("Bug MTA-6273: Migrator, validate top action menu", function () {
+  it("Migrator, validate top action menu", function () {
     Analysis.validateTopActionMenu(this.rbacRules);
   });
 
@@ -90,12 +68,14 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     application.validateUploadBinary(this.rbacRules);
   });
 
+  it("Migrator, validate Analysis Profiles create button", function () {
+    AnalysisProfile.validateCreateButton(this.rbacRules);
+  });
+
   after("", () => {
     login();
     cy.visit("/");
-    appCredentials.delete();
-    deleteByList(stakeholdersList);
-    application.delete();
+    deleteApplicationTableRows();
     User.loginKeycloakAdmin();
     userMigrator.delete();
   });

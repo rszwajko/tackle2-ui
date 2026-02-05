@@ -26,6 +26,11 @@ export const fileName = "div[class='fileName']";
 export const reportStoryPoints =
   "div[class='effortPoints total'] > span[class='points']";
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
+export const enableEnhancedAnalysisDetails =
+  "#enable-advanced-analysis-details-checkbox";
+export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
+export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";
 export const tabsPanel = "ul > li > a";
 export const expandAll = "#expandAll";
@@ -50,6 +55,7 @@ export const languageSelectionDropdown = "#filter-control-provider-Languages";
 export const numberOfRulesColumn = "td[data-label='Number of rules']";
 export const logFilter = "span.pf-v5-c-menu-toggle__toggle-icon";
 export const logDropDown = "span.pf-v5-c-menu__item-text";
+export const analysisProfileMode = "#wizard-mode-profile";
 
 export enum AnalysisLogView {
   mergedLogView = "Merged log view",

@@ -15,27 +15,49 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import {
-  getRandomCredentialsData,
-  getRandomUserData,
-} from "../../../utils/data_utils";
+import { getRandomNumber, getRandomUserData } from "../../../utils/data_utils";
 import {
   createMultipleStakeholders,
+  createMultipleTags,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
   deleteByList,
+  exists,
+  getRandomAnalysisData,
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserArchitect } from "../../models/keycloak/users/userArchitect";
+import { UserMigrator } from "../../models/keycloak/users/userMigrator";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { Archetype } from "../../models/migration/archetypes/archetype";
+import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { CredentialType, legacyPathfinder } from "../../types/constants";
+import { Tag } from "../../models/migration/controls/tags";
+import { Issues } from "../../models/migration/dynamic-report/issues/issues";
+import {
+  AnalysisStatuses,
+  MIN,
+  button,
+  legacyPathfinder,
+} from "../../types/constants";
+import {
+  analysisProfileMode,
+  analysisProfileSelect,
+} from "../../views/analysis.view";
+import { actionMenuItem } from "../../views/common.view";
 
+let tags: Tag[] = [];
 let stakeholders: Array<Stakeholders> = [];
+let adminAnalysisProfile: AnalysisProfile;
+let architectAnalysisProfile: AnalysisProfile;
+let archetype: Archetype;
+let targetProfile: TargetProfile;
+let appWithArchetype: Analysis;
 
 describe(
   ["@tier3", "@rhsso", "@rhbk"],
@@ -43,25 +65,43 @@ describe(
   function () {
     // https://issues.redhat.com/browse/MTA-5631
     const userArchitect = new UserArchitect(getRandomUserData());
+    const userMigrator = new UserMigrator(getRandomUserData());
     const application = new Application(getRandomApplicationData());
-
-    const appCredentials = new CredentialsSourceControlUsername(
-      getRandomCredentialsData(CredentialType.sourceControl)
-    );
+    let profileData: any;
+    let sourceData: any;
 
     before("Creating RBAC users, adding roles for them", function () {
-      cy.clearLocalStorage();
       login();
       cy.visit("/");
+      // Entities created by admin for testing.
       AssessmentQuestionnaire.enable(legacyPathfinder);
       stakeholders = createMultipleStakeholders(1);
 
-      appCredentials.create();
+      tags = createMultipleTags(1);
+
+      cy.fixture("application").then(function (appData) {
+        sourceData = appData["bookserver-app"];
+      });
+
+      cy.fixture("analysis").then(function (analysisData) {
+        profileData = getRandomAnalysisData(
+          analysisData["bookServerApp_analysis_profile"]
+        );
+
+        adminAnalysisProfile = new AnalysisProfile(
+          `admin_profile_unlinked_${getRandomNumber()}`,
+          profileData,
+          "Admin analysis profile not linked to archetype"
+        );
+        adminAnalysisProfile.create();
+      });
+
       application.create();
       application.perform_review("low");
       application.perform_assessment("low", stakeholders);
       User.loginKeycloakAdmin();
       userArchitect.create();
+      userMigrator.create();
     });
 
     beforeEach("Persist session", function () {
@@ -95,14 +135,175 @@ describe(
       AnalysisProfile.validateCreateButton(this.rbacRules);
     });
 
+    it("Architect, Analysis Profile CRUD operations", function () {
+      const crudProfileName = `architect_profile_crud_${getRandomNumber()}`;
+      const crudProfile = new AnalysisProfile(
+        crudProfileName,
+        profileData,
+        "Architect analysis profile for CRUD testing"
+      );
+      crudProfile.create();
+      cy.contains(crudProfileName).should("exist");
+
+      // Edit the analysis profile
+      const updatedDescription = "Updated description for CRUD testing";
+      const updatedData: Partial<AnalysisProfile> = {
+        description: updatedDescription,
+      };
+      crudProfile.edit(updatedData);
+      cy.contains(crudProfileName).should("exist");
+
+      // Verify the updated description
+      crudProfile.description = updatedDescription;
+      crudProfile.validateAnalysisProfileInformation();
+
+      crudProfile.delete();
+    });
+
+    it("Architect, Perform analysis in manual mode and save as profile", function () {
+      // Architect creates application for analysis
+      const appForSaveProfile = new Analysis(
+        getRandomApplicationData(
+          "app_for_save_profile",
+          { sourceData: sourceData },
+          [tags[0].name]
+        ),
+        {
+          ...profileData,
+          saveAsProfile: true,
+        }
+      );
+      appForSaveProfile.create();
+
+      // Architect performs analysis in manual mode and saves as profile
+      appForSaveProfile.analyze();
+
+      // Verify the profile was created with name format: profile_<application_name>
+      const expectedProfileName = `profile_${appForSaveProfile.name}`;
+      AnalysisProfile.open();
+      cy.contains(expectedProfileName).should("exist");
+
+      const createdProfile = new AnalysisProfile(
+        expectedProfileName,
+        profileData
+      );
+      createdProfile.delete();
+    });
+
+    it("Architect, Perform analysis using analysis profile", function () {
+      // Architect creates archetype
+      archetype = new Archetype(
+        `architect_archetype_${getRandomNumber()}`,
+        [tags[0].name], // Criteria tags
+        [tags[0].name] // Archetype tags
+      );
+      archetype.create();
+
+      architectAnalysisProfile = new AnalysisProfile(
+        `architect_profile_linked_${getRandomNumber()}`,
+        profileData,
+        "Architect analysis profile linked to archetype"
+      );
+      architectAnalysisProfile.create();
+
+      targetProfile = new TargetProfile(
+        `architect_target_profile_${getRandomNumber()}`,
+        undefined,
+        architectAnalysisProfile.name
+      );
+      targetProfile.create(archetype.name);
+
+      appWithArchetype = new Analysis(
+        getRandomApplicationData(
+          "bookServer_Profile_Analysis",
+          { sourceData: sourceData },
+          [tags[0].name]
+        ),
+        { ...profileData, profileName: architectAnalysisProfile.name }
+      );
+      appWithArchetype.create();
+
+      // Verify both system analysis profiles and analysis profiles linked to app's
+      // archetype target profile are available for architect.
+      appWithArchetype.selectApplication();
+      cy.contains(button, "Analyze").should("be.enabled").click();
+
+      cy.get(analysisProfileMode).check().should("be.checked");
+      cy.get(analysisProfileSelect).click();
+
+      // Verify analysis profile (admin created) is visible
+      cy.get(actionMenuItem).should("contain", adminAnalysisProfile.name);
+      cy.get(analysisProfileSelect).click();
+      cy.contains(button, "Cancel").click();
+      appWithArchetype.selectApplication();
+
+      // Verify analysis profile (architect created, linked to archetype) is visible;
+      // Perform analysis using this profile.
+      appWithArchetype.analyze();
+      appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
+      appWithArchetype.verifyAnalysisStatus(
+        AnalysisStatuses.completed,
+        30 * MIN
+      );
+      Issues.openSingleApplication(appWithArchetype.name);
+      exists("CUSTOM RULE FOR DEPENDENCIES");
+    });
+
+    it("Migrator, Perform analysis using architect-created profile", function () {
+      userMigrator.login();
+
+      // Verify analysis profile (not linked to archetype) is NOT visible
+      appWithArchetype.selectApplication();
+      cy.contains(button, "Analyze").click();
+      cy.get(analysisProfileMode).check().should("be.checked");
+      cy.get(analysisProfileSelect).click();
+      cy.get(actionMenuItem).should("not.contain", adminAnalysisProfile.name);
+      cy.contains(button, "Cancel").click();
+      appWithArchetype.selectApplication();
+
+      // Verify analysis profile (linked to archetype) is visible
+      const migratorAnalysis = new Analysis(
+        {
+          name: appWithArchetype.name,
+          tags: appWithArchetype.tags,
+        },
+        { ...profileData, profileName: architectAnalysisProfile.name }
+      );
+      migratorAnalysis.analyze();
+      migratorAnalysis.waitStatusChange(AnalysisStatuses.scheduled);
+      migratorAnalysis.verifyAnalysisStatus(
+        AnalysisStatuses.completed,
+        30 * MIN
+      );
+      Issues.openSingleApplication(migratorAnalysis.name);
+      exists("CUSTOM RULE FOR DEPENDENCIES");
+    });
+
     after("Clean up", function () {
       login();
       cy.visit("/");
-      appCredentials.delete();
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+
+      if (archetype) {
+        if (targetProfile) {
+          targetProfile.open(archetype.name);
+          targetProfile.delete();
+        }
+        archetype.delete();
+      }
+
+      if (architectAnalysisProfile) {
+        architectAnalysisProfile.delete();
+      }
+      if (adminAnalysisProfile) {
+        adminAnalysisProfile.delete();
+      }
       deleteByList(stakeholders);
-      application.delete();
+      deleteByList(tags);
       User.loginKeycloakAdmin();
       userArchitect.delete();
+      userMigrator.delete();
     });
   }
 );
