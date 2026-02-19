@@ -1,5 +1,7 @@
 import { XMLValidator } from "fast-xml-parser";
 
+import { validateXML } from "./xmlinit";
+
 // Import schemas
 import schema0 from "./schema-1.0.0.xsd";
 import schema1 from "./schema-1.1.0.xsd";
@@ -56,18 +58,18 @@ export async function validateSettingsXml(contents?: string) {
   }
 
   // Dynamically import here so bundlers can keep the big wasm module in another chunk
-  const { validateXML } = await import("xmllint-wasm");
+  // const { validateXML } = await import("xmllint-wasm");
 
   // validate the xml vs the xsd
   const validationResult = await validateXML({
     xml: contents,
     schema: testXsd,
   });
-  if (validationResult.valid) {
+  if ((validationResult as any).valid) {
     return true;
   } else {
     throw new Error(
-      validationResult.errors.map((e) => e.rawMessage).join(", ")
+      (validationResult as any).errors.map((e: any) => e.rawMessage).join(", ")
     );
   }
 }
