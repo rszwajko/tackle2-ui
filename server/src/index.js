@@ -36,6 +36,12 @@ app.use(createProxyMiddleware(proxies.kaiLLMProxy));
 // In development, proxy to the dev server, otherwise serve the client/dist content
 if (developmentMode) {
   console.log("** development mode - proxying to webpack-dev-server **");
+  app.use(
+    express.static(path.join(__dirname, "../../client/dist"), {
+      immutable: true,
+      maxAge: "1y",
+    })
+  );
   app.use(createProxyMiddleware(proxies.devServer));
 } else {
   app.engine("ejs", ejs.renderFile);
