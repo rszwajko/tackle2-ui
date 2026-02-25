@@ -26,8 +26,11 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
-import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
+import {
+  CubesIcon,
+  EllipsisVIcon,
+  PencilAltIcon,
+} from "@patternfly/react-icons";
 import {
   ActionsColumn,
   ExpandableRowContent,

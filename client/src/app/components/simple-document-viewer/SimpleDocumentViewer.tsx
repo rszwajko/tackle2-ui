@@ -156,19 +156,18 @@ export const SimpleDocumentViewer = ({
 
   // move focus on first code change AFTER a new document was selected
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
-  useEffect(() => {
-    if (code && !focusMovedOnSelectedDocumentChange.current) {
-      focusAndHomePosition();
-      focusMovedOnSelectedDocumentChange.current = true;
-    }
-  }, [code]);
-
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
       editorRef.current.setPosition({ column: 0, lineNumber: 1 });
     }
   };
+  useEffect(() => {
+    if (code && !focusMovedOnSelectedDocumentChange.current) {
+      focusAndHomePosition();
+      focusMovedOnSelectedDocumentChange.current = true;
+    }
+  }, [code]);
 
   const onSelect = (docId: string | number) => {
     const doc = configuredDocuments.find(({ id }) => id === docId);

@@ -14,6 +14,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { Proxy } from "@app/api/models";
 import { useFetchProxies } from "@app/queries/proxies";
 
 import { ProxyForm } from "./proxy-form";
@@ -24,9 +25,11 @@ export const Proxies: React.FC = () => {
 
   const { proxies, isFetching } = useFetchProxies();
 
-  const existingHttpProxy = proxies.find((proxy: any) => proxy.kind === "http");
+  const existingHttpProxy = proxies.find(
+    (proxy: Proxy) => proxy.kind === "http"
+  );
   const existingHttpsProxy = proxies.find(
-    (proxy: any) => proxy.kind === "https"
+    (proxy: Proxy) => proxy.kind === "https"
   );
 
   return (

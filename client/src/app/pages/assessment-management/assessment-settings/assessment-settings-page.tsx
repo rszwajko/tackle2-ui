@@ -330,9 +330,11 @@ const AssessmentSettings: React.FC = () => {
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
                                   onClick={() => {
-                                    isKebabOpen
-                                      ? setIsKebabOpen(null)
-                                      : setIsKebabOpen(questionnaire.id);
+                                    if (isKebabOpen) {
+                                      setIsKebabOpen(null);
+                                    } else {
+                                      setIsKebabOpen(questionnaire.id);
+                                    }
                                   }}
                                   isExpanded={isKebabOpen === rowIndex}
                                 >
@@ -412,8 +414,9 @@ const AssessmentSettings: React.FC = () => {
         nameToDelete={questionnaireToDelete?.name}
         onClose={() => setQuestionnaireToDelete(undefined)}
         onConfirmDelete={() => {
-          questionnaireToDelete &&
+          if (questionnaireToDelete) {
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
+          }
           setQuestionnaireToDelete(undefined);
         }}
         titleWhat={t("terms.questionnaire").toLowerCase()}

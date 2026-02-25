@@ -9,10 +9,10 @@ import {
 } from "@patternfly/react-core";
 
 export interface SimpleEmptyStateProps {
-  icon?: any;
+  icon?: React.ComponentType;
   title: string;
   description?: string;
-  primaryAction?: any;
+  primaryAction?: React.ReactNode;
 }
 
 export const SimpleEmptyState: React.FC<SimpleEmptyStateProps> = ({

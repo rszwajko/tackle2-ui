@@ -33,7 +33,7 @@ import { formatPath } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 import { ApplicationFacts } from "./application-facts";
-import DownloadButton from "./components/download-button";
+import { DownloadButton } from "./components/download-button";
 
 export const TabReportsContent: React.FC<{
   application: DecoratedApplication;

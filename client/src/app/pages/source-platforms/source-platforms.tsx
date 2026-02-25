@@ -177,18 +177,6 @@ export const SourcePlatforms: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const CreateButton = () => (
-    <Button
-      type="button"
-      id="create-new-source-platform"
-      aria-label="Create new platform"
-      variant={ButtonVariant.primary}
-      onClick={() => setOpenCreatePlatform(true)}
-    >
-      {t("dialog.title.newPlatform")}
-    </Button>
-  );
-
   const clearFilters = () => {
     const currentPath = history.location.pathname;
     const newSearch = new URLSearchParams(history.location.search);
@@ -225,7 +213,15 @@ export const SourcePlatforms: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    <CreateButton />
+                    <Button
+                      type="button"
+                      id="create-platform"
+                      aria-label="Create platform"
+                      variant={ButtonVariant.primary}
+                      onClick={() => setOpenCreatePlatform(true)}
+                    >
+                      {t("actions.createPlatform")}
+                    </Button>
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>

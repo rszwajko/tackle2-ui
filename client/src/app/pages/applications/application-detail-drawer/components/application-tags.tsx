@@ -208,7 +208,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           tagsInThisSource?.forEach((tag) => {
             const category =
               tag?.category?.id && tagCategoriesById.get(tag?.category?.id);
-            category && tagCategoriesInThisSource.add(category);
+            if (category) tagCategoriesInThisSource.add(category);
           });
           return (
             <React.Fragment key={source}>

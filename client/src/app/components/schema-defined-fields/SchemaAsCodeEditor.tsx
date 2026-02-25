@@ -52,19 +52,18 @@ export const SchemaAsCodeEditor = ({
   // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
-  useEffect(() => {
-    if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
-      focusAndHomePosition();
-      focusMovedOnSelectedDocumentChange.current = true;
-    }
-  }, [currentCode]);
-
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
       editorRef.current.setPosition({ column: 1, lineNumber: 1 });
     }
   };
+  useEffect(() => {
+    if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
+      focusAndHomePosition();
+      focusMovedOnSelectedDocumentChange.current = true;
+    }
+  }, [currentCode]);
 
   const validator = useMemo(() => {
     return !jsonSchema ? undefined : jsonSchemaToYupSchema(jsonSchema);
@@ -78,7 +77,7 @@ export const SchemaAsCodeEditor = ({
         if (!validator || validator.isValidSync(asJson)) {
           onDocumentChanged(asJson);
         }
-      } catch (error) {
+      } catch {
         // ignore invalid JSON, the change will be ignored
       }
     }

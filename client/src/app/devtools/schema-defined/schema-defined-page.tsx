@@ -99,7 +99,7 @@ export const SchemaDefinedPage: React.FC = () => {
       try {
         asObject(schemaCode);
         return "y";
-      } catch (error) {
+      } catch {
         return "n";
       }
     }

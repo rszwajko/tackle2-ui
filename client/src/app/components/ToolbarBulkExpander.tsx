@@ -13,7 +13,7 @@ export const ToolbarBulkExpander = ({
   isExpandable,
 }: ITToolbarBulkExpanderProps): JSX.Element | null => {
   const toggleCollapseAll = (collapse: boolean) => {
-    onExpandAll && onExpandAll(!collapse);
+    onExpandAll?.(!collapse);
   };
 
   return !isExpandable ? null : (
@@ -22,7 +22,7 @@ export const ToolbarBulkExpander = ({
         variant="control"
         title={`${!areAllExpanded ? "Expand" : "Collapse"} all`}
         onClick={() => {
-          areAllExpanded !== undefined && toggleCollapseAll(areAllExpanded);
+          if (areAllExpanded !== undefined) toggleCollapseAll(areAllExpanded);
         }}
       >
         {areAllExpanded ? <AngleDownIcon /> : <AngleRightIcon />}

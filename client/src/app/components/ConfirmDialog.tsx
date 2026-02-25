@@ -16,7 +16,7 @@ export interface ConfirmDialogProps {
     | "danger"
     | "warning"
     | "info"
-    | React.ComponentType<any>;
+    | React.ComponentType<Record<string, unknown>>;
   message: string | React.ReactNode;
 
   confirmBtnLabel: string;

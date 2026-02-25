@@ -18,7 +18,7 @@ import {
 import { BarsIcon, HelpIcon } from "@patternfly/react-icons";
 
 import { TaskNotificationBadge } from "@app/components/task-manager/TaskNotificaitonBadge";
-import useBranding from "@app/hooks/useBranding";
+import { useBranding } from "@app/hooks/useBranding";
 
 import { AppAboutModalState } from "../AppAboutModalState";
 

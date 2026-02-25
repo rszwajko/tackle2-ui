@@ -288,14 +288,16 @@ export const JiraTrackers: React.FC = () => {
                           <AppTableActionButtons
                             onEdit={() => setTrackerModalState(tracker)}
                             onDelete={() => {
-                              includesTracker(tracker.id)
-                                ? pushNotification({
-                                    title: t(
-                                      "This instance contains issues associated with applications and cannot be deleted"
-                                    ),
-                                    variant: "danger",
-                                  })
-                                : setTrackerToDelete(tracker);
+                              if (includesTracker(tracker.id)) {
+                                pushNotification({
+                                  title: t(
+                                    "This instance contains issues associated with applications and cannot be deleted"
+                                  ),
+                                  variant: "danger",
+                                });
+                              } else {
+                                setTrackerToDelete(tracker);
+                              }
                             }}
                           />
                         </Td>

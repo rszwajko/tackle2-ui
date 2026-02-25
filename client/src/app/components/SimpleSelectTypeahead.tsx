@@ -85,7 +85,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     setSelectOptions(newSelectOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
-  }, [filterValue, options]);
+  }, [filterValue, options, isOpen, noResultsFoundText]);
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -203,9 +203,11 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
           onBlur={() => {
-            selectMultiple
-              ? setInputValue("")
-              : setInputValue(selected.toString());
+            if (selectMultiple) {
+              setInputValue("");
+            } else {
+              setInputValue(selected.toString());
+            }
           }}
           id="typeahead-select-input"
           autoComplete="off"
