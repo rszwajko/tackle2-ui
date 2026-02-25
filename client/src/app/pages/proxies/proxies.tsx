@@ -4,13 +4,13 @@ import {
   Card,
   CardBody,
   EmptyState,
+  EmptyStateHeader,
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Spinner,
   Text,
   TextContent,
-  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -42,10 +42,11 @@ export const Proxies: React.FC = () => {
           <CardBody>
             {isFetching ? (
               <EmptyState className={spacing.mtXl}>
-                <EmptyStateIcon icon={Spinner} />
-                <Title size="lg" headingLevel="h4">
-                  Loading
-                </Title>
+                <EmptyStateHeader
+                  titleText={t("message.loadingTripleDots")}
+                  icon={<EmptyStateIcon icon={Spinner} />}
+                  headingLevel="h4"
+                />
               </EmptyState>
             ) : (
               <ProxyForm

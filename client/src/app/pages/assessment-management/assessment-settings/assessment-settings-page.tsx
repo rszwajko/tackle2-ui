@@ -10,6 +10,7 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   List,
   MenuToggle,
@@ -21,7 +22,6 @@ import {
   Switch,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -241,12 +241,13 @@ const AssessmentSettings: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      No questionnaire available
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={t("message.noQuestionnairesAvailable")}
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
-                      Use the import button above to add your questionnaire.
+                      {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
@@ -320,7 +321,7 @@ const AssessmentSettings: React.FC = () => {
                             <Dropdown
                               isOpen={isKebabOpen === questionnaire.id}
                               onSelect={() => setIsKebabOpen(null)}
-                              onOpenChange={(_isOpen) => setIsKebabOpen(null)}
+                              onOpenChange={() => setIsKebabOpen(null)}
                               toggle={(
                                 toggleRef: React.Ref<MenuToggleElement>
                               ) => (

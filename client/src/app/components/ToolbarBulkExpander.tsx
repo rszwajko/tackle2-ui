@@ -1,6 +1,5 @@
 import { Button, ToolbarItem } from "@patternfly/react-core";
-import AngleDownIcon from "@patternfly/react-icons/dist/esm/icons/angle-down-icon";
-import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
+import { AngleDownIcon, AngleRightIcon } from "@patternfly/react-icons";
 
 export interface ITToolbarBulkExpanderProps {
   areAllExpanded?: boolean;

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
   Spinner,
-  Title,
 } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
@@ -101,6 +102,7 @@ export const SimpleDocumentViewer = ({
   height = "450px",
   onDocumentChange,
 }: ISimpleDocumentViewerProps) => {
+  const { t } = useTranslation();
   const configuredDocuments: Document[] = useMemo(
     () => [
       {
@@ -203,10 +205,13 @@ export const SimpleDocumentViewer = ({
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
           >
-            <EmptyStateIcon icon={Spinner} />
-            <Title size="lg" headingLevel="h4">
-              Loading {currentLanguage}
-            </Title>
+            <EmptyStateHeader
+              titleText={t("message.loadingCurrentLanguage", {
+                currentLanguage,
+              })}
+              icon={<EmptyStateIcon icon={Spinner} />}
+              headingLevel="h4"
+            />
           </EmptyState>
         </div>
       }

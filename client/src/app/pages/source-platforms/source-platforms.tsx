@@ -261,7 +261,7 @@ export const SourcePlatforms: React.FC = () => {
                 noDataEmptyState={
                   <EmptyState variant="sm">
                     <EmptyStateHeader
-                      titleText="No platforms have been created"
+                      titleText={t("message.noPlatformsCreatedTitle")}
                       headingLevel="h2"
                       icon={<EmptyStateIcon icon={CubesIcon} />}
                     />
