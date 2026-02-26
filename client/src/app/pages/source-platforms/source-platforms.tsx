@@ -215,12 +215,12 @@ export const SourcePlatforms: React.FC = () => {
                   <ToolbarItem>
                     <Button
                       type="button"
-                      id="create-platform"
-                      aria-label="Create platform"
+                      id="create-new-source-platform"
+                      aria-label="Create new platform"
                       variant={ButtonVariant.primary}
                       onClick={() => setOpenCreatePlatform(true)}
                     >
-                      {t("actions.createPlatform")}
+                      {t("dialog.title.newPlatform")}
                     </Button>
                   </ToolbarItem>
                 </ToolbarGroup>
