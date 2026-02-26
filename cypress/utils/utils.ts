@@ -100,6 +100,7 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
+  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -126,7 +127,6 @@ import {
 } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
-import { MigrationWaveView } from "../e2e/views/migration-wave.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { stakeHoldersTable } from "../e2e/views/stakeholders.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
@@ -689,7 +689,7 @@ export function verifySortDesc(
   unsortedList: unknown[]
 ): void {
   cy.wrap(listToVerify).then((capturedList) => {
-    const reverseSortedList = unsortedList.sort((a, b) =>
+    const reverseSortedList = unsortedList.slice().sort((a, b) =>
       b.toString().localeCompare(a.toString(), "en-us", {
         numeric: !unsortedList.some(isNaN),
       })
@@ -1536,10 +1536,7 @@ export function deleteAllProfiles() {
 }
 
 export function deleteApplicationTableRows(): void {
-  navigate_to_application_inventory();
-  cy.intercept("GET", "/hub/application*").as("getApplication");
-  cy.wait("@getApplication", { timeout: 10 * SEC });
-  selectItemsPerPage(100);
+  Application.open();
   deleteAllItems();
 }
 
@@ -1599,9 +1596,7 @@ export function deleteAllMigrationWaves() {
     if (!empty) {
       cy.get("tbody tr").then(($rows) => {
         for (let i = 0; i < $rows.length; i++) {
-          cy.get(MigrationWaveView.actionsButton, { timeout: 10000 })
-            .first()
-            .click();
+          cy.get(kebabToggleButton, { timeout: 10000 }).first().click();
           cy.contains("Delete").click();
           cy.get(confirmButton).click();
           cy.wait(5000);
@@ -2244,6 +2239,59 @@ export function seedAnalysisData(applicationId: number): void {
   });
 }
 
+export function seedIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Issues seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedIssuesData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "issues.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "issues.sh should output 'Issues seeding completed successfully!'"
+    ).to.include("Issues seeding completed successfully!");
+  });
+}
+
+export function cleanupIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues-cleanup.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupIssuesData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
 export function getApplicationID(url: string): number | null {
   const urlObj = new URL(url);
   const activeItem = urlObj.searchParams.get("activeItem");
@@ -2267,22 +2315,29 @@ export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
 export function validateTackleCr(): void {
   const namespace = getNamespace();
   const kubeCLI = getKubernetesCLI();
-  let tackleCr: any;
-  let command = `tackleCR=$(${kubeCLI} get tackle -n${namespace}|grep -vi name|cut -d ' ' -f 1);`;
-  command += `${kubeCLI} get tackle $tackleCr -n${namespace} -o json`;
+  const command = `${kubeCLI} get tackle -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
+    let tackleCr: any;
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
       throw new Error("Failed to parse Tackle CR");
     }
-    const condition = tackleCr["items"][0]["status"]["conditions"][1];
-    const failures = condition["ansibleResult"]["failures"];
-    const type = condition["type"];
-    cy.log(`Failures: ${failures}`);
-    cy.log(`Condition type: ${type}`);
-    expect(failures).be.equal(0);
-    expect(type).be.equal("Running");
+    const conditions = tackleCr.items?.[0]?.status?.conditions;
+    expect(conditions, "Tackle CR conditions missing").to.be.an("array");
+
+    // Find the condition that has ansibleResult
+    const runningCondition = conditions.find(
+      (c: any) => c.type === "Running" && c.ansibleResult
+    );
+    expect(runningCondition, "ansibleResult condition missing").to.exist;
+    expect(
+      runningCondition!.status,
+      "Running condition status is not True"
+    ).to.equal("True");
+
+    const failures = runningCondition!.ansibleResult!.failures;
+    expect(failures, `Ansible failures detected: ${failures}`).to.eq(0);
   });
 }
 
