@@ -46,7 +46,7 @@ export const Proxies: React.FC = () => {
             {isFetching ? (
               <EmptyState className={spacing.mtXl}>
                 <EmptyStateHeader
-                  titleText={t("message.loadingTripleDots")}
+                  titleText={t("message.loadingTripleDot")}
                   icon={<EmptyStateIcon icon={Spinner} />}
                   headingLevel="h4"
                 />

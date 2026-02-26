@@ -280,7 +280,7 @@ export const SingleApplicationInsightsTable: React.FC<
                 headingLevel="h2"
               />
               <EmptyStateBody>
-                Use the filter menu above to select your application.
+                {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>
             </EmptyState>
           }

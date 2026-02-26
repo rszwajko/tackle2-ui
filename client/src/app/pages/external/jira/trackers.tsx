@@ -290,9 +290,7 @@ export const JiraTrackers: React.FC = () => {
                             onDelete={() => {
                               if (includesTracker(tracker.id)) {
                                 pushNotification({
-                                  title: t(
-                                    "This instance contains issues associated with applications and cannot be deleted"
-                                  ),
+                                  title: t("message.trackerInUse"),
                                   variant: "danger",
                                 });
                               } else {

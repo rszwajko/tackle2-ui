@@ -279,7 +279,7 @@ const AssetGenerators: FC = () => {
                       icon={<EmptyStateIcon icon={CubesIcon} />}
                     />
                     <EmptyStateBody>
-                      Create a new generator to get started.
+                      {t("message.noGeneratorsCreatedTitleDescription")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
