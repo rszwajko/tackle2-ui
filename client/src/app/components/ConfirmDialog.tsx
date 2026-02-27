@@ -4,6 +4,7 @@ import {
   Button,
   ButtonVariant,
   Modal,
+  ModalProps,
   ModalVariant,
 } from "@patternfly/react-core";
 
@@ -11,13 +12,7 @@ export interface ConfirmDialogProps {
   isOpen: boolean;
 
   title: string;
-  titleIconVariant?:
-    | "success"
-    | "danger"
-    | "warning"
-    | "info"
-    | "custom"
-    | React.ComponentType<unknown>;
+  titleIconVariant?: ModalProps["titleIconVariant"];
   message: string | React.ReactNode;
 
   confirmBtnLabel: string;
