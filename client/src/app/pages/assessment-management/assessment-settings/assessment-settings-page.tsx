@@ -97,7 +97,9 @@ const AssessmentSettings: React.FC = () => {
 
   const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
 
-  const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
+  const [questionnaireForKebab, setQuestionnaireForKebab] = React.useState<
+    number | null
+  >(null);
 
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
@@ -319,9 +321,13 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                           <Td width={10}>
                             <Dropdown
-                              isOpen={isKebabOpen === questionnaire.id}
-                              onSelect={() => setIsKebabOpen(null)}
-                              onOpenChange={() => setIsKebabOpen(null)}
+                              isOpen={
+                                questionnaireForKebab === questionnaire.id
+                              }
+                              onSelect={() => setQuestionnaireForKebab(null)}
+                              onOpenChange={() =>
+                                setQuestionnaireForKebab(null)
+                              }
                               toggle={(
                                 toggleRef: React.Ref<MenuToggleElement>
                               ) => (
@@ -330,13 +336,16 @@ const AssessmentSettings: React.FC = () => {
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
                                   onClick={() => {
-                                    if (isKebabOpen) {
-                                      setIsKebabOpen(null);
+                                    if (
+                                      questionnaireForKebab === questionnaire.id
+                                    ) {
+                                      setQuestionnaireForKebab(null);
                                     } else {
-                                      setIsKebabOpen(questionnaire.id);
+                                      setQuestionnaireForKebab(
+                                        questionnaire.id
+                                      );
                                     }
                                   }}
-                                  isExpanded={isKebabOpen === rowIndex}
                                 >
                                   <EllipsisVIcon />
                                 </MenuToggle>

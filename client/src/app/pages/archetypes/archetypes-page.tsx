@@ -198,7 +198,6 @@ const Archetypes: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const [isOverrideModalOpen, setOverrideModalOpen] = React.useState(false);
   const [archetypeToAssess, setArchetypeToAssess] =
     React.useState<Archetype | null>(null);
 
@@ -206,7 +205,6 @@ const Archetypes: React.FC = () => {
     // if application/archetype has an assessment, ask if user wants to override it
     const matchingAssessment = false;
     if (matchingAssessment) {
-      setOverrideModalOpen(true);
       setArchetypeToAssess(archetype);
     } else {
       if (archetype?.id) {
@@ -608,7 +606,7 @@ const Archetypes: React.FC = () => {
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}
-        isOpen={isOverrideModalOpen}
+        isOpen={archetypeToAssess !== null}
         message={t("message.overrideArchetypeConfirmation")}
         confirmBtnVariant={ButtonVariant.primary}
         confirmBtnLabel={t("actions.accept")}
