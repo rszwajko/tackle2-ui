@@ -65,6 +65,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   data: {
     tagItems,
     stakeholdersOptions,
+    stakeholdersOptionsWithValue,
     repositoryKindOptions,
     stakeholders,
     businessServiceOptions,
@@ -203,7 +204,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                       : undefined
                   )
                   .filter((e) => e !== undefined)}
-                options={stakeholdersOptions}
+                options={stakeholdersOptionsWithValue}
                 onChange={(selection) => {
                   const selectionWithValue =
                     selection as OptionWithValue<string>;
