@@ -48,6 +48,7 @@ export interface MultiSelectProps {
 }
 
 export const MultiSelectBase: FC<MultiSelectProps> = ({
+  id,
   options,
   ariaLabel,
   categoryKey,
@@ -56,6 +57,10 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   onSelect: onSelectCallback,
   isDisabled = false,
   isScrollable = true,
+  isFullWidth = true,
+  toggleId,
+  toggleAriaLabel,
+  toggleStatus,
   hasCheckbox,
   hasBadge,
   showSelectedInToggle,
@@ -198,11 +203,14 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
+      id={toggleId}
+      aria-label={toggleAriaLabel}
       variant="typeahead"
+      status={toggleStatus}
       onClick={onToggleClick}
       isExpanded={isFilterDropdownOpen}
       isDisabled={isDisabled || !options.length}
-      isFullWidth
+      isFullWidth={isFullWidth}
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
@@ -252,6 +260,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
 
   return (
     <Select
+      id={id}
       isScrollable={isScrollable}
       aria-label={ariaLabel}
       toggle={toggle}
