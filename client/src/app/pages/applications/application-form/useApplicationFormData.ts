@@ -17,6 +17,14 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { matchItemsToRef, matchItemsToRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+import { OptionWithValue } from "@app/components/SimpleSelect";
+
+const entityToOptionWithValue = <T extends { name: string }>(
+  entity: T
+): OptionWithValue<string> => ({
+  value: entity.name,
+  toString: () => entity.name,
+});
 
 const entityToOption = <T extends { name: string }>(
   entity: T
@@ -138,6 +146,7 @@ export const useApplicationFormData = ({
     businessServiceToRef,
     stakeholders,
     stakeholdersOptions: stakeholders.map(entityToOption),
+    stakeholdersOptionsWithValue: stakeholders.map(entityToOptionWithValue),
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
