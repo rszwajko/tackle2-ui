@@ -18,6 +18,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
@@ -29,7 +30,6 @@ import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
-import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 
 export interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";

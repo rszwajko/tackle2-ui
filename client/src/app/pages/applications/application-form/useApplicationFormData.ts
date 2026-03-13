@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Application } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue } from "@app/components/SimpleSelect";
 import { useRepositoryKind } from "@app/hooks/useRepositoryKind";
 import {
   useCreateApplicationMutation,
@@ -17,7 +18,6 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { matchItemsToRef, matchItemsToRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 
 const entityToOptionWithValue = <T extends { name: string }>(
   entity: T
