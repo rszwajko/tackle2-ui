@@ -23,17 +23,13 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import {
-  OptionWithValue,
-  SimpleSelect as DeprecatedSimpleSelect,
-} from "@app/components/SimpleSelect";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchIdentities } from "@app/queries/identities";
-import { toOptionLike } from "@app/utils/model-utils";
 import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 
 export interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";
@@ -181,12 +177,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   ];
 
   const { identitiesByKind } = useFetchIdentities();
-  const sourceIdentityOptions = (identitiesByKind.source ?? []).map(
-    (identity) => ({
-      value: identity.name as string,
-      toString: () => identity.name,
-    })
-  );
+  const sourceIdentityOptions: FilterSelectOptionProps[] = (
+    identitiesByKind.source ?? []
+  ).map((identity) => ({
+    value: identity.name as string,
+    label: identity.name,
+  }));
 
   return (
     <>
@@ -291,23 +287,16 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               label={t("analysisSteps.labels.associatedCredentials")}
               fieldId="credentials-select"
               renderInput={({ field: { value, name, onChange } }) => (
-                <DeprecatedSimpleSelect
+                <SimpleSelect
+                  ariaLabel={name}
+                  isScrollable
+                  isFullWidth
                   id="associated-credentials-select"
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
-                  aria-label={name}
-                  variant={"typeahead"}
-                  value={
-                    value
-                      ? toOptionLike(value, sourceIdentityOptions)
-                      : undefined
-                  }
+                  value={value ?? undefined}
                   options={sourceIdentityOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  onClear={() => onChange("")}
+                  onSelect={onChange}
                 />
               )}
             />
