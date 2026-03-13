@@ -17,7 +17,6 @@ export enum CustomMigrationTargetView {
   repositoryUrl = "#sourceRepository",
   branch = "#branch",
   rootPath = "#rootPath",
-  credentialsDropdown = "#associated-credentials-select-toggle",
   credentialsInput = "#associated-credentials-select-toggle",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
