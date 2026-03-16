@@ -40,12 +40,17 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import {
+  findOption,
+  IssueManagerOptions,
+  toOptionLike,
+} from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import TrackerStatus from "./components/tracker-status";
 import { TrackerForm } from "./tracker-form";
 import useUpdatingTrackerIds from "./useUpdatingTrackerIds";
+import { toDisplayValue } from "@app/components/FilterToolbar/components/selectUtils";
 
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
@@ -266,10 +271,9 @@ export const JiraTrackers: React.FC = () => {
                           {tracker.url}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          {toOptionLike(
-                            tracker.kind,
-                            IssueManagerOptions
-                          )?.toString()}
+                          {toDisplayValue(
+                            findOption(tracker.kind, IssueManagerOptions)
+                          )}
                         </Td>
                         <Td
                           width={10}

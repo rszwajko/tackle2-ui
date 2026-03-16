@@ -36,7 +36,12 @@ export interface MultiSelectProps {
   placeholderText?: string;
   isDisabled?: boolean;
   isFullWidth?: boolean;
+
   ariaLabel?: string;
+  /**
+   * alias for ariaLabel
+   * */
+  "aria-label"?: string;
   toggleId?: string;
   toggleAriaLabel?: string;
   toggleStatus?: MenuToggleProps["status"];
@@ -51,6 +56,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   id,
   options,
   ariaLabel,
+  "aria-label": htmlAriaLabel,
   categoryKey,
   values,
   placeholderText,
@@ -160,17 +166,22 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
     isOpen: boolean,
     event: React.KeyboardEvent<HTMLInputElement | HTMLDivElement>
   ) => {
-    if (isOpen && ["Tab", "Escape"].includes(event.key)) {
-      event.preventDefault();
-      // prevent closing the modal(ESC) or leaving the input(TAB)
-      // close the dropdown first
-      event.stopPropagation();
-      setIsFilterDropdownOpen(false);
-      resetActiveAndFocusedItem();
+    if (!isOpen || !["Tab", "Escape"].includes(event.key)) {
+      return;
     }
+    if ("Escape" === event.key) {
+      // prevent closing the modal(ESC)
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    setIsFilterDropdownOpen(false);
+    resetActiveAndFocusedItem();
   };
 
-  const onClearButtonClick = () => {
+  const onClearButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
     onSelectCallback(undefined);
     setInputValue("");
     resetActiveAndFocusedItem();
@@ -262,10 +273,13 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
     <Select
       id={id}
       isScrollable={isScrollable}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel || htmlAriaLabel}
       toggle={toggle}
       selected={values}
-      onOpenChange={() => {
+      onOpenChange={(isOpen) => {
+        if (isOpen) {
+          return;
+        }
         closeMenu();
         setInputToSelected();
       }}

@@ -206,6 +206,12 @@ export const toOptionLike = <T,>(
     ? undefined
     : options.find((option) => option.value === value);
 };
+export const findOption = (
+  value: string | undefined | null,
+  options: FilterSelectOptionProps[]
+) => {
+  return options.find((option) => option.value === value);
+};
 
 const IssueManagerKindToLabel: Record<IssueManagerKind, string> = {
   "jira-cloud": "Jira Cloud",
