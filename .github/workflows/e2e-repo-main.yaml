@@ -47,3 +47,27 @@ jobs:
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
     secrets: inherit
+
+  e2e-tests-tier2:
+    needs: build-ui-image-if-needed
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: "@tier2"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      install_konveyor_version: ${{ github.base_ref || github.ref_name }}
+      test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
+    secrets: inherit
+
+  e2e-tests-tier3:
+    needs: build-ui-image-if-needed
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: "@tier3"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      install_konveyor_version: ${{ github.base_ref || github.ref_name }}
+      test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
+    secrets: inherit
