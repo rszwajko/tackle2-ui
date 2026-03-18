@@ -32,7 +32,7 @@ import { TaskStatus } from "../../../types/constants";
 import * as commonView from "../../../views/common.view";
 import { TaskManagerColumns } from "../../../views/taskmanager.view";
 
-describe(["@tier2"], "Actions in Task Manager Page", function () {
+describe(["@tier2", "@tier2_D"], "Actions in Task Manager Page", function () {
   let bookServerApp: Analysis;
 
   before("Login", function () {
