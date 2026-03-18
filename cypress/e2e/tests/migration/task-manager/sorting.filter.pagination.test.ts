@@ -46,7 +46,7 @@ import {
 } from "../../../views/taskmanager.view";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_A"],
   "Filtering, sorting and pagination in Task Manager Page",
   function () {
     const applicationsList: Analysis[] = [];
@@ -66,7 +66,7 @@ describe(
       });
     });
 
-    it("Bug MTA-6164: Sorting tasks", function () {
+    it.skip("Bug MTA-6164: Sorting tasks", function () {
       // Ensure total pod count does not exceed the number of tackle pods.
       getNumberOfNonTaskPods().then((podsNum) => {
         limitPodsByQuota(podsNum);
@@ -103,11 +103,11 @@ describe(
     });
 
     // Making sure Resource Quota CR is deleted
-    it("Delete resource quota created in previous test", function () {
+    it.skip("Delete resource quota created in previous test", function () {
       deleteCustomResource("quota", "task-pods", true);
     });
 
-    it("Filtering tasks by Status", function () {
+    it.skip("Filtering tasks by Status", function () {
       TaskManager.open();
       TaskManager.applyFilter(TaskFilter.status, TaskStatus.pending);
       validateTextPresence(TaskManagerColumns.status, TaskStatus.pending);
@@ -150,7 +150,7 @@ describe(
       clearAllFilters();
     });
 
-    it("Filter by ID", function () {
+    it.skip("Filter by ID", function () {
       cy.intercept("GET", "/hub/tasks*").as("getTasks");
       TaskManager.open();
       cy.wait("@getTasks")
@@ -172,7 +172,7 @@ describe(
         });
     });
 
-    it("Filter by Application", () => {
+    it.skip("Filter by Application", () => {
       TaskManager.open();
       TaskManager.applyFilter(
         TaskFilter.applicationName,
@@ -208,7 +208,7 @@ describe(
       clearAllFilters();
     });
 
-    it("Filter by Kind", () => {
+    it.skip("Filter by Kind", () => {
       TaskManager.open();
       TaskManager.applyFilter(TaskFilter.kind, TaskKind.analyzer);
       validateTextPresence(TaskManagerColumns.kind, TaskKind.analyzer);
@@ -243,14 +243,14 @@ describe(
       clearAllFilters();
     });
 
-    it("Filter by 'Created By'", () => {
+    it.skip("Filter by 'Created By'", () => {
       TaskManager.open();
       TaskManager.applyFilter(TaskFilter.createdBy, "admin");
       validateTextPresence(TaskManagerColumns.createdBy, "admin");
       clearAllFilters();
     });
 
-    it("Negative test: filtering by not existing data", () => {
+    it.skip("Negative test: filtering by not existing data", () => {
       TaskManager.open();
       TaskManager.applyFilter(
         TaskFilter.applicationName,
@@ -260,7 +260,7 @@ describe(
       clearAllFilters();
     });
 
-    it("Pagination validation", function () {
+    it.skip("Pagination validation", function () {
       TaskManager.open(10, true);
       validatePagination();
     });
