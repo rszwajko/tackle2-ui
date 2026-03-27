@@ -1,4 +1,4 @@
-FROM registry.redhat.io/ubi9/nodejs-20:latest AS builder
+FROM registry.redhat.io/ubi10/nodejs-22:latest AS builder
 COPY --chown=1001:0 . /workspace
 WORKDIR /workspace
 
@@ -16,7 +16,7 @@ RUN sed -i 's/^    "npm": "^9.5.0"/    "npm": ">=9.5.0"/' package.json
 RUN npm config fix
 RUN npm clean-install --ignore-scripts --no-audit --verbose && npm run build && npm run dist
 
-FROM registry.redhat.io/ubi9/nodejs-20:latest
+FROM registry.redhat.io/ubi10/nodejs-22:latest
 USER root
 RUN dnf -y install procps-ng && dnf -y clean all
 USER 1001
