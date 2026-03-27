@@ -4,6 +4,7 @@ import {
   clickByText,
   clickJs,
   inputText,
+  performRowActionByIcon,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -13,7 +14,6 @@ import {
   button,
   createNewButton,
   deleteAction,
-  editAction,
   exportToIssueManagerAction,
   manageApplications,
   migrationWaves,
@@ -26,9 +26,11 @@ import {
   cancelButton,
   confirmButton,
   itemsSelectInsideDialog,
+  kebabToggleButton,
   modal,
-  submitButton,
+  pencilIcon,
 } from "../../../views/common.view";
+import { submitButton } from "../../../views/login.view";
 import { navMenu } from "../../../views/menu.view";
 import { MigrationWaveView } from "../../../views/migration-wave.view";
 import { Application } from "../applicationinventory/application";
@@ -66,13 +68,13 @@ export class MigrationWave {
       cy.visit(MigrationWave.fullUrl);
     }
     cy.url().then(($url) => {
-      if ($url != MigrationWave.fullUrl) {
+      if (!$url.includes(MigrationWave.fullUrl)) {
         selectUserPerspective("Migration");
         clickByText(navMenu, migrationWaves);
         cy.get("h1", { timeout: 60 * SEC }).should("contain", migrationWaves);
-        selectItemsPerPage(100);
       }
     });
+    selectItemsPerPage(100);
   }
 
   public static openNewForm() {
@@ -89,8 +91,7 @@ export class MigrationWave {
 
   public edit(updateValues: Partial<MigrationWave>) {
     MigrationWave.open();
-    this.expandActionsMenu();
-    cy.contains(editAction).click();
+    performRowActionByIcon(this.name, pencilIcon);
     this.fillForm(updateValues);
     submitForm();
   }
@@ -159,7 +160,17 @@ export class MigrationWave {
       return;
     }
 
-    clickJs(submitButton);
+    cy.wait(1000);
+
+    cy.get(submitButton, { timeout: 15 * SEC })
+      .should("exist")
+      .should("be.visible")
+      .should("not.be.disabled")
+      .scrollIntoView()
+      .wait(500) // Brief wait to ensure button is stable
+      .click();
+
+    cy.get(modal, { timeout: 15000 }).should("not.exist");
   }
 
   public clearApplications(): void {
@@ -286,7 +297,7 @@ export class MigrationWave {
       cy.contains(targetName)
         .parents("tr")
         .within(() => {
-          cy.get(MigrationWaveView.actionsButton).then(($btn) => {
+          cy.get(kebabToggleButton).then(($btn) => {
             $btn.trigger("click");
           });
         });
@@ -303,7 +314,7 @@ export class MigrationWave {
 
         if (startCell === targetStartDate && endCell === targetEndDate) {
           cy.wrap($row)
-            .find(MigrationWaveView.actionsButton)
+            .find(kebabToggleButton)
             .then(($btn) => {
               if ($btn.attr("aria-expanded") === "false") {
                 $btn.trigger("click");
@@ -408,5 +419,27 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
+  }
+
+  /** Delete all migration waves via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/migrationwaves",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/migrationwaves/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 }

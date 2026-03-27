@@ -25,7 +25,7 @@ const cloudNativePath = "questionnaire_import/cloud-native.yaml";
 
 const cloudNativeDownloadPath = `${Cypress.config("downloadsFolder")}/`;
 
-describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
+describe(["@tier3", "@tier3_A"], "Miscellaneous Questionnaire tests", () => {
   it("Download YAML template", function () {
     // Polarion TC MTA-397
     AssessmentQuestionnaire.open();
@@ -33,9 +33,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
     cy.readFile(filePath).then((fileContent) => {
       try {
         yaml.load(fileContent);
-        // Parsing successful, file is in YAML format
       } catch {
-        // Parsing failed, file is not in YAML format
         throw new Error(`File is not in YAML format: ${filePath}`);
       }
     });
@@ -46,22 +44,20 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
   });
 
   it("Delete imported sample questionnaire", function () {
-    // Automates bugs: https://issues.redhat.com/browse/MTA-1725 and https://issues.redhat.com/browse/MTA-1781
+    // Automates bugs: https://issues.redhat.com/browse/MTA-1725 and
+    // https://issues.redhat.com/browse/MTA-1781
 
     AssessmentQuestionnaire.open();
-
     AssessmentQuestionnaire.import(yamlFile);
-
     AssessmentQuestionnaire.delete(sampleQuestionnaireTemplate);
-
     notExists(sampleQuestionnaireTemplate);
   });
 
-  it("Bug MTA-2782: Import invalid questionnaire", function () {
+  it.skip("Bug Tackle-3115: Import invalid questionnaire", function () {
+    // https://github.com/konveyor/tackle2-ui/issues/3115
     // Automates bug https://issues.redhat.com/browse/MTA-1349
 
     AssessmentQuestionnaire.open();
-
     AssessmentQuestionnaire.import(invalidYamlFile);
 
     cy.get(alertTitle).then(($element) => {
@@ -101,27 +97,20 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
 
     cy.intercept({
       method: "GET",
-      url: /\/hub\/questionnaires\/\d+$/,
+      url: /\/hub\/questionnaires\/(\d+)$/,
     }).as("fileDownload");
 
     AssessmentQuestionnaire.import(cloudNativePath);
     AssessmentQuestionnaire.export(cloudNative);
-    cy.wait("@fileDownload");
 
-    cy.fsReadDir(cloudNativeDownloadPath).then((filesList) => {
-      const matchedFiles = filesList
-        .filter(
-          (file) => file.startsWith("questionnaire-") && file.endsWith(".yaml")
-        )
-        .map((file) => ({
-          file,
-          number: parseInt(file.match(/-(\d+)\.yaml$/)?.[1], 10),
-        }))
-        .filter((file) => !isNaN(file.number))
-        .sort((a, b) => b.number - a.number);
-      const latestFileName =
-        matchedFiles.length > 0 ? matchedFiles[0].file : null;
-      const filePath = `${cloudNativeDownloadPath}/${latestFileName}`;
+    // Wait for the download and extract the questionnaire ID from the URL
+    cy.wait("@fileDownload").then((interception) => {
+      const questionnaireId = interception.request.url.match(
+        /\/questionnaires\/(\d+)$/
+      )?.[1];
+      const expectedFileName = `questionnaire-${questionnaireId}.yaml`;
+      const filePath = `${cloudNativeDownloadPath}/${expectedFileName}`;
+
       cy.readFile(filePath).then((fileContent) => {
         const updatedContent = AssessmentQuestionnaire.updateYamlContent(
           fileContent,
@@ -130,6 +119,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
         cy.writeFile(fixturesPath, updatedContent);
       });
     });
+
     cy.readFile(fixturesPath).then(() => {
       AssessmentQuestionnaire.import(updatedFileName);
     });
@@ -144,5 +134,6 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
 
   after("Cleaning up", function () {
     cleanupDownloads();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

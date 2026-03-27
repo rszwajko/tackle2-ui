@@ -14,9 +14,14 @@ on:
   workflow_dispatch:
 
   workflow_call:
+    inputs:
+      checkout_ref:
+        type: string
+        description: Git ref to checkout (defaults to the triggering ref)
+        required: false
 
 concurrency:
-  group: ci-repo-${{ github.event_name }}-${{ github.ref }}
+  group: ci-repo-${{ github.event_name }}-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
 
 jobs:
@@ -30,17 +35,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
 
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
         run: |
-          builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
+          builder=$(grep -i 'as builder' Dockerfile | sed -e 's/^from \(.*\) as builder$/\1/i')
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
 
       - name: Did only docs and hacks change?
         id: docs-and-hacks-only
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v46
         with:
           files: |
             docs/**
@@ -49,7 +55,7 @@ jobs:
 
       - name: Did only cypress change?
         id: cypress-only
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v46
         with:
           files: |
             cypress/**
@@ -128,6 +134,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.checkout_ref }}
 
       # TODO: Setup a cache for npm so it could install faster
       #       follow actions/setup-node@v4 techniques
@@ -138,7 +146,7 @@ jobs:
       - name: Install
         run: |
           npm version
-          npm clean-install --ignore-scripts
+          npm clean-install --ignore-scripts --no-audit
 
       - name: Lint sources
         run: |

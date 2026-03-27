@@ -42,7 +42,7 @@ let applications: Application[];
 let stakeholder: Stakeholders;
 
 // Polarion TC 469
-describe(["@tier3"], "Reports Tab filter validations", function () {
+describe(["@tier3", "@tier3_D"], "Reports Tab filter validations", function () {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");
@@ -61,7 +61,7 @@ describe(["@tier3"], "Reports Tab filter validations", function () {
     AssessmentQuestionnaire.disable(cloudNative);
   });
 
-  it("Bug MTA-6262: Filter landscape by questionnaire", function () {
+  it("Filter landscape by questionnaire", function () {
     Reports.open(100);
     Reports.verifyRisk(1, 1, 0, 0, "2");
     selectFromDropListByText(landscapeFilterDropdown, legacyPathfinder);
@@ -88,5 +88,6 @@ describe(["@tier3"], "Reports Tab filter validations", function () {
     Application.open(true);
     deleteByList(applications);
     stakeholder.delete();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

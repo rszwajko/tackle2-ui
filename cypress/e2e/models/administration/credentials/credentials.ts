@@ -32,14 +32,6 @@ import {
 import { CredentialsData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
 import {
-  closeSuccessNotification,
-  confirmButton,
-  confirmCancelButton,
-  navLink,
-  searchButton,
-  searchInput,
-} from "../../../views/common.view";
-import {
   createBtn,
   credLabels,
   credentialNameInput,
@@ -49,7 +41,6 @@ import {
   filterCatDefaultCredential,
   filterCatType,
   filterCategory,
-  filterItemTextSelector,
   filterSelectType,
   filteredBy,
   isDefaultCheckbox,
@@ -78,6 +69,9 @@ export class Credentials {
 
   /** Indicates whether this credential is set as the default option */
   isDefault = false;
+
+  /** The ID of the credential */
+  id?: number;
 
   /** Contains URL of credentials web page */
   static fullUrl = Cypress.config("baseUrl") + "/identities";
@@ -164,7 +158,7 @@ export class Credentials {
     clickItemInKebabMenu(this.name, setAsDefaultAction);
     cy.get("body").then(($body) => {
       if ($body.find(modalBoxBody).length > 0) {
-        click(confirmButton);
+        click(commonView.confirmButton);
       }
     });
   }
@@ -173,7 +167,7 @@ export class Credentials {
     Credentials.openList();
     this.isDefault = false;
     clickItemInKebabMenu(this.name, unsetAsDefaultAction);
-    click(confirmButton);
+    click(commonView.confirmButton);
   }
 
   /** Validates if description field contains same value as sent parameter
@@ -197,7 +191,7 @@ export class Credentials {
     cy.url().then(($url) => {
       if ($url != Credentials.fullUrl) {
         selectUserPerspective(administration);
-        clickByText(navLink, credentials);
+        clickByText(commonView.navLink, credentials);
       }
     });
     cy.contains("h1", "Credentials", { timeout: 120 * SEC });
@@ -223,8 +217,8 @@ export class Credentials {
 
   static ApplyFilterByName(value: string) {
     selectFromDropList(filteredBy, filterCategory);
-    inputText(searchInput, value);
-    click(searchButton);
+    inputText(commonView.searchInput, value);
+    click(commonView.searchButton);
   }
 
   static applyFilterByType(type: string) {
@@ -234,13 +228,17 @@ export class Credentials {
 
   static applyFilterCreatedBy(value: string) {
     selectFromDropList(filteredBy, filterCatCreatedBy);
-    inputText(searchInput, value);
-    click(searchButton);
+    inputText(commonView.searchInput, value);
+    click(commonView.searchButton);
   }
 
   static applyFilterDefaultCredential(value: DefaultCredentialFilter) {
     selectFromDropList(filteredBy, filterCatDefaultCredential);
-    selectFromDropListByText(filterSelectType, value, filterItemTextSelector);
+    selectFromDropListByText(
+      filterSelectType,
+      value,
+      commonView.actionMenuItem
+    );
   }
 
   static filterByType(): void {
@@ -292,7 +290,7 @@ export class Credentials {
     exists(this.name);
     clickItemInKebabMenu(this.name, deleteAction);
     if (toBeCanceled) {
-      click(confirmCancelButton);
+      click(commonView.confirmCancelButton);
       exists(this.name);
     } else {
       cy.get(modalBoxBody).within(() => {
@@ -301,7 +299,7 @@ export class Credentials {
         }
         doesExistText("This action cannot be undone", true);
       });
-      click(confirmButton);
+      click(commonView.confirmButton);
       notExists(this.name);
     }
   }
@@ -317,8 +315,42 @@ export class Credentials {
   }
 
   protected closeSuccessNotification(): void {
-    cy.get(closeSuccessNotification, { timeout: 10 * SEC })
+    cy.get(commonView.closeSuccessNotification, { timeout: 10 * SEC })
       .first()
       .click({ force: true });
+  }
+
+  /** Delete a credential via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/identities/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all credentials via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/identities",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/identities/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 }

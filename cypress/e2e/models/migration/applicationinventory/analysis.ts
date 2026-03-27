@@ -52,6 +52,10 @@ import {
   applicationData,
 } from "../../../types/types";
 import {
+  includeLabelsInput,
+  includeLabelsMenuItem,
+} from "../../../views/analysis-profile.view";
+import {
   AnalysisLogView,
   analysisColumn,
   analysisDetails,
@@ -62,7 +66,6 @@ import {
   expandAll,
   fileName,
   kebabTopMenuButton,
-  logDropDown,
   logFilter,
   manageCredentials,
   mavenCredential,
@@ -91,6 +94,7 @@ export class Analysis extends Application {
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
   excludeRuleLabels?: string;
+  includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   saveAsProfile: boolean = false;
@@ -125,6 +129,7 @@ export class Analysis extends Application {
       customRule,
       sources,
       excludeRuleLabels,
+      includeRuleLabels,
       enableTransaction,
       disableTagging,
       saveAsProfile,
@@ -148,6 +153,7 @@ export class Analysis extends Application {
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
     if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
+    if (includeRuleLabels) this.includeRuleLabels = includeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     this.saveAsProfile = saveAsProfile ?? false;
@@ -184,7 +190,7 @@ export class Analysis extends Application {
 
       if (profileName) {
         cy.get(analysisProfileSelect).click();
-        cy.contains("span.pf-v5-c-menu__item-text", profileName).click();
+        cy.contains(actionMenuItem, profileName).click();
         next();
       }
     }
@@ -211,6 +217,11 @@ export class Analysis extends Application {
   protected tagsToExclude() {
     inputText("#ruleTagToExclude", this.excludeRuleLabels);
     clickByText("#add-package-to-include", "Add");
+  }
+
+  protected labelsToInclude(label: string) {
+    click(includeLabelsInput);
+    cy.get(includeLabelsMenuItem).contains(label).click();
   }
 
   protected enableSaveAsProfile() {
@@ -242,15 +253,24 @@ export class Analysis extends Application {
   private startAnalysis() {
     cy.contains(button, analyzeButton).should("be.enabled").click();
 
+    // Binary and Upload Binary applications skip the mode selection page
+    const isBinaryAnalysis =
+      this.source === AnalysisMode.Binary ||
+      this.source === AnalysisMode.BinaryUpload;
+
     if (this.profileName) {
-      this.selectAnalysisMode("profile", this.profileName);
+      if (!isBinaryAnalysis) {
+        this.selectAnalysisMode("profile", this.profileName);
+      }
       AnalysisWizardHelpers.enableEnhancedAnalysisDetails();
       next();
       clickByText(button, "Run");
     } else {
       // Manual mode: Configure all analysis settings
-      this.selectAnalysisMode("manual");
-      next();
+      if (!isBinaryAnalysis) {
+        this.selectAnalysisMode("manual");
+        next();
+      }
 
       AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
       if (this.binary) this.uploadBinary();
@@ -275,6 +295,9 @@ export class Analysis extends Application {
       next();
       if (this.excludeRuleLabels) {
         this.tagsToExclude();
+      }
+      if (this.includeRuleLabels) {
+        this.labelsToInclude(this.includeRuleLabels);
       }
       if (this.enableTransaction) {
         AnalysisWizardHelpers.enableTransactionAnalysis();
@@ -516,8 +539,17 @@ export class Analysis extends Application {
     Application.open();
     this.selectApplication();
     cy.contains(button, analyzeButton).should("be.enabled").click();
-    this.selectAnalysisMode();
-    next();
+
+    // Binary and Upload Binary applications skip the mode selection page
+    const isBinaryAnalysis =
+      this.source === AnalysisMode.Binary ||
+      this.source === AnalysisMode.BinaryUpload;
+
+    if (!isBinaryAnalysis) {
+      this.selectAnalysisMode();
+      next();
+    }
+
     AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
     next();
     next();
@@ -544,7 +576,7 @@ export class Analysis extends Application {
   ): void {
     this.openAnalysisDetails();
     cy.get(logFilter).eq(2).click();
-    clickByText(logDropDown, analysisLogView);
+    clickByText(actionMenuItem, analysisLogView);
     cy.wait(3 * SEC);
 
     cy.get(".pf-v5-c-code-editor__code", { timeout: 10000 })

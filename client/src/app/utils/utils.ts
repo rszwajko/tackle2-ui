@@ -1,8 +1,12 @@
 import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
-import { ToolbarChip } from "@patternfly/react-core";
+import { MenuToggleProps, ToolbarChip } from "@patternfly/react-core";
 
-import { AdminPathValues, DevPathValues } from "@app/Paths";
+import {
+  AdminPathValues,
+  DevPathValues,
+  UniversalPathValues,
+} from "@app/Paths";
 import i18n from "@app/i18n";
 
 // Axios error
@@ -104,6 +108,15 @@ export const getValidatedFromErrors = (
   return error && (dirty || isTouched) ? "error" : "default";
 };
 
+export const getToggleStatusFromErrors = (
+  error: unknown | undefined,
+  dirty: boolean | undefined,
+  isTouched: boolean | undefined
+): MenuToggleProps["status"] => {
+  const validated = getValidatedFromErrors(error, dirty, isTouched);
+  return validated === "error" ? "danger" : undefined;
+};
+
 export const getValidatedFromError = (error: unknown | undefined) => {
   return error ? "error" : "default";
 };
@@ -141,7 +154,7 @@ export const isValidSvnUrl = (url: string) =>
   svnUrlRegex.test(url) || isValidStandardUrl(url);
 
 export const formatPath = (
-  path: AdminPathValues | DevPathValues,
+  path: AdminPathValues | DevPathValues | UniversalPathValues,
   data: Record<string, unknown>
 ) => {
   let url = path as string;

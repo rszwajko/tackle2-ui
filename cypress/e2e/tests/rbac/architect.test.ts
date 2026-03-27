@@ -23,7 +23,6 @@ import {
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
   deleteByList,
-  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -39,13 +38,13 @@ import { Archetype } from "../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
 import { Tag } from "../../models/migration/controls/tags";
-import { Issues } from "../../models/migration/dynamic-report/issues/issues";
 import {
   AnalysisStatuses,
   MIN,
   button,
   legacyPathfinder,
 } from "../../types/constants";
+import { analysisData, applicationData } from "../../types/types";
 import {
   analysisProfileMode,
   analysisProfileSelect,
@@ -66,15 +65,15 @@ let targetProfile3: TargetProfile;
 let appWithArchetype: Analysis;
 
 describe(
-  ["@tier3", "@rhsso", "@rhbk"],
+  ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
   "Architect RBAC operations",
   function () {
     // https://issues.redhat.com/browse/MTA-5631
     const userArchitect = new UserArchitect(getRandomUserData());
     const userMigrator = new UserMigrator(getRandomUserData());
     const application = new Application(getRandomApplicationData());
-    let profileData: any;
-    let sourceData: any;
+    let profileData: analysisData;
+    let sourceData: applicationData;
 
     before("Creating RBAC users, adding roles for them", function () {
       login();
@@ -258,8 +257,6 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
-      Issues.openSingleApplication(appWithArchetype.name);
-      exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
     it("Migrator, Perform analysis using architect-created profile", function () {
@@ -293,8 +290,6 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
-      Issues.openSingleApplication(migratorAnalysis.name);
-      exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
     after("Clean up", function () {

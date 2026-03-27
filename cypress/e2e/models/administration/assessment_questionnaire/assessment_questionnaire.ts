@@ -58,6 +58,7 @@ export class AssessmentQuestionnaire {
 
   public static import(fileName: string, submit: boolean = true) {
     AssessmentQuestionnaire.open();
+    cy.wait(2 * SEC);
     click(importQuestionnaire);
     cy.get('input[type="file"]', { timeout: 2 * SEC }).selectFile(
       `fixtures/${fileName}`,
@@ -190,7 +191,7 @@ export class AssessmentQuestionnaire {
 
   static validateNoMatchesFound(): void {
     cy.get(".pf-v5-c-empty-state__content")
-      .find("h2.pf-v5-c-title.pf-m-lg")
+      .find("h2.pf-v5-c-empty-state__title-text")
       .invoke("text")
       .then((text) => {
         expect(text.trim()).to.match(/^No questions match your search/);

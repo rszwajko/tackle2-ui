@@ -44,7 +44,7 @@ let archetype: Archetype;
 
 // Polarion TC 495 and TC 541
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_B"],
   "Review Identified Risks filter validations for assessments",
   function () {
     before("Login and Create Test Data", function () {
@@ -73,7 +73,7 @@ describe(
     });
 
     identifiedRisksFilterValidations.forEach((validation) => {
-      it(`Bug MTA-2784: Filtering identified risks by ${validation.name}`, function () {
+      it(`Filtering identified risks by ${validation.name}`, function () {
         const commonActions = () => {
           applySelectFilter(
             validation.id,
@@ -99,6 +99,7 @@ describe(
       archetype.delete();
       application.delete();
       stakeholder.delete();
+      AssessmentQuestionnaire.deleteAllQuestionnaires();
     });
   }
 );

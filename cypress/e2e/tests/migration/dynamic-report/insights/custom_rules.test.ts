@@ -17,10 +17,10 @@ import {
 } from "../../../../types/constants";
 import { AppInsight, AppIssue } from "../../../../types/types";
 
-describe(["@tier3"], "Custom rules in Insights", function () {
+describe(["@tier3", "@secretsNeeded"], "Custom rules in Insights", function () {
   //TODO: Add validation of message in insights when bug https://issues.redhat.com/browse/MTA-3449 will be fixed
-  let analysisData: any;
-  let applicationData: any;
+  let analysisData: Record<string, unknown>;
+  let applicationData: Record<string, unknown>;
   let tackleTestApp: Analysis;
   let defaultScCredsUsername: CredentialsSourceControlUsername;
 

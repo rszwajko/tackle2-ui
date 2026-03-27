@@ -20,10 +20,12 @@ import {
   login,
   openManageImportsPage,
 } from "../../../../../utils/utils";
-import { kebabMenuItem } from "../../../../views/applicationinventory.view";
-import { manageImportsActionsButton } from "../../../../views/common.view";
+import {
+  actionMenuItem,
+  manageImportsActionsButton,
+} from "../../../../views/common.view";
 
-describe(["@tier3"], "Manage imports tests", function () {
+describe(["@tier3", "@tier3_B"], "Manage imports tests", function () {
   before("Login", function () {
     login();
     cy.visit("/");
@@ -32,7 +34,7 @@ describe(["@tier3"], "Manage imports tests", function () {
   it("Download CSV template", function () {
     openManageImportsPage();
     cy.get(manageImportsActionsButton).click();
-    cy.get(kebabMenuItem).contains("Download CSV template").click();
+    cy.get(actionMenuItem).contains("Download CSV template").click();
     cy.readFile(
       `${Cypress.config("downloadsFolder")}/template_application_import.csv`
     ).should("contain", "Customers");
