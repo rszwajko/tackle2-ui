@@ -214,7 +214,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
-      id={toggleId}
+      ouiaId={toggleId}
       aria-label={toggleAriaLabel}
       variant="typeahead"
       status={toggleStatus}
@@ -234,7 +234,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
           onKeyDownCapture={(event) =>
             onOpenChangeKeyDown(isFilterDropdownOpen, event)
           }
-          id={createItemId("input", categoryKey)}
+          data-ouia-component-id={`${toggleId}-input`}
           autoComplete="off"
           innerRef={textInputRef}
           placeholder={placeholderText}
@@ -249,6 +249,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
             <Button
               variant="plain"
               onClick={onClearButtonClick}
+              ouiaId={`${toggleId}-clear-button`}
               aria-label={t("actions.clearInputValue")}
             >
               <TimesIcon aria-hidden />
