@@ -30,6 +30,7 @@ import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 
 export interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";
@@ -287,13 +288,10 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               label={t("analysisSteps.labels.associatedCredentials")}
               fieldId="credentials-select"
               renderInput={({ field: { value, name, onChange } }) => (
-                <SimpleSelect
-                  ariaLabel={name}
-                  isScrollable
-                  isFullWidth
-                  id="associated-credentials-select"
+                <TypeaheadSelect
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
+                  ariaLabel={name}
                   value={value ?? undefined}
                   options={sourceIdentityOptions}
                   onSelect={onChange}
