@@ -20,6 +20,7 @@ import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -30,7 +31,6 @@ import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
-import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 
 export interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";

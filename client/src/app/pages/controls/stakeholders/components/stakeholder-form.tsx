@@ -212,7 +212,6 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         fieldId="jobFunction"
         renderInput={({ field: { value, name, onChange } }) => (
           <TypeaheadSelect
-            isScrollable
             toggleId="job-function-toggle"
             toggleAriaLabel="Job function select dropdown toggle"
             ariaLabel={name}
