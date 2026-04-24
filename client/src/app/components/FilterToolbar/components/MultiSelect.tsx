@@ -50,7 +50,7 @@ export interface MultiSelectProps {
   closeMenuOnSelect?: boolean;
 }
 
-export const MultiSelectBase: FC<MultiSelectProps> = ({
+export const MultiSelect: FC<MultiSelectProps> = ({
   options,
   ariaLabel,
   "aria-label": htmlAriaLabel,
