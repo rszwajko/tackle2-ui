@@ -18,6 +18,7 @@ limitations under the License.
 import * as data from "../../../../../utils/data_utils";
 import {
   applySearchFilter,
+  applyTypeaheadFilter,
   clickByText,
   createMultipleApplicationsWithBSandTags,
   createMultipleBusinessServices,
@@ -129,7 +130,7 @@ describe(
       filterApplicationsBySubstring();
 
       // Enter an exact existing name and assert
-      applySearchFilter(categoryName, applicationsList[1].name);
+      applyTypeaheadFilter(categoryName, applicationsList[1].name);
       exists(applicationsList[1].name);
       notExists(applicationsList[0].name);
       clickByText(button, clearAllFilters);
@@ -137,7 +138,7 @@ describe(
 
     it("Business service filter validations", function () {
       const validSearchInput = applicationsList[0].business;
-      applySearchFilter(categoryBusinessService, validSearchInput);
+      applyTypeaheadFilter(categoryBusinessService, validSearchInput);
 
       exists(applicationsList[0].business);
       clickByText(button, clearAllFilters);
@@ -147,13 +148,13 @@ describe(
       Application.open();
 
       const validSearchInput = applicationsList[0].tags[0];
-      applySearchFilter(categoryTags, validSearchInput);
+      applyTypeaheadFilter(categoryTags, validSearchInput);
 
       exists(applicationsList[0].name);
       notExists(applicationsList[1].name);
       clickByText(button, clearAllFilters);
 
-      applySearchFilter(categoryTags, applicationsList[1].tags[0]);
+      applyTypeaheadFilter(categoryTags, applicationsList[1].tags[0]);
       exists(applicationsList[1].name);
       notExists(applicationsList[0].name);
       clickByText(button, clearAllFilters);
@@ -176,14 +177,14 @@ describe(
       application.manageCredentials(null, maven_credential.name);
       exists(application.name);
 
-      applySearchFilter(categoryIdentities, "Maven");
+      applyTypeaheadFilter(categoryIdentities, "Maven");
       exists(application.name);
       clickByText(button, clearAllFilters);
 
       application.manageCredentials(source_credential.name, null);
       exists(application.name);
 
-      applySearchFilter(categoryIdentities, "Source");
+      applyTypeaheadFilter(categoryIdentities, "Source");
       exists(application.name);
       clickByText(button, clearAllFilters);
     });
@@ -261,13 +262,13 @@ describe(
       application.verifyStatus("assessment", "Completed");
 
       // Apply search filter Risk - Low
-      applySearchFilter(categoryRisk, "Low");
+      applyTypeaheadFilter(categoryRisk, "Low");
       exists(application.name);
       notExists(application1.name);
       clickByText(button, clearAllFilters);
 
       // apply search filter Risk - Unassessed
-      applySearchFilter(categoryRisk, "Unassessed");
+      applyTypeaheadFilter(categoryRisk, "Unassessed");
       exists(application1.name);
       notExists(application.name);
       clickByText(button, clearAllFilters);
@@ -295,7 +296,7 @@ describe(
       application1.create();
       cy.get("@getApplication");
       const validSearchInput = archetype1.name;
-      applySearchFilter(categoryArchetypes, validSearchInput);
+      applyTypeaheadFilter(categoryArchetypes, validSearchInput);
       exists(application1.name);
       clickByText(button, clearAllFilters);
 
@@ -353,7 +354,7 @@ const filterApplicationsBySubstring = (): void => {
         exists(applicationsList[1].name);
       });
   } else {
-    applySearchFilter(categoryName, firstAppSubstring);
+    applyTypeaheadFilter(categoryName, firstAppSubstring);
     exists(applicationsList[0].name);
     notExists(applicationsList[1].name);
   }
