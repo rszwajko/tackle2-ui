@@ -24,8 +24,7 @@ export const MultiselectFilterControl = <TItem,>({
   showToolbarItem,
   isDisabled = false,
 }: IMultiselectFilterControlProps<TItem>): JSX.Element | null => {
-  const idPrefix = `filter-control-${category.categoryKey}`;
-  const withPrefix = (id: string) => `${idPrefix}-${id}`;
+  const idPrefix = `filter-control-${category.categoryKey}-group`;
   const defaultGroup = category.title;
 
   const [firstGroup, ...otherGroups] = [
@@ -114,11 +113,12 @@ export const MultiselectFilterControl = <TItem,>({
             aria-label={category.title}
             values={filterValue ?? undefined}
             onSelect={onSelect}
-            toggleId={withPrefix("toggle")}
+            toggleId={`filter-for-${category.categoryKey}`}
             toggleAriaLabel={category.title}
             isDisabled={isDisabled || !category.selectOptions.length}
             hasCheckbox={true}
             hasBadge={true}
+            placeholderText={category.placeholderText}
             showSelectedInToggle={false}
             closeMenuOnSelect={false}
             options={category.selectOptions}

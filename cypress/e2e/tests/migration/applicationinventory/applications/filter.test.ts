@@ -57,13 +57,10 @@ import {
   categoryRepositoryType,
   categoryRisk,
   categoryTags,
+  filterToggle,
 } from "../../../../types/filter-categories";
 import * as commonView from "../../../../views/common.view";
-import {
-  filterDropDownContainer,
-  standardFilter,
-} from "../../../../views/common.view";
-import { searchMenuToggle } from "../../../../views/issue.view";
+import { standardFilter } from "../../../../views/common.view";
 
 let source_credential;
 let maven_credential;
@@ -312,7 +309,7 @@ describe(
       archetype2.create();
       Application.open();
       selectFilter(categoryArchetypes);
-      cy.get(filterDropDownContainer).find(searchMenuToggle).click();
+      cy.get(filterToggle(categoryArchetypes)).click();
       notExists(archetype2.name);
 
       deleteByList([archetype1, archetype2]);

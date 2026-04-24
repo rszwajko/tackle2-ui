@@ -45,19 +45,19 @@ describe(["@tier3", "@tier3_C"], "Tags filter validations", function () {
     const validSearchInputTagCategory = tagCategory.name.substring(0, 3);
 
     Tag.openList();
-    applySelectFilter(categoryTags, categoryTags, validSearchInputTag);
+    applySelectFilter(categoryTags, validSearchInputTag);
     expandRowDetails(tag.tagCategory);
     existsWithinRow(tag.tagCategory, tdTag, tag.name);
     closeRowDetails(tag.tagCategory);
 
-    applySelectFilter(categoryTags, categoryTags, validSearchInputTagCategory);
+    applySelectFilter(categoryTags, validSearchInputTagCategory);
     exists(validSearchInputTagCategory);
 
     clearAllFilters();
 
     // Enter a non-existing tag name substring and apply it as search filter
     const invalidSearchInput = String(data.getRandomNumber(111111, 222222));
-    applySelectFilter(categoryTags, categoryTags, invalidSearchInput, false);
+    applySelectFilter(categoryTags, invalidSearchInput, false);
   });
 
   after("Cleanup", function () {

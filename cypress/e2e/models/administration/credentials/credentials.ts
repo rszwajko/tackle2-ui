@@ -35,7 +35,7 @@ import {
   categoryName,
   categoryType,
   filterCategory,
-  filterSelectType,
+  filterToggle,
 } from "../../../types/filter-categories";
 import { CredentialsData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
@@ -225,7 +225,7 @@ export class Credentials {
 
   static applyFilterByType(type: string) {
     selectFromDropList(commonView.filteredBy, filterCategory(categoryType));
-    selectFromDropListByText(filterSelectType(categoryType), type);
+    selectFromDropListByText(filterToggle(categoryType), type);
   }
 
   static applyFilterCreatedBy(value: string) {
@@ -243,7 +243,7 @@ export class Credentials {
       filterCategory(categoryDefaultCredential)
     );
     selectFromDropListByText(
-      filterSelectType(categoryDefaultCredential),
+      filterToggle(categoryDefaultCredential),
       value,
       commonView.actionMenuItem
     );
