@@ -222,7 +222,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
       status={toggleStatus}
       onClick={onToggleClick}
       isExpanded={isFilterDropdownOpen}
-      isDisabled={isDisabled || !options.length}
+      isDisabled={isDisabled}
       isFullWidth={isFullWidth}
     >
       <TextInputGroup isPlain>

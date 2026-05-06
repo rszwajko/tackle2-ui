@@ -854,10 +854,7 @@ export class Application {
   ): void {
     cy.get(dropdownLocator).click();
     appNameList.forEach(function (app) {
-      cy.get(dependencySelectListbox, { timeout: 10 * SEC })
-        .contains("button", app)
-        .should("be.enabled")
-        .click();
+      cy.get(dependencySelectListbox).contains("button", app).click();
       cy.get(dependencyChipGroup, { timeout: 10 * SEC })
         .contains("span", app)
         .should("be.visible");
