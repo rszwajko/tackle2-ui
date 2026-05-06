@@ -164,6 +164,9 @@ export class Stakeholdergroups {
   }
 
   protected selectMembers(members: Array<string>): void {
+    if (!members.length) {
+      return;
+    }
     members.forEach(function (member) {
       selectFormItems(stakeholdergroupMemberSelect, member);
     });

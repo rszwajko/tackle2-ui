@@ -281,6 +281,7 @@ export class MigrationWave {
   private static fillStakeHolder(stakeHolderName: string) {
     inputText(MigrationWaveView.stakeHoldersInput, stakeHolderName);
     cy.get("button").contains(stakeHolderName).click();
+    cy.get(MigrationWaveView.stakeHoldersInput).click();
   }
 
   private static fillStakeHolderGroup(stakeHolderGroupName: string) {

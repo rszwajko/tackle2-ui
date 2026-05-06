@@ -103,6 +103,9 @@ export class Stakeholders {
   }
 
   protected selectGroups(groups: Array<string>): void {
+if(!groups.length) {
+return;
+}
     groups.forEach(function (group) {
       selectFormItems(groupInput, group);
     });

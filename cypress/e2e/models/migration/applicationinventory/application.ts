@@ -975,7 +975,9 @@ export class Application {
     dependencyChipGroup: string,
     appName: string
   ): void {
-    cy.get(dependencyChipGroup).contains("span", appName).should("exist");
+    cy.get(dependencyChipGroup, { timeout: 10 * SEC })
+      .contains("span", appName)
+      .should("exist");
   }
 
   validateExcludedIssues(appIssues: AppIssue[]): void {

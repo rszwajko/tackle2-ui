@@ -115,17 +115,25 @@ export class Archetype {
   }
 
   protected selectStakeholders(stakeholders: Stakeholders[]) {
+if(!stakeholders.length) {
+return;
+}
     stakeholders.forEach((stakeholder) => {
       inputText(archetype.stakeholders, stakeholder.name);
       cy.get("button").contains(stakeholder.name).click();
     });
+    cy.get(archetype.stakeholders).click();
   }
 
   protected selectStakeholderGroups(stakeholderGroups: Stakeholdergroups[]) {
+if(!stakeholderGroups.length) {
+return;
+}
     stakeholderGroups.forEach((stakeholderGroup) => {
       inputText(archetype.stakeholderGroups, stakeholderGroup.name);
       cy.get("button").contains(stakeholderGroup.name).click();
     });
+    cy.get(archetype.stakeholderGroups).click();
   }
 
   protected fillComment(comments: string): void {
