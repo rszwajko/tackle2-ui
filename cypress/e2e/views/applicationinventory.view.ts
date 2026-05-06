@@ -31,8 +31,7 @@ export const applicationBusinessServiceClearButton =
   "[data-ouia-component-id='business-service-toggle-clear-button']";
 export const tagsColumnSelector = "td[data-label='Tags']";
 
-export const applicationContributorsInput =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
+export const applicationContributorsInput = "#contributors-select-toggle-input";
 export const applicationContributorsText = ".pf-v5-c-chip__text";
 export const applicationContributorsAction = ".pf-v5-c-chip__actions";
 export const applicationOwnerInput = "#owner-toggle-input";
@@ -67,8 +66,7 @@ export const topKebabMenu = "#toolbar-kebab";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
 export const profileEdit = ".pf-m-1-col > .pf-v5-c-button";
-export const appContributorSelect =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
+export const appContributorSelect = "#contributors-select-toggle-input";
 export const appSelectionButton = "button.pf-v5-c-menu-toggle__button";
 // This is on the Application imports page.
 export const sideKebabMenu = "button[aria-label='Kebab toggle']";

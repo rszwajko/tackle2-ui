@@ -41,5 +41,5 @@ export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
 export const addPackageToExclude = "#add-package-to-exclude";
 export const includeLabelsInput =
-  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
+  "input[id=additional-source-labels-toggle-input]";
 export const includeLabelsMenuItem = ".pf-v5-c-select__menu-item";
