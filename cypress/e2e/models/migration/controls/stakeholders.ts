@@ -106,6 +106,7 @@ export class Stakeholders {
     groups.forEach(function (group) {
       selectFormItems(groupInput, group);
     });
+    cy.get(groupInput).click();
   }
 
   protected removeGroups(groups: Array<string>): void {

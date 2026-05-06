@@ -167,6 +167,7 @@ export class Stakeholdergroups {
     members.forEach(function (member) {
       selectFormItems(stakeholdergroupMemberSelect, member);
     });
+    cy.get(stakeholdergroupMemberSelect).click();
   }
 
   create(cancel = false): void {

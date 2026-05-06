@@ -79,6 +79,7 @@ import {
   kebabMenu,
   northdependenciesChipGroup,
   northdependenciesDropdownBtn,
+  northdependenciesSelectListbox,
   packaging,
   profileEdit,
   repoTypeSelect,
@@ -88,6 +89,7 @@ import {
   sourceRepository,
   southdependenciesChipGroup,
   southdependenciesDropdownBtn,
+  southdependenciesSelectListbox,
   tagsColumnSelector,
   taskIcon,
   version,
@@ -847,12 +849,18 @@ export class Application {
   selectDependency(
     dropdownLocator: string,
     dependencyChipGroup: string,
+    dependencySelectListbox: string,
     appNameList: Array<string>
   ): void {
     cy.get(dropdownLocator).click();
     appNameList.forEach(function (app) {
-      cy.contains("button", app).click();
-      cy.get(dependencyChipGroup).contains("span", app).should("be.visible");
+      cy.get(dependencySelectListbox, { timeout: 10 * SEC })
+        .contains("button", app)
+        .should("be.enabled")
+        .click();
+      cy.get(dependencyChipGroup, { timeout: 10 * SEC })
+        .contains("span", app)
+        .should("be.visible");
     });
     cy.get(dropdownLocator).click();
   }
@@ -868,6 +876,7 @@ export class Application {
         this.selectDependency(
           northdependenciesDropdownBtn,
           northdependenciesChipGroup,
+          northdependenciesSelectListbox,
           northbound
         );
       }
@@ -875,6 +884,7 @@ export class Application {
         this.selectDependency(
           southdependenciesDropdownBtn,
           southdependenciesChipGroup,
+          southdependenciesSelectListbox,
           southbound
         );
       }
