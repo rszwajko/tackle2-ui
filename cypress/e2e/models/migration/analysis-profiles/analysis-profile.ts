@@ -39,6 +39,7 @@ import {
   analysisData,
 } from "../../../types/types";
 import {
+  additionalSourceLabelsToggle,
   cancelButton,
   createProfileButton,
   description as profileDescriptionInput,
@@ -48,7 +49,6 @@ import {
   pencilAction,
   ruleLabelToExclude,
   submitButton,
-  additionalSourceLabelsToggle,
 } from "../../../views/analysis-profile.view";
 import { rightSideMenu } from "../../../views/analysis.view";
 import * as commonView from "../../../views/common.view";

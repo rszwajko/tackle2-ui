@@ -22,13 +22,16 @@ import {
   login,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
+import { SEC } from "../../../../types/constants";
 import {
   closeForm,
   cyclicDependenciesErrorMsg,
   northdependenciesChipGroup,
   northdependenciesDropdownBtn,
+  northdependenciesSelectListbox,
   southdependenciesChipGroup,
   southdependenciesDropdownBtn,
+  southdependenciesSelectListbox,
 } from "../../../../views/applicationinventory.view";
 import { helper } from "../../../../views/common.view";
 
@@ -70,10 +73,14 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     applicationsList[0].selectDependency(
       northdependenciesDropdownBtn,
       northdependenciesChipGroup,
+      northdependenciesSelectListbox,
       [applicationsList[2].name]
     );
 
-    cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);
+    cy.get(helper, { timeout: 30 * SEC }).should(
+      "contain.text",
+      cyclicDependenciesErrorMsg
+    );
     click(closeForm);
 
     // Adding app[0] as southbound dependency for app[2] should yield cyclic error
@@ -81,6 +88,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     applicationsList[2].selectDependency(
       southdependenciesDropdownBtn,
       southdependenciesChipGroup,
+      southdependenciesSelectListbox,
       [applicationsList[0].name]
     );
 

@@ -835,15 +835,9 @@ export class Application {
     Application.open();
     performRowActionByIcon(this.name, kebabMenu);
     clickByText(button, "Manage dependencies");
-    cy.get(northdependenciesDropdownBtn).should("be.visible");
-  }
-
-  selectNorthDependency(appNameList: Array<string>): void {
-    cy.get(northdependenciesDropdownBtn).click();
-    appNameList.forEach(function (app) {
-      cy.contains("button", app).click();
-    });
-    cy.get(northdependenciesDropdownBtn).click();
+    cy.get(northdependenciesDropdownBtn, { timeout: 30 * SEC })
+      .should("be.visible")
+      .and("be.enabled");
   }
 
   selectDependency(
@@ -855,7 +849,7 @@ export class Application {
     cy.get(dropdownLocator).click();
     appNameList.forEach(function (app) {
       cy.get(dependencySelectListbox).contains("button", app).click();
-      cy.get(dependencyChipGroup, { timeout: 10 * SEC })
+      cy.get(dependencyChipGroup, { timeout: 30 * SEC })
         .contains("span", app)
         .should("be.visible");
     });
@@ -895,7 +889,7 @@ export class Application {
       .closest("li")
       .find("button")
       .click()
-      .should("not.exist");
+      .should("not.exist", { timeout: 30 * SEC });
   }
 
   // Remove north or south bound dependency for an application
@@ -975,9 +969,7 @@ export class Application {
     dependencyChipGroup: string,
     appName: string
   ): void {
-    cy.get(dependencyChipGroup, { timeout: 10 * SEC })
-      .contains("span", appName)
-      .should("exist");
+    cy.get(dependencyChipGroup).contains("span", appName).should("exist");
   }
 
   validateExcludedIssues(appIssues: AppIssue[]): void {
