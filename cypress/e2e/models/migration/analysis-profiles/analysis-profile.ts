@@ -48,6 +48,7 @@ import {
   pencilAction,
   ruleLabelToExclude,
   submitButton,
+  additionalSourceLabelsToggle,
 } from "../../../views/analysis-profile.view";
 import { rightSideMenu } from "../../../views/analysis.view";
 import * as commonView from "../../../views/common.view";
@@ -184,7 +185,7 @@ export class AnalysisProfile {
   protected labelsToInclude(label: string) {
     click(includeLabelsInput);
     cy.get(includeLabelsSelectListbox).contains("button", label).click();
-    click(includeLabelsInput);
+    cy.get(additionalSourceLabelsToggle).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {

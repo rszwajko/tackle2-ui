@@ -52,6 +52,7 @@ import {
   applicationData,
 } from "../../../types/types";
 import {
+  additionalSourceLabelsToggle,
   includeLabelsInput,
   includeLabelsSelectListbox,
 } from "../../../views/analysis-profile.view";
@@ -222,7 +223,7 @@ export class Analysis extends Application {
   protected labelsToInclude(label: string) {
     click(includeLabelsInput);
     cy.get(includeLabelsSelectListbox).contains("button", label).click();
-    click(includeLabelsInput);
+    cy.get(additionalSourceLabelsToggle).click();
   }
 
   protected enableSaveAsProfile() {
