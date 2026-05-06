@@ -115,9 +115,9 @@ export class Archetype {
   }
 
   protected selectStakeholders(stakeholders: Stakeholders[]) {
-if(!stakeholders.length) {
-return;
-}
+    if (!stakeholders.length) {
+      return;
+    }
     stakeholders.forEach((stakeholder) => {
       inputText(archetype.stakeholders, stakeholder.name);
       cy.get("button").contains(stakeholder.name).click();
@@ -126,9 +126,9 @@ return;
   }
 
   protected selectStakeholderGroups(stakeholderGroups: Stakeholdergroups[]) {
-if(!stakeholderGroups.length) {
-return;
-}
+    if (!stakeholderGroups.length) {
+      return;
+    }
     stakeholderGroups.forEach((stakeholderGroup) => {
       inputText(archetype.stakeholderGroups, stakeholderGroup.name);
       cy.get("button").contains(stakeholderGroup.name).click();
