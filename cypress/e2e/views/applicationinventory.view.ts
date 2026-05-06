@@ -53,6 +53,10 @@ export const cyclicDependenciesErrorMsg =
   "Cyclic dependencies are not allowed.";
 export const northdependenciesDropdownBtn =
   "[data-ouia-component-id='northbound-dependencies-toggle']";
+export const northdependenciesChipGroup =
+  "[data-ouia-component-id='northbound-dependencies-toggle-chip-group']";
+export const southdependenciesChipGroup =
+  "[data-ouia-component-id='southbound-dependencies-toggle-chip-group']";
 export const southdependenciesDropdownBtn =
   "[data-ouia-component-id='southbound-dependencies-toggle']";
 export const date = "Import Time";

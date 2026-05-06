@@ -25,7 +25,9 @@ import { Application } from "../../../../models/migration/applicationinventory/a
 import {
   closeForm,
   cyclicDependenciesErrorMsg,
+  northdependenciesChipGroup,
   northdependenciesDropdownBtn,
+  southdependenciesChipGroup,
   southdependenciesDropdownBtn,
 } from "../../../../views/applicationinventory.view";
 import { helper } from "../../../../views/common.view";
@@ -65,18 +67,22 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
 
     // Adding app[2] as northbound dependency for app[0] should yield cyclic error
     applicationsList[0].openManageDependencies();
-    applicationsList[0].selectDependency(northdependenciesDropdownBtn, [
-      applicationsList[2].name,
-    ]);
+    applicationsList[0].selectDependency(
+      northdependenciesDropdownBtn,
+      northdependenciesChipGroup,
+      [applicationsList[2].name]
+    );
 
     cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);
     click(closeForm);
 
     // Adding app[0] as southbound dependency for app[2] should yield cyclic error
     applicationsList[2].openManageDependencies();
-    applicationsList[2].selectDependency(southdependenciesDropdownBtn, [
-      applicationsList[0].name,
-    ]);
+    applicationsList[2].selectDependency(
+      southdependenciesDropdownBtn,
+      southdependenciesChipGroup,
+      [applicationsList[0].name]
+    );
 
     cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);
     click(closeForm);

@@ -246,10 +246,14 @@ export const MultiSelect: FC<MultiSelectProps> = ({
           aria-controls={`${toggleId}-listbox`}
         >
           {hasChips && (
-            <ChipGroup aria-label="Current selections">
+            <ChipGroup
+              aria-label="Current selections"
+              ouiaId={`${toggleId}-chip-group`}
+            >
               {values?.map((value) => (
                 <Chip
                   key={value}
+                  ouiaId={`${toggleId}-chip-item-${value}`}
                   onClick={(ev) => {
                     ev.stopPropagation();
                     onSelect(value);

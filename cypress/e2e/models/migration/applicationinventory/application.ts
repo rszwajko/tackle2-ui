@@ -77,6 +77,7 @@ import {
   closeForm,
   group,
   kebabMenu,
+  northdependenciesChipGroup,
   northdependenciesDropdownBtn,
   packaging,
   profileEdit,
@@ -85,6 +86,7 @@ import {
   selectBox,
   sideKebabMenu,
   sourceRepository,
+  southdependenciesChipGroup,
   southdependenciesDropdownBtn,
   tagsColumnSelector,
   taskIcon,
@@ -831,6 +833,7 @@ export class Application {
     Application.open();
     performRowActionByIcon(this.name, kebabMenu);
     clickByText(button, "Manage dependencies");
+    cy.get(northdependenciesDropdownBtn).should("be.visible");
   }
 
   selectNorthDependency(appNameList: Array<string>): void {
@@ -841,10 +844,15 @@ export class Application {
     cy.get(northdependenciesDropdownBtn).click();
   }
 
-  selectDependency(dropdownLocator: string, appNameList: Array<string>): void {
+  selectDependency(
+    dropdownLocator: string,
+    dependencyChipGroup: string,
+    appNameList: Array<string>
+  ): void {
     cy.get(dropdownLocator).click();
     appNameList.forEach(function (app) {
       cy.contains("button", app).click();
+      cy.get(dependencyChipGroup).contains("span", app).should("be.visible");
     });
     cy.get(dropdownLocator).click();
   }
@@ -857,26 +865,30 @@ export class Application {
     if (northbound || southbound) {
       this.openManageDependencies();
       if (northbound.length > 0) {
-        this.selectDependency(northdependenciesDropdownBtn, northbound);
-        cy.wait(SEC);
+        this.selectDependency(
+          northdependenciesDropdownBtn,
+          northdependenciesChipGroup,
+          northbound
+        );
       }
       if (southbound.length > 0) {
-        this.selectDependency(southdependenciesDropdownBtn, southbound);
-        cy.wait(SEC);
+        this.selectDependency(
+          southdependenciesDropdownBtn,
+          southdependenciesChipGroup,
+          southbound
+        );
       }
-      cy.wait(2 * SEC);
       click(closeForm);
     }
   }
 
-  removeDep(dependency, dependencyType) {
-    cy.get("div")
-      .contains(`Add ${dependencyType} dependencies`)
-      .parent("div")
-      .contains("span.pf-v5-c-chip__text", dependency)
-      .closest(".pf-v5-c-chip")
+  removeDep(dependency, dependencyChipGroup) {
+    cy.get(dependencyChipGroup)
+      .contains("span", dependency)
+      .closest("li")
       .find("button")
-      .click();
+      .click()
+      .should("not.exist");
   }
 
   // Remove north or south bound dependency for an application
@@ -887,14 +899,11 @@ export class Application {
     if (northbound || southbound) {
       this.openManageDependencies();
       if (northbound.length > 0) {
-        this.removeDep(northbound[0], "northbound");
-        cy.wait(SEC);
+        this.removeDep(northbound[0], northdependenciesChipGroup);
       }
       if (southbound.length > 0) {
-        this.removeDep(southbound[0], "southbound");
-        cy.wait(SEC);
+        this.removeDep(southbound[0], southdependenciesChipGroup);
       }
-      cy.wait(2 * SEC);
       click(closeForm);
     }
   }
@@ -906,15 +915,14 @@ export class Application {
   ): void {
     if (northboundApps || southboundApps) {
       this.openManageDependencies();
-      cy.wait(2 * SEC);
       if (northboundApps && northboundApps.length > 0) {
         northboundApps.forEach((app) => {
-          this.dependencyExists("northbound", app);
+          this.dependencyExists(northdependenciesChipGroup, app);
         });
       }
       if (southboundApps && southboundApps.length > 0) {
         southboundApps.forEach((app) => {
-          this.dependencyExists("southbound", app);
+          this.dependencyExists(southdependenciesChipGroup, app);
         });
       }
       click(closeForm);
@@ -956,12 +964,11 @@ export class Application {
     validateTextPresence(commonView.alertBody, alertBodyMessage);
   }
 
-  protected dependencyExists(dependencyType: string, appName: string): void {
-    cy.get("div")
-      .contains(`Add ${dependencyType} dependencies`)
-      .parent("div")
-      .find("span.pf-v5-c-chip__text")
-      .should("contain.text", appName);
+  protected dependencyExists(
+    dependencyChipGroup: string,
+    appName: string
+  ): void {
+    cy.get(dependencyChipGroup).contains("span", appName).should("exist");
   }
 
   validateExcludedIssues(appIssues: AppIssue[]): void {
