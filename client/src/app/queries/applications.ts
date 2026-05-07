@@ -280,6 +280,7 @@ export const useFetchApplicationDependencies = (
     queryKey: [ApplicationDependencyQueryKey, applicationId, "north"],
     queryFn: () => getApplicationDependencies({ toId: `${applicationId}` }),
     enabled: !!applicationId,
+    refetchInterval: DEFAULT_REFETCH_INTERVAL,
   });
 
   const {
@@ -291,6 +292,7 @@ export const useFetchApplicationDependencies = (
     queryKey: [ApplicationDependencyQueryKey, applicationId, "south"],
     queryFn: () => getApplicationDependencies({ fromId: `${applicationId}` }),
     enabled: !!applicationId,
+    refetchInterval: DEFAULT_REFETCH_INTERVAL,
   });
 
   const isFetching = isLoadingNorth || isLoadingSouth;

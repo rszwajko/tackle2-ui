@@ -253,13 +253,22 @@ export const MultiSelect: FC<MultiSelectProps> = ({
               {values?.map((value) => (
                 <Chip
                   key={value}
-                  ouiaId={`${toggleId}-chip-item-${value}`}
+                  /**
+                   * for testing purposes, we cannot rely on text inside the chip as
+                   * it can be truncated
+                   * ouiaId is not used as it is used 2x in the chip:
+                   * outer div and button
+                   * aria-label is not used at the chip level
+                   * as a workaround, we use a span with the aria-label
+                   */
                   onClick={(ev) => {
                     ev.stopPropagation();
                     onSelect(value);
                   }}
                 >
-                  {getDisplayValueForChip(value, options)}
+                  <span aria-label={getDisplayValue(value, options)}>
+                    {getDisplayValueForChip(value, options)}
+                  </span>
                 </Chip>
               ))}
             </ChipGroup>

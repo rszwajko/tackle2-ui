@@ -852,15 +852,16 @@ export class Application {
     appNameList: Array<string>;
   }): void {
     cy.get(dependencyToggle).click();
-    appNameList.forEach(function (app) {
+    appNameList.forEach((app) => {
       cy.get(dependencySelectListbox)
         .contains("span", app)
         .closest("li")
         .find("button")
         .click();
+
       cy.get(dependencyChipGroup, { timeout: 30 * SEC })
-        .contains("span", app)
-        .should("be.visible");
+        .find(`span[aria-label='${app}']`)
+        .should("exist");
     });
     cy.get(dependencyToggle).click();
   }
@@ -892,13 +893,20 @@ export class Application {
     }
   }
 
-  removeDep(dependency, dependencyChipGroup) {
+  removeDep(dependency, dependencyChipGroup, isSingleDependency: boolean) {
     cy.get(dependencyChipGroup)
-      .contains("span", dependency)
+      .find(`span[aria-label='${dependency}']`)
       .closest("li")
       .find("button")
-      .click()
-      .should("not.exist", { timeout: 30 * SEC });
+      .click();
+
+    if (isSingleDependency) {
+      cy.get(dependencyChipGroup).should("not.exist", { timeout: 30 * SEC });
+    } else {
+      cy.get(dependencyChipGroup)
+        .find(`span[aria-label='${dependency}']`)
+        .should("not.exist", { timeout: 30 * SEC });
+    }
   }
 
   // Remove north or south bound dependency for an application
@@ -909,10 +917,18 @@ export class Application {
     if (northbound || southbound) {
       this.openManageDependencies();
       if (northbound.length > 0) {
-        this.removeDep(northbound[0], northdependenciesChipGroup);
+        this.removeDep(
+          northbound[0],
+          northdependenciesChipGroup,
+          northbound.length === 1
+        );
       }
       if (southbound.length > 0) {
-        this.removeDep(southbound[0], southdependenciesChipGroup);
+        this.removeDep(
+          southbound[0],
+          southdependenciesChipGroup,
+          southbound.length === 1
+        );
       }
       click(applicationDependenciesCloseButton);
     }
@@ -978,7 +994,9 @@ export class Application {
     dependencyChipGroup: string,
     appName: string
   ): void {
-    cy.get(dependencyChipGroup).contains("span", appName).should("exist");
+    cy.get(dependencyChipGroup, { timeout: 30 * SEC })
+      .find(`span[aria-label='${appName}']`)
+      .should("exist");
   }
 
   validateExcludedIssues(appIssues: AppIssue[]): void {
