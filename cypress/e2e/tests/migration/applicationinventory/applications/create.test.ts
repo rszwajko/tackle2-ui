@@ -48,10 +48,8 @@ import {
 } from "../../../../types/constants";
 import {
   applicationBusinessServiceSelect,
-  applicationContributorsAction,
   applicationContributorsChipGroup,
   applicationContributorsInput,
-  applicationContributorsText,
   applicationDescriptionInput,
   applicationNameInput,
   applicationOwnerClearButton,
