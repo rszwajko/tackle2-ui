@@ -68,13 +68,13 @@ import {
   applicationBusinessServiceClearButton,
   applicationBusinessServiceSelect,
   applicationCommentInput,
+  applicationDependenciesCloseButton,
   applicationDescriptionInput,
   applicationNameInput,
   applicationOwnerInput,
   applicationTagsSelect,
   artifact,
   branch,
-  closeForm,
   group,
   kebabMenu,
   northdependenciesChipGroup,
@@ -840,20 +840,29 @@ export class Application {
       .and("be.enabled");
   }
 
-  selectDependency(
-    dropdownLocator: string,
-    dependencyChipGroup: string,
-    dependencySelectListbox: string,
-    appNameList: Array<string>
-  ): void {
-    cy.get(dropdownLocator).click();
+  selectDependency({
+    dependencyToggle,
+    dependencyChipGroup,
+    dependencySelectListbox,
+    appNameList,
+  }: {
+    dependencyToggle: string;
+    dependencyChipGroup: string;
+    dependencySelectListbox: string;
+    appNameList: Array<string>;
+  }): void {
+    cy.get(dependencyToggle).click();
     appNameList.forEach(function (app) {
-      cy.get(dependencySelectListbox).contains("button", app).click();
+      cy.get(dependencySelectListbox)
+        .contains("span", app)
+        .closest("li")
+        .find("button")
+        .click();
       cy.get(dependencyChipGroup, { timeout: 30 * SEC })
         .contains("span", app)
         .should("be.visible");
     });
-    cy.get(dropdownLocator).click();
+    cy.get(dependencyToggle).click();
   }
 
   // Add north or south bound dependency for an application
@@ -864,22 +873,22 @@ export class Application {
     if (northbound || southbound) {
       this.openManageDependencies();
       if (northbound.length > 0) {
-        this.selectDependency(
-          northdependenciesDropdownBtn,
-          northdependenciesChipGroup,
-          northdependenciesSelectListbox,
-          northbound
-        );
+        this.selectDependency({
+          dependencyToggle: northdependenciesDropdownBtn,
+          dependencyChipGroup: northdependenciesChipGroup,
+          dependencySelectListbox: northdependenciesSelectListbox,
+          appNameList: northbound,
+        });
       }
       if (southbound.length > 0) {
-        this.selectDependency(
-          southdependenciesDropdownBtn,
-          southdependenciesChipGroup,
-          southdependenciesSelectListbox,
-          southbound
-        );
+        this.selectDependency({
+          dependencyToggle: southdependenciesDropdownBtn,
+          dependencyChipGroup: southdependenciesChipGroup,
+          dependencySelectListbox: southdependenciesSelectListbox,
+          appNameList: southbound,
+        });
       }
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
@@ -905,7 +914,7 @@ export class Application {
       if (southbound.length > 0) {
         this.removeDep(southbound[0], southdependenciesChipGroup);
       }
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
@@ -926,7 +935,7 @@ export class Application {
           this.dependencyExists(southdependenciesChipGroup, app);
         });
       }
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
