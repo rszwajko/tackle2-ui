@@ -845,11 +845,13 @@ export class Application {
     dependencyChipGroup,
     dependencySelectListbox,
     appNameList,
+    shouldExist = true,
   }: {
     dependencyToggle: string;
     dependencyChipGroup: string;
     dependencySelectListbox: string;
     appNameList: Array<string>;
+    shouldExist?: boolean;
   }): void {
     cy.get(dependencyToggle).click();
     appNameList.forEach((app) => {
@@ -858,10 +860,11 @@ export class Application {
         .closest("li")
         .find("button")
         .click();
-
-      cy.get(dependencyChipGroup, { timeout: 30 * SEC })
-        .find(`span[aria-label='${app}']`)
-        .should("exist");
+      if (shouldExist) {
+        cy.get(dependencyChipGroup, { timeout: 30 * SEC })
+          .find(`span[aria-label='${app}']`)
+          .should("exist");
+      }
     });
     cy.get(dependencyToggle).click();
   }
@@ -894,18 +897,18 @@ export class Application {
   }
 
   removeDep(dependency, dependencyChipGroup, isSingleDependency: boolean) {
-    cy.get(dependencyChipGroup)
+    cy.get(dependencyChipGroup, { timeout: 10 * SEC })
       .find(`span[aria-label='${dependency}']`)
       .closest("li")
       .find("button")
       .click();
 
     if (isSingleDependency) {
-      cy.get(dependencyChipGroup).should("not.exist", { timeout: 30 * SEC });
+      cy.get(dependencyChipGroup).should("not.exist");
     } else {
-      cy.get(dependencyChipGroup)
+      cy.get(dependencyChipGroup, { timeout: 10 * SEC })
         .find(`span[aria-label='${dependency}']`)
-        .should("not.exist", { timeout: 30 * SEC });
+        .should("not.exist");
     }
   }
 

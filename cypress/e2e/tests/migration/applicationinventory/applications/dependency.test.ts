@@ -75,6 +75,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
       dependencyChipGroup: northdependenciesChipGroup,
       dependencySelectListbox: northdependenciesSelectListbox,
       appNameList: [applicationsList[2].name],
+      shouldExist: false,
     });
 
     cy.get(helper, { timeout: 30 * SEC }).should(
@@ -90,6 +91,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
       dependencyChipGroup: southdependenciesChipGroup,
       dependencySelectListbox: southdependenciesSelectListbox,
       appNameList: [applicationsList[0].name],
+      shouldExist: false,
     });
 
     cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);

@@ -32,6 +32,8 @@ export const applicationBusinessServiceClearButton =
 export const tagsColumnSelector = "td[data-label='Tags']";
 
 export const applicationContributorsInput = "#contributors-select-toggle-input";
+export const applicationContributorsChipGroup =
+  "[data-ouia-component-id='contributors-select-toggle-chip-group']";
 export const applicationContributorsText = ".pf-v5-c-chip__text";
 export const applicationContributorsAction = ".pf-v5-c-chip__actions";
 export const applicationOwnerInput = "#owner-toggle-input";
