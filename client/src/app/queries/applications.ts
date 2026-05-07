@@ -278,7 +278,7 @@ export const useFetchApplicationDependencies = (
     refetch: refetchNorth,
   } = useQuery<ApplicationDependency[], AxiosError>({
     queryKey: [ApplicationDependencyQueryKey, applicationId, "north"],
-    queryFn: () => getApplicationDependencies({ to: [`${applicationId}`] }),
+    queryFn: () => getApplicationDependencies({ toId: `${applicationId}` }),
     enabled: !!applicationId,
   });
 
@@ -289,7 +289,8 @@ export const useFetchApplicationDependencies = (
     refetch: refetchSouth,
   } = useQuery<ApplicationDependency[], AxiosError>({
     queryKey: [ApplicationDependencyQueryKey, applicationId, "south"],
-    queryFn: () => getApplicationDependencies({ from: [`${applicationId}`] }),
+    queryFn: () => getApplicationDependencies({ fromId: `${applicationId}` }),
+    enabled: !!applicationId,
   });
 
   const isFetching = isLoadingNorth || isLoadingSouth;

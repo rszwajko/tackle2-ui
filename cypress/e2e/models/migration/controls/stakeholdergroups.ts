@@ -39,6 +39,7 @@ import { navMenu, navTab } from "../../../views/menu.view";
 import {
   stakeholdergroupDescriptionInput,
   stakeholdergroupMemberSelect,
+  stakeholdergroupMemberSelectInput,
   stakeholdergroupNameInput,
 } from "../../../views/stakeholdergroups.view";
 
@@ -168,7 +169,7 @@ export class Stakeholdergroups {
       return;
     }
     members.forEach(function (member) {
-      selectFormItems(stakeholdergroupMemberSelect, member);
+      selectFormItems(stakeholdergroupMemberSelectInput, member);
     });
     cy.get(stakeholdergroupMemberSelect).click();
   }
