@@ -20,10 +20,15 @@ import {
   StackItem,
 } from "@patternfly/react-core";
 import {
+  chart_color_black_400 as black,
   chart_color_green_100 as green,
-  t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_800 */,
-  t_temp_dev_tbd as white /* CODEMODS: you should update this color token, original v5 token was global_palette_white */,
 } from "@patternfly/react-tokens";
+
+const white = {
+  name: "--pf-t--global--background--color--primary--default",
+  value: "#ffffff",
+  var: "var(--pf-t--global--background--color--primary--default)",
+};
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import {
