@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Curve } from "victory-line";
-import { global_palette_black_800 as black } from "@patternfly/react-tokens";
+import {
+  t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_800 */,
+} from "@patternfly/react-tokens";
 
 export const Arrow: React.FC = (props) => {
   return (

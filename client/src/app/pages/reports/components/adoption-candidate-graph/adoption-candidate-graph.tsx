@@ -21,8 +21,8 @@ import {
 } from "@patternfly/react-core";
 import {
   chart_color_green_100 as green,
-  global_palette_black_800 as black,
-  global_palette_white as white,
+  t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_800 */,
+  t_temp_dev_tbd as white /* CODEMODS: you should update this color token, original v5 token was global_palette_white */,
 } from "@patternfly/react-tokens";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
