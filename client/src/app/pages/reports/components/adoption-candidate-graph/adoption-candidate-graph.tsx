@@ -307,9 +307,11 @@ export const AdoptionCandidateGraph: React.FC = () => {
                       height={chartHeight}
                       width={chartWidth}
                       domain={{ x: [0, 100], y: [0, 10] }}
-                      style={{
-                        background: { fill: "url(#axis_gradient)" },
-                      }}
+                      style={
+                        {
+                          background: { fill: "url(#axis_gradient)" },
+                        } as any
+                      }
                     >
                       <ChartAxis
                         label={t("terms.confidence")}
@@ -349,7 +351,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           }}
                           labelComponent={
                             <ChartTooltip
-                              dy={({ datum }) => {
+                              dy={({ datum }: { datum: any }) => {
                                 const point = datum as BubblePoint;
                                 return 0 - point.size;
                               }}
@@ -357,7 +359,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           }
                           style={{
                             data: {
-                              fill: ({ datum }) => {
+                              fill: ({ datum }: { datum: any }) => {
                                 const point = datum as BubblePoint;
                                 return point.legend.hexColor;
                               },
