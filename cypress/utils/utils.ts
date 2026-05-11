@@ -103,7 +103,6 @@ import {
   expandableRow,
   filteredBy,
   firstPageButton,
-  itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
   lastPageButton,
   manageImportsActionsButton,
@@ -349,24 +348,19 @@ export function resetURL(): void {
 export function selectItemsPerPage(items: number): void {
   cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
     ($toggleBtn) => {
-      if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        // PF6 renders menu dropdowns via Popper/portal outside the current
-        // DOM context (e.g. outside a modal). Use root().parents() to escape
-        // any within() scope and search from the document body.
-        cy.root()
-          .parents("body")
-          .find(itemsPerPageMenuOptions, { log: false })
-          .should("exist");
-        cy.root()
-          .parents("body")
-          .find(`li[data-action="per-page-${items}"]`, { log: false })
-          .contains(`${items}`)
-          .click({
-            force: true,
-            log: false,
-          });
+      if ($toggleBtn.is(":disabled")) {
+        return;
       }
+      $toggleBtn.trigger("click");
+      // PF6 renders menu dropdowns via Popper/portal outside the current
+      // DOM context (e.g. outside a modal)
+      const actionSelector = `li[data-action="per-page-${items}"]`;
+      cy.document()
+        .get(actionSelector, { log: false, timeout: 60 * SEC })
+        .contains(`${items}`)
+        .click({
+          log: false,
+        });
     }
   );
 }
