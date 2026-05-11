@@ -351,8 +351,16 @@ export function selectItemsPerPage(items: number): void {
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
         $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
+        // PF6 renders menu dropdowns via Popper/portal outside the current
+        // DOM context (e.g. outside a modal). Use root().parents() to escape
+        // any within() scope and search from the document body.
+        cy.root()
+          .parents("body")
+          .find(itemsPerPageMenuOptions, { log: false })
+          .should("exist");
+        cy.root()
+          .parents("body")
+          .find(`li[data-action="per-page-${items}"]`, { log: false })
           .contains(`${items}`)
           .click({
             force: true,
