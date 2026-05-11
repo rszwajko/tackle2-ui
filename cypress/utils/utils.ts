@@ -352,11 +352,11 @@ export function selectItemsPerPage(items: number): void {
         return;
       }
       $toggleBtn.trigger("click");
-      // PF6 renders menu dropdowns via Popper/portal outside the current
+      // Note PF6 renders menu dropdowns via Popper/portal outside the current
       // DOM context (e.g. outside a modal)
       const actionSelector = `li[data-action="per-page-${items}"]`;
-      cy.document()
-        .get(actionSelector, { log: false, timeout: 60 * SEC })
+      cy.root()
+        .closest(actionSelector, { log: false, timeout: 60 * SEC })
         .contains(`${items}`)
         .click({
           log: false,
@@ -1693,8 +1693,9 @@ export function callWithin(
   selector: string,
   functionToExec: () => void,
   index = 0
-): void {
-  cy.get(selector)
+): Chainable<JQuery<HTMLElement>> {
+  return cy
+    .get(selector)
     .eq(index)
     .within(() => functionToExec());
 }

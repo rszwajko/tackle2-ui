@@ -147,8 +147,8 @@ export class MigrationWave {
     callWithin(modal, () => {
       selectItemsPerPage(100);
       cy.get(itemsSelectInsideDialog).click();
-      cy.contains(button, selectNone).click();
-      selectItemsPerPage(100);
+    }).then(() => {
+      cy.get("ul[role='menu']").contains(button, selectNone).click();
     });
 
     this.applications.forEach((app) => {
