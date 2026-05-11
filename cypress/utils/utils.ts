@@ -346,23 +346,23 @@ export function resetURL(): void {
 }
 
 export function selectItemsPerPage(items: number): void {
-  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
-    ($toggleBtn) => {
-      if ($toggleBtn.is(":disabled")) {
-        return;
-      }
-      $toggleBtn.trigger("click");
-      // Note PF6 renders menu dropdowns via Popper/portal outside the current
-      // DOM context (e.g. outside a modal)
-      const actionSelector = `li[data-action="per-page-${items}"]`;
-      cy.root()
-        .closest(actionSelector, { log: false, timeout: 60 * SEC })
-        .contains(`${items}`)
-        .click({
-          log: false,
-        });
+  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC }).then(($toggleBtn) => {
+    if ($toggleBtn.is(":disabled")) {
+      return;
     }
-  );
+    $toggleBtn.trigger("click");
+    // Note PF6 renders menu dropdowns via Popper/portal outside the current
+    // DOM context (e.g. outside a modal)
+    const actionSelector = `li[data-action="per-page-${items}"]`;
+
+    cy.document()
+      .its("body")
+      .within(() => {
+        cy.get(actionSelector, { timeout: 60 * SEC })
+          .contains("button", `${items}`)
+          .click();
+      });
+  });
 }
 
 export function selectFromDropList(dropList, item: string) {

@@ -167,9 +167,9 @@ export class MigrationWave {
 
     cy.get(submitButton, { timeout: 15 * SEC })
       .should("exist")
+      .scrollIntoView()
       .should("be.visible")
       .should("not.be.disabled")
-      .scrollIntoView()
       .wait(500) // Brief wait to ensure button is stable
       .click();
 
@@ -189,7 +189,11 @@ export class MigrationWave {
     cy.contains(manageApplications).click();
     callWithin(modal, () => {
       cy.get(itemsSelectInsideDialog).click();
-      cy.contains(button, selectNone).click();
+    }).then(() => {
+      cy.get("ul[role='menu']").contains(button, selectNone).click();
+    });
+
+    callWithin(modal, () => {
       clickJs(submitButton);
       this.applications = [];
     });
