@@ -2119,12 +2119,12 @@ export function clickTab(name: string): void {
         .should("exist")
         .click({ force: true })
         .then(() => {
-          cy.get(navTabs)
-            .find('[data-ouia-component-type="PF6/Menu"]')
-            .find(actionMenuItem, { timeout: 5 * SEC })
-            .contains(name)
-            .closest("button")
-            .click({ force: true });
+          cy.root().then(($root) => {
+            // for some reason synchronous check is needed
+            $root
+              .find(`${actionMenuItem}:contains("${name}")`)
+              .trigger("click");
+          });
         });
     }
   });
