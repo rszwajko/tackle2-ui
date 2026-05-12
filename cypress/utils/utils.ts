@@ -2102,14 +2102,8 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 export function clickTab(name: string): void {
   cy.get(navTabs, { timeout: 10 * SEC }).should("exist");
 
-  // wait for overflow briefly but don't fail if not found
-  // the overflow is added asynchronously after the tabs are rendered
-  cy.get(navTabs).get("li.pf-v6-c-tabs__item.pf-m-overflow", {
-    timeout: SEC,
-  });
-
   cy.get(navTabs).then(($root) => {
-    const visibleTab = $root.find(`${navTab}:contains("${name}"):visible`);
+    const visibleTab = $root.find(`${navTab}:contains("${name}")`);
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
