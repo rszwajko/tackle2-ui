@@ -534,8 +534,23 @@ export function notExists(value: string, tableSelector = appTable): void {
 }
 
 export function selectFilter(categoryKey: string): void {
-  cy.get(filteredBy).click();
-  cy.get(filterCategory(categoryKey)).click();
+  cy.get('[data-ouia-component-type="PF6/Toolbar"]')
+    .should("be.visible")
+    .within(($toolbar) => {
+      // expand the filter toolbar if it is not visible
+      if ($toolbar.find("button[aria-label='Show filters']").is(":visible")) {
+        $toolbar.find("button[aria-label='Show filters']").trigger("click");
+      }
+    })
+    .then(() => {
+      cy.get(filteredBy).should("be.visible").click();
+      // popup rendered outside of the toolbar (escape within() scope)
+      cy.document()
+        .its("body")
+        .within(() => {
+          cy.get(filterCategory(categoryKey)).click({ force: true });
+        });
+    });
 }
 
 export function clearAllFilters(): void {
@@ -582,11 +597,16 @@ export function applySelectFilter(
   const filterValue = Array.isArray(searchText) ? searchText : [searchText];
 
   cy.get(filterToggle(filterName)).click();
-  cy.get(filterToggleListbox(filterName)).within(() => {
-    filterValue.forEach((searchTextValue) => {
-      cy.contains(searchTextValue).click();
+  // popup rendered outside of the toolbar (escape within() scope)
+  cy.document()
+    .its("body")
+    .within(() => {
+      cy.get(filterToggleListbox(filterName)).within(() => {
+        filterValue.forEach((searchTextValue) => {
+          cy.contains(searchTextValue).click({ force: true });
+        });
+      });
     });
-  });
 }
 
 export function applySearchFilter(
