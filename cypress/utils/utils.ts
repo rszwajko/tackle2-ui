@@ -119,7 +119,7 @@ import {
 } from "../e2e/views/common.view";
 import { singleApplicationColumns } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
-import { navMenu, navTab } from "../e2e/views/menu.view";
+import { navMenu, navTab, navTabs } from "../e2e/views/menu.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
 import * as data from "../utils/data_utils";
@@ -534,12 +534,14 @@ export function notExists(value: string, tableSelector = appTable): void {
 }
 
 export function selectFilter(categoryKey: string): void {
-  cy.get('[data-ouia-component-type="PF6/Toolbar"]')
+  cy.get(
+    `[data-ouia-component-type="PF6/Toolbar"] button[aria-label="Show Filters"],${filteredBy}`
+  )
     .should("be.visible")
-    .within(($toolbar) => {
+    .each(($button) => {
       // expand the filter toolbar if it is not visible
-      if ($toolbar.find("button[aria-label='Show filters']").is(":visible")) {
-        $toolbar.find("button[aria-label='Show filters']").trigger("click");
+      if ($button.is("button[aria-label='Show filters']")) {
+        $button.trigger("click");
       }
     })
     .then(() => {
@@ -2098,32 +2100,32 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+  cy.get(navTabs, { timeout: 10 * SEC }).should("exist");
 
-  cy.root().then(($root) => {
-    const visibleTab = $root
-      .find(`${navTab}:contains("${name}")`)
-      .filter((_index, el) => {
-        const $el = Cypress.$(el);
-        return (
-          $el.is(":visible") &&
-          $el.closest("li.pf-v6-c-tabs__item.pf-m-overflow").length === 0
-        );
-      });
+  // wait for overflow briefly but don't fail if not found
+  // the overflow is added asynchronously after the tabs are rendered
+  cy.get(navTabs).get("li.pf-v6-c-tabs__item.pf-m-overflow", {
+    timeout: SEC,
+  });
+
+  cy.get(navTabs).then(($root) => {
+    const visibleTab = $root.find(`${navTab}:contains("${name}"):visible`);
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v6-c-tabs__item.pf-m-overflow");
-      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v6-c-tabs__item.pf-m-overflow > button").click({
-          force: true,
+      cy.get(navTabs)
+        .get("li.pf-v6-c-tabs__item.pf-m-overflow button")
+        .should("exist")
+        .click({ force: true })
+        .then(() => {
+          cy.get(navTabs)
+            .find('[data-ouia-component-type="PF6/Menu"]')
+            .find(actionMenuItem, { timeout: 5 * SEC })
+            .contains(name)
+            .closest("button")
+            .click({ force: true });
         });
-        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
-        clickByText(actionMenuItem, name);
-      } else {
-        clickByText(navTab, name);
-      }
     }
   });
 }
