@@ -367,8 +367,8 @@ spec:
 
               echo "Cloning tackle2-ui repository..."
               cd /tmp
-              git clone --depth 1 --branch ui_test_konflux_integration https://github.com/sshveta/tackle2-ui.git
-              cd tackle2-ui
+              git clone --depth 1 --branch konflux_ui_test_integration https://github.com/migtools/mta-tackle2-ui.git
+              cd mta-tackle2-ui
 
               echo "Installing dependencies..."
               npm clean-install --ignore-scripts --no-audit

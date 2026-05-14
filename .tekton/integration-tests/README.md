@@ -112,7 +112,7 @@ Runs Cypress E2E login test against the deployed MTA instance.
 
 **Steps:**
 
-1. Clone tackle2-ui repository (branch: `ui_test_konflux_integration`)
+1. Clone mta-tackle2-ui repository (branch: `konflux_ui_test_integration` from PR https://github.com/migtools/mta-tackle2-ui/pull/8)
 2. Install Node.js dependencies and Cypress binary
 3. Run login test (`e2e/tests/login.test.ts`)
    - Base URL: MTA UI route from deploy-operator step
@@ -269,19 +269,19 @@ Pipeline uses the `imageContentSources` parameter in the `eaas-create-ephemeral-
 
 ---
 
-### Issue 5: Test Execution Branch Confusion
+### Issue 5: Test Execution Branch Configuration
 
 **Issue:**  
-Tests were running from a custom branch (`ui_test_konflux_integration`) in a fork, not from the main repository.
+Tests were running from a custom branch in a fork during development.
 
-**Current state:**
+**Resolution:**  
+Tests now run from the official `migtools/mta-tackle2-ui` repository using the `konflux_ui_test_integration` branch (PR https://github.com/migtools/mta-tackle2-ui/pull/8):
 
 ```bash
-git clone --branch ui_test_konflux_integration https://github.com/sshveta/tackle2-ui.git
+git clone --branch konflux_ui_test_integration https://github.com/migtools/mta-tackle2-ui.git
 ```
 
-**TODO:**  
-Update to use the main repository branch (either `main` or `release-0.9`) once integration work is merged upstream.
+This PR contains the `.tekton/integration-tests/` configuration that the pipeline uses. Once merged to `main`, the pipeline can be updated to use the main branch.
 
 ---
 
