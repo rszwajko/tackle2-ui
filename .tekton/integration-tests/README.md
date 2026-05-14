@@ -69,7 +69,7 @@ Provisions an ephemeral Hypershift cluster on AWS.
 
 **Configuration:**
 
-- OpenShift version: 4.19
+- OpenShift version: 4.18
 - Instance type: m5.xlarge
 - **imageContentSources:** Mirrors `registry.redhat.io` → `registry.stage.redhat.io`
 
@@ -131,7 +131,7 @@ Currently runs only the login test to validate:
 
 - **Namespace:** `openshift-mta`
 - **Operator channel:** `stable-v8.1`
-- **Cluster version:** OpenShift 4.19
+- **Cluster version:** OpenShift 4.18
 - **Instance type:** m5.xlarge
 - **Registry mirroring:** `registry.redhat.io` → `registry.stage.redhat.io`
 - **Total runtime:** ~20-30 minutes (cluster provisioning + operator deployment + tests)
