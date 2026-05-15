@@ -65,7 +65,7 @@ Stage registry credentials (`registry.stage.redhat.io`) are provisioned automati
 
 ## Test Repository
 
-Tests run from `migtools/mta-tackle2-ui` repository (release-0.9 branch).
+Tests run from `migtools/mta-tackle2-ui` repository (main branch).
 
 The repository contains:
 - Cypress E2E test suite in `cypress/` directory
