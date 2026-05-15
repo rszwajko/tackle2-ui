@@ -387,7 +387,7 @@ spec:
 
               echo "Cloning mta-tackle2-ui repository..."
               cd /tmp
-              git clone --depth 1 --branch konflux_ui_test_integration https://github.com/migtools/mta-tackle2-ui.git
+              git clone --depth 1 --branch main https://github.com/migtools/mta-tackle2-ui.git
               cd mta-tackle2-ui
 
               echo "Installing dependencies..."
