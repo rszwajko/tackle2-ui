@@ -147,7 +147,7 @@ This section documents issues encountered during development and their resolutio
 **Symptom:**  
 OLM bundle-unpacking pods failed with:
 
-```
+```text
 Failed to pull image "registry.redhat.io/mta/mta-operator-bundle@sha256:...":
 rpc error: code = Unknown desc = unable to retrieve auth token: invalid username/password: unauthorized
 ```
@@ -186,7 +186,7 @@ oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfig
 
 OLM successfully pulls bundles from stage:
 
-```
+```text
 Successfully pulled image registry.redhat.io/mta/mta-operator-bundle@sha256:... in 1.504s
 # (redirected to registry.stage.redhat.io via imageContentSources)
 ```
@@ -211,7 +211,7 @@ Initial uncertainty about where to add stage credentials in the EaaS/Hypershift 
 
 3. **Pull secret flow:**
 
-   ```
+   ```text
    hypershift secret (in EaaS cluster)
    → Helm chart values.yaml (secret: hypershift)
    → create-cluster-job.yaml (--pull-secret /opt/hypershift/secret/pull-secret)
