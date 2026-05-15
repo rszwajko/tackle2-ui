@@ -152,7 +152,7 @@ spec:
                 value: credentials
 
           - name: install-operator
-            image: registry.redhat.io/openshift4/ose-cli:latest
+            image: quay.io/openshift/origin-cli:latest
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
