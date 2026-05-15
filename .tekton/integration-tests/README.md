@@ -116,8 +116,8 @@ Runs Cypress E2E login test against the deployed MTA instance.
 2. Install Node.js dependencies and Cypress binary
 3. Run login test (`e2e/tests/login.test.ts`)
    - Base URL: MTA UI route from deploy-operator step
-   - User: admin/Dog8code
-   - Keycloak admin password from deploy-operator step
+   - User: Keycloak admin user
+   - Password: Retrieved at runtime from the deploy-operator step output (`keycloakPassword`)
 4. Generate JUnit XML test reports
 
 **Test coverage:**

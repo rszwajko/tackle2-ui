@@ -165,6 +165,7 @@ spec:
             script: |
               #!/bin/bash
               set -euo pipefail
+              trap 'echo "FAILED" > $(results.deploymentStatus.path)' ERR
 
               FBC_IMAGE="$(params.fbcImage)"
               PACKAGE_NAME="$(params.packageName)"
@@ -376,6 +377,7 @@ spec:
             script: |
               #!/bin/bash
               set -euo pipefail
+              trap 'echo "FAILED" > $(results.testStatus.path)' ERR
 
               UI_ROUTE="$(params.uiRoute)"
               KEYCLOAK_PASS="$(params.keycloakPassword)"
@@ -394,14 +396,12 @@ spec:
 
               echo "Running login test only..."
               cd cypress
+              cp .env.example .env
 
               export CYPRESS_BASE_URL="$BASE_URL"
-              export CYPRESS_USER="admin"
-              export CYPRESS_INITIAL_PASSWORD="Passw0rd!"
-              export CYPRESS_PASSWORD="Dog8code"
               export CYPRESS_KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_PASS"
 
-              if npx cypress run \
+              if npx dotenvx run -- npx cypress run \
                 --spec "e2e/tests/login.test.ts" \
                 --config-file cypress.config.ts; then
                 echo "PASSED" > $(results.testStatus.path)
