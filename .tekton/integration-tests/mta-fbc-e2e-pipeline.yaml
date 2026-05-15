@@ -397,6 +397,4 @@ spec:
 
               npx cypress run \
                 --spec "e2e/tests/login.test.ts" \
-                --config-file cypress.config.ts \
-                --reporter junit \
-                --reporter-options "mochaFile=run/results-[hash].xml"
+                --config-file cypress.config.ts
