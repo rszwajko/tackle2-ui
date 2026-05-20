@@ -3,8 +3,8 @@ import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 import { useRepositoryKind } from "@app/hooks/useRepositoryKind";
 import {
   useCreateApplicationMutation,
@@ -18,11 +18,11 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { matchItemsToRef, matchItemsToRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
-const entityToOptionWithValue = <T extends { name: string }>(
+const entityToOption = <T extends { name: string }>(
   entity: T
-): OptionWithValue<string> => ({
+): FilterSelectOptionProps => ({
   value: entity.name,
-  toString: () => entity.name,
+  label: entity.name,
 });
 
 export const useApplicationFormData = ({
@@ -134,10 +134,10 @@ export const useApplicationFormData = ({
   return {
     isDataReady,
     businessServices,
-    businessServiceOptions: businessServices.map(entityToOptionWithValue),
+    businessServiceOptions: businessServices.map(entityToOption),
     businessServiceToRef,
     stakeholders,
-    stakeholdersOptions: stakeholders.map(entityToOptionWithValue),
+    stakeholdersOptions: stakeholders.map(entityToOption),
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
@@ -147,7 +147,7 @@ export const useApplicationFormData = ({
     createApplication,
     updateApplication,
     platforms,
-    platformOptions: platforms.map(entityToOptionWithValue),
+    platformOptions: platforms.map(entityToOption),
     platformFromName,
     repositoryKindOptions: kindOptions,
   };

@@ -4,10 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Content,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Paths, ViewArchetypesRoute } from "@app/Paths";
@@ -46,10 +44,10 @@ const ViewArchetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">View Archetypes</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">View Archetypes</Content>
+        </Content>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link to={Paths.applications}>Applications</Link>
@@ -69,13 +67,13 @@ const ViewArchetypes: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
           {application?.archetypes && application?.archetypes?.length > 1 && (
             <SimpleSelect
-              id="archetype-select"
-              isScrollable
+              toggleId="select-archetype-toggle"
               ariaLabel="Select an archetype"
+              isFullWidth={false}
               value={activeArchetype ? String(activeArchetype.id) : undefined}
               options={archetypeOptions}
               onSelect={(value) => {
@@ -87,9 +85,9 @@ const ViewArchetypes: React.FC = () => {
               }}
             />
           )}
-          <TextContent>
+          <Content>
             {<ViewArchetypesTable archetypeRef={activeArchetype} />}
-          </TextContent>
+          </Content>
         </ConditionalRender>
       </PageSection>
     </>

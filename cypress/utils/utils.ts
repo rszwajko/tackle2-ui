@@ -46,7 +46,6 @@ import {
   button,
   confidence,
   criticality,
-  dynamicReportFilter,
   groupCount,
   memberCount,
   migration,
@@ -57,6 +56,14 @@ import {
   tdTag,
   trTag,
 } from "../e2e/types/constants";
+import {
+  filterCategory,
+  filterToggle,
+  filterToggleInput,
+  filterToggleListbox,
+  searchButton,
+  searchInput,
+} from "../e2e/types/filter-categories";
 import {
   AppIssue,
   JiraConnectionData,
@@ -94,11 +101,8 @@ import {
   downloadTaskButton,
   expandRow,
   expandableRow,
-  filterDropDownContainer,
-  filterInput,
   filteredBy,
   firstPageButton,
-  itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
   lastPageButton,
   manageImportsActionsButton,
@@ -108,24 +112,14 @@ import {
   pageNumInput,
   prevPageButton,
   removeButton,
-  searchButton,
   sideDrawer,
-  span,
-  standardFilter,
   submitButton,
   successAlertMessage,
   taskDetailsEditor,
 } from "../e2e/views/common.view";
-import { filterSelectType } from "../e2e/views/credentials.view";
-import {
-  bsFilterName,
-  searchInput,
-  searchMenuToggle,
-  singleApplicationColumns,
-  tagFilterName,
-} from "../e2e/views/issue.view";
+import { singleApplicationColumns } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
-import { navMenu, navTab } from "../e2e/views/menu.view";
+import { navMenu, navTab, navTabs } from "../e2e/views/menu.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
 import * as data from "../utils/data_utils";
@@ -352,20 +346,23 @@ export function resetURL(): void {
 }
 
 export function selectItemsPerPage(items: number): void {
-  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
-    ($toggleBtn) => {
-      if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
-          .contains(`${items}`)
-          .click({
-            force: true,
-            log: false,
-          });
-      }
+  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC }).then(($toggleBtn) => {
+    if ($toggleBtn.is(":disabled")) {
+      return;
     }
-  );
+    $toggleBtn.trigger("click");
+    // Note PF6 renders menu dropdowns via Popper/portal outside the current
+    // DOM context (e.g. outside a modal)
+    const actionSelector = `li[data-action="per-page-${items}"]`;
+
+    cy.document()
+      .its("body")
+      .within(() => {
+        cy.get(actionSelector, { timeout: 60 * SEC })
+          .contains("button", `${items}`)
+          .click({ force: true });
+      });
+  });
 }
 
 export function selectFromDropList(dropList, item: string) {
@@ -388,7 +385,7 @@ export function selectFormItems(fieldId: string, item: string): void {
   // toggle-button selects all options are rendered on click.
   cy.get(fieldId).then(($el) => {
     if ($el.is("input")) {
-      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      // Direct input element (e.g. PF4 legacy #job-function-toggle-select-typeahead)
       cy.get(fieldId).click().clear().type(item);
     } else {
       // Wrapper div or toggle button — click to open
@@ -536,75 +533,30 @@ export function notExists(value: string, tableSelector = appTable): void {
   });
 }
 
-export function selectFilter(filterName: string, eq = 0): void {
-  if (eq === 0) {
-    cy.get(filteredBy).click();
-    clickWithinByText(
-      'div[class="pf-v5-c-menu__content"]',
-      "button",
-      filterName
-    );
-    return;
-  }
-  cy.get("div.pf-m-filter-group")
-    .eq(eq)
-    .within(() => {
-      cy.get(filteredBy).click();
-      clickWithinByText(
-        'div[class="pf-v5-c-menu__content"]',
-        "button",
-        filterName
-      );
+export function selectFilter(categoryKey: string): void {
+  cy.get(
+    `[data-ouia-component-type="PF6/Toolbar"] button[aria-label="Show Filters"],${filteredBy}`
+  )
+    .should("be.visible")
+    .each(($button) => {
+      // expand the filter toolbar if it is not visible
+      if ($button.is("button[aria-label='Show filters']")) {
+        $button.trigger("click");
+      }
+    })
+    .then(() => {
+      cy.get(filteredBy).should("be.visible").click();
+      // popup rendered outside of the toolbar (escape within() scope)
+      cy.document()
+        .its("body")
+        .within(() => {
+          cy.get(filterCategory(categoryKey)).click({ force: true });
+        });
     });
-}
-
-export function filterInputText(searchTextValue: string, value: number): void {
-  cy.get(filterInput).eq(value).clear().type(searchTextValue);
-  cy.get(searchButton).eq(value).click({ force: true });
 }
 
 export function clearAllFilters(): void {
   cy.contains(button, "Clear all filters").click({ force: true });
-}
-
-export function filterIssueBy(
-  filterType: dynamicReportFilter,
-  filterValue: string | string[]
-): void {
-  let selector = "";
-  selectFilter(filterType);
-  const isApplicableFilter =
-    filterType === dynamicReportFilter.applicationName ||
-    filterType === dynamicReportFilter.category ||
-    filterType === dynamicReportFilter.source ||
-    filterType === dynamicReportFilter.target;
-
-  if (isApplicableFilter) {
-    if (Array.isArray(filterValue)) {
-      filterValue.forEach((current) => {
-        inputText(searchInput, current);
-        click(searchButton);
-      });
-    } else {
-      inputText(searchInput, filterValue);
-      click(searchButton);
-    }
-  } else {
-    if (filterType == dynamicReportFilter.bs) {
-      selector = bsFilterName;
-    } else if (filterType == dynamicReportFilter.tags) {
-      selector = tagFilterName;
-    }
-    click(selector);
-    if (Array.isArray(filterValue)) {
-      filterValue.forEach((name) => {
-        clickByText(span, name);
-      });
-    } else {
-      clickByText(span, filterValue);
-    }
-    click(selector);
-  }
 }
 
 export function validateSingleApplicationIssue(issue: AppIssue): void {
@@ -622,53 +574,53 @@ export function validateSingleApplicationIssue(issue: AppIssue): void {
     });
 }
 
-export function applySelectFilter(
-  filterId: string,
-  filterName,
+export function applySelectFilterViaTextInput(
+  filterCategoryKey,
   filterText: string,
   isValid = true
 ): void {
-  selectFilter(filterName);
-  click(".pf-v5-c-menu-toggle__button");
-  inputText(".pf-v5-c-text-input-group__text-input", filterText);
+  const filterInput = filterToggleInput(filterCategoryKey);
+  selectFilter(filterCategoryKey);
+  cy.get(filterToggle(filterCategoryKey)).click();
+  inputText(filterInput, filterText);
   if (isValid) {
-    clickByText(".pf-v5-c-menu__item", filterText);
+    clickByText(".pf-v6-c-menu__item", filterText);
   } else {
     cy.contains(actionMenuItem, "No results");
   }
-  click(".pf-v5-c-text-input-group__text-input");
+  cy.get(filterInput).click();
+}
+
+export function applySelectFilter(
+  filterName: string,
+  searchText: string | string[]
+): void {
+  selectFilter(filterName);
+  const filterValue = Array.isArray(searchText) ? searchText : [searchText];
+
+  cy.get(filterToggle(filterName)).click();
+  // popup rendered outside of the toolbar (escape within() scope)
+  cy.document()
+    .its("body")
+    .within(() => {
+      cy.get(filterToggleListbox(filterName)).within(() => {
+        filterValue.forEach((searchTextValue) => {
+          cy.contains(searchTextValue).click({ force: true });
+        });
+      });
+    });
 }
 
 export function applySearchFilter(
   filterName: string,
-  searchText: string | string[],
-  identifiedRisk = false,
-  eq = 0
+  searchText: string | string[]
 ): void {
-  selectFilter(filterName, eq);
-  let filterValue = [];
-  if (!Array.isArray(searchText)) {
-    filterValue = [searchText];
-  } else filterValue = searchText;
+  selectFilter(filterName);
+  const filterValue = Array.isArray(searchText) ? searchText : [searchText];
 
-  cy.get(filterDropDownContainer).then(($container) => {
-    if ($container.find(searchMenuToggle).length > 0) {
-      cy.get(searchMenuToggle).click();
-      filterValue.forEach((searchTextValue) => {
-        cy.get(standardFilter).contains(searchTextValue).click();
-      });
-    } else {
-      if ($container.find(filterSelectType).length > 0) {
-        cy.get(filterSelectType).click();
-        filterValue.forEach((searchTextValue) => {
-          cy.get(standardFilter).contains(searchTextValue).click();
-        });
-      } else {
-        filterValue.forEach((searchTextValue) => {
-          filterInputText(searchTextValue, +identifiedRisk);
-        });
-      }
-    }
+  filterValue.forEach((searchTextValue) => {
+    cy.get(searchInput(filterName)).clear().type(searchTextValue);
+    cy.get(searchButton(filterName)).click({ force: true });
   });
 }
 
@@ -725,8 +677,8 @@ export function generateRandomDateRange(
 export function getTableColumnData(columnName: string): Array<string> {
   selectItemsPerPage(100);
   const itemList = [];
-  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-    .not(".pf-v5-c-table__expandable-row")
+  cy.get(".pf-v6-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v6-c-table__expandable-row")
     .find(`td[data-label="${columnName}"]`)
     .each(($ele) => {
       if (
@@ -954,7 +906,7 @@ export function application_inventory_kebab_menu(menu: string): void {
     cy.get(actionMenuItem)
       .contains(menu)
       .then(($menu_item) => {
-        if (!$menu_item.hasClass("pf-m-disabled")) {
+        if (!$menu_item.is(":disabled") && !$menu_item.attr("aria-disabled")) {
           clickByText(button, menu, true);
         } else {
           // close menu if nothing to do
@@ -1525,9 +1477,9 @@ export function isTableEmpty(
   return cy
     .get(tableSelector, { timeout: 5 * SEC })
     .find("div")
-    .should("not.have.descendants", "svg.pf-v5-c-spinner")
+    .should("not.have.descendants", "svg.pf-v6-c-spinner")
     .then(($element) => {
-      return $element.hasClass("pf-v5-c-empty-state");
+      return $element.hasClass("pf-v6-c-empty-state");
     });
 }
 
@@ -1607,6 +1559,12 @@ export function deleteAllBusinessServices() {
   });
 }
 
+export function deleteAllAnalysisProfiles(): void {
+  getAuthHeaders().then((headers) => {
+    AnalysisProfile.deleteAllViaApi(headers);
+  });
+}
+
 export function deleteAllStakeholderGroups(_cancel = false): void {
   getAuthHeaders().then((headers) => {
     Stakeholdergroups.deleteAllViaApi(headers);
@@ -1628,6 +1586,12 @@ export function deleteAllArchetypes() {
 export function deleteAllCredentials() {
   getAuthHeaders().then((headers) => {
     Credentials.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllJiraConnections() {
+  getAuthHeaders().then((headers) => {
+    Jira.deleteAllViaApi(headers);
   });
 }
 
@@ -1717,8 +1681,8 @@ export function goToPage(page: number): void {
       cy.get(firstPageButton).then(($firstPageButton) => {
         cy.get(lastPageButton).then(($lastPageButton) => {
           if (
-            !$firstPageButton.hasClass(".pf-m-disabled") ||
-            !$lastPageButton.hasClass(".pf-m-disabled")
+            !$firstPageButton.is(":disabled") ||
+            !$lastPageButton.is(":disabled")
           ) {
             cy.get(pageNumInput, { timeout: 2 * SEC })
               .clear()
@@ -1751,8 +1715,9 @@ export function callWithin(
   selector: string,
   functionToExec: () => void,
   index = 0
-): void {
-  cy.get(selector)
+): Chainable<JQuery<HTMLElement>> {
+  return cy
+    .get(selector)
     .eq(index)
     .within(() => functionToExec());
 }
@@ -1815,8 +1780,10 @@ export function applyAction(itemName, action: string): void {
     .closest(trTag)
     .within(() => {
       click(tagMenuButton);
-      clickByText(button, action);
     });
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(action)
+    .click({ force: true });
 }
 
 export function confirm(): void {
@@ -1892,14 +1859,14 @@ export function goToLastPage(): void {
     .should("not.be.disabled", { timeout: 10 * SEC })
     .eq(1)
     .then(($button) => {
-      if (!$button.hasClass(".pf-m-disabled")) {
+      if (!$button.is(":disabled")) {
         cy.wrap($button).click();
       }
     });
 }
 
 export function checkCurrentPageIs(pageNumber: number) {
-  cy.get(".pf-v5-c-pagination__nav-page-select", { timeout: 10 * SEC })
+  cy.get(".pf-v6-c-pagination__nav-page-select", { timeout: 10 * SEC })
     .find('input[aria-label="Current page"]')
     .should("have.value", pageNumber.toString());
 }
@@ -2010,31 +1977,19 @@ export function verifySelectorText(
 }
 
 export function enableSwitch(selector: string): void {
-  cy.get(selector)
-    .parent("label")
-    .within(() => {
-      cy.get(".pf-m-on")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
-    });
+  cy.get(selector).then(($input) => {
+    if (!$input.is(":checked")) {
+      cy.wrap($input).parent("label").find(switchToggle).click();
+    }
+  });
 }
 
 export function disableSwitch(selector: string): void {
-  cy.get(selector)
-    .parent("label")
-    .within(() => {
-      cy.get(".pf-m-off")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
-    });
+  cy.get(selector).then(($input) => {
+    if ($input.is(":checked")) {
+      cy.wrap($input).parent("label").find(switchToggle).click();
+    }
+  });
 }
 
 export function validateTooShortInput(
@@ -2145,32 +2100,26 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+  cy.get(navTabs, { timeout: 10 * SEC }).should("exist");
 
-  cy.root().then(($root) => {
-    const visibleTab = $root
-      .find(`${navTab}:contains("${name}")`)
-      .filter((_index, el) => {
-        const $el = Cypress.$(el);
-        return (
-          $el.is(":visible") &&
-          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
-        );
-      });
+  cy.get(navTabs).then(($root) => {
+    const visibleTab = $root.find(`${navTab}:contains("${name}")`);
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
-      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
-          force: true,
+      cy.get(navTabs)
+        .get("li.pf-v6-c-tabs__item.pf-m-overflow button")
+        .should("exist")
+        .click({ force: true })
+        .then(() => {
+          cy.root().then(($root) => {
+            // for some reason synchronous check is needed
+            $root
+              .find(`${actionMenuItem}:contains("${name}")`)
+              .trigger("click");
+          });
         });
-        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
-        clickByText(actionMenuItem, name);
-      } else {
-        clickByText(navTab, name);
-      }
     }
   });
 }
@@ -2640,7 +2589,7 @@ export function restoreColumnsToDefault(): void {
   clickByText(button, save, true);
 }
 export function openManageColumns(): void {
-  cy.get(".pf-v5-c-overflow-menu__group.pf-m-button-group")
+  cy.get(".pf-v6-c-overflow-menu__group.pf-m-button-group")
     .find("button")
     .click();
 }
@@ -2729,17 +2678,17 @@ export function taskDetailsSanity(
   taskKind: TaskKind,
   taskStatus?: TaskStatus
 ) {
-  cy.wait(5 * SEC);
-  cy.get(taskDetailsEditor)
-    .invoke("text")
-    .then((text) => {
-      const normalizedText = normalizeText(text);
-      expect(normalizedText).to.include(`name: ${appName}`);
-      expect(normalizedText).to.include(`kind: ${taskKind}`);
-      if (taskStatus) {
-        expect(normalizedText).to.include(`state: ${taskStatus}`);
-      }
-    });
+  // Monaco Editor virtualizes content - only visible lines exist in the DOM.
+  // Use a retrying .should() assertion so Cypress re-reads text until the
+  // editor has fully initialized and rendered enough lines.
+  cy.get(taskDetailsEditor, { timeout: 30 * SEC }).should(($el) => {
+    const normalizedText = normalizeText($el.text());
+    expect(normalizedText).to.include(`name: ${appName}`);
+    expect(normalizedText).to.include(`kind: ${taskKind}`);
+    if (taskStatus) {
+      expect(normalizedText).to.include(`state: ${taskStatus}`);
+    }
+  });
 }
 
 export function downloadTaskDetails(format = downloadFormatDetails.yaml) {

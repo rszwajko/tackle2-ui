@@ -6,30 +6,26 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Alert,
+  Content,
   Form,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import {
-  OptionWithValue,
-  SimpleSelect as DeprecatedSimpleSelect,
-} from "@app/components/SimpleSelect";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchIdentities } from "@app/queries/identities";
-import { toOptionLike } from "@app/utils/model-utils";
 import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import CustomRulesTable from "../components/custom-rules-table";
@@ -181,21 +177,21 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   ];
 
   const { identitiesByKind } = useFetchIdentities();
-  const sourceIdentityOptions = (identitiesByKind.source ?? []).map(
-    (identity) => ({
-      value: identity.name as string,
-      toString: () => identity.name,
-    })
-  );
+  const sourceIdentityOptions: FilterSelectOptionProps[] = (
+    identitiesByKind.source ?? []
+  ).map((identity) => ({
+    value: identity.name as string,
+    label: identity.name,
+  }));
 
   return (
     <>
-      <TextContent className={spacing.mbSm}>
+      <Content className={spacing.mbSm}>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.customRules")}
         </Title>
-        <Text> {t("wizard.label.customRules")}</Text>
-      </TextContent>
+        <Content component="p"> {t("wizard.label.customRules")}</Content>
+      </Content>
       {isCustomRuleRequiredAlertVisible && (
         <Alert
           variant="warning"
@@ -251,12 +247,9 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               isRequired
               renderInput={({ field: { value, name, onChange } }) => (
                 <SimpleSelect
-                  id="repo-type-select"
                   toggleId="repo-type-select-toggle"
                   toggleAriaLabel="Repository type select dropdown toggle"
-                  isScrollable
                   ariaLabel={name}
-                  isFullWidth
                   value={value ?? undefined}
                   options={repositoryTypeOptions}
                   onSelect={(selection) => {
@@ -291,23 +284,13 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               label={t("analysisSteps.labels.associatedCredentials")}
               fieldId="credentials-select"
               renderInput={({ field: { value, name, onChange } }) => (
-                <DeprecatedSimpleSelect
-                  id="associated-credentials-select"
+                <TypeaheadSelect
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
-                  aria-label={name}
-                  variant={"typeahead"}
-                  value={
-                    value
-                      ? toOptionLike(value, sourceIdentityOptions)
-                      : undefined
-                  }
+                  ariaLabel={name}
+                  value={value ?? undefined}
                   options={sourceIdentityOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  onClear={() => onChange("")}
+                  onSelect={onChange}
                 />
               )}
             />

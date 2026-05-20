@@ -1,3 +1,9 @@
+import {
+  categorySource,
+  categoryTagCategory,
+  filterToggleInput,
+} from "../types/filter-categories";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -21,18 +27,23 @@ export const applicationNameInput = "input[name=name]";
 export const applicationDescriptionInput = "input[name=description]";
 export const applicationBusinessServiceSelect =
   "[placeholder='Select a business service']";
+export const applicationBusinessServiceClearButton =
+  "[data-ouia-component-id='business-service-toggle-clear-button']";
 export const tagsColumnSelector = "td[data-label='Tags']";
 
-export const applicationContributorsInput =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
-export const applicationContributorsText = ".pf-v5-c-chip__text";
-export const applicationContributorsAction = ".pf-v5-c-chip__actions";
-export const applicationOwnerInput = "#owner-toggle-select-typeahead";
+export const applicationContributorsInput = "#contributors-select-toggle-input";
+export const applicationContributorsChipGroup =
+  "[data-ouia-component-id='contributors-select-toggle-chip-group']";
+export const applicationContributorsText = ".pf-v6-c-chip__text";
+export const applicationContributorsAction = ".pf-v6-c-chip__actions";
+export const applicationOwnerInput = "#owner-toggle-input";
+export const applicationOwnerClearButton =
+  "[data-ouia-component-id='owner-toggle-clear-button']";
 export const modalBoxDialog = "#confirm-dialog";
-export const modalBoxMessage = ".pf-v5-c-modal-box__body";
+export const modalBoxMessage = ".pf-v6-c-modal-box__body";
 export const reviewConfirmationText =
   "This application has already been reviewed. Do you want to continue?";
-export const repoTypeSelect = "button[id='repo-type-toggle']";
+export const repoTypeSelect = '[data-ouia-component-id="repo-type-toggle"]';
 export const applicationTagsSelect = "[placeholder='Select tags']";
 export const applicationCommentInput = "textarea[name=comments]";
 export const businessColumnSelector = "td[data-label='Business Service']";
@@ -40,11 +51,22 @@ export const csvFileName = "Filename";
 export const FileName = "File name";
 export const closeForm = "button[aria-label='close']";
 export const copy = "button[aria-label='Copy']";
-export const cyclicDependenciesErrorMsg = "cyclic dependencies are not allowed";
+export const cyclicDependenciesErrorMsg =
+  "Cyclic dependencies are not allowed.";
+export const applicationDependenciesCloseButton =
+  "[data-ouia-component-id='application-dependencies-close']";
 export const northdependenciesDropdownBtn =
-  "button[aria-label='northbound-dependencies-toggle']";
+  "[data-ouia-component-id='northbound-dependencies-toggle']";
+export const northdependenciesChipGroup =
+  "[data-ouia-component-id='northbound-dependencies-toggle-chip-group']";
+export const northdependenciesSelectListbox =
+  "[id='northbound-dependencies-toggle-listbox']";
+export const southdependenciesChipGroup =
+  "[data-ouia-component-id='southbound-dependencies-toggle-chip-group']";
+export const southdependenciesSelectListbox =
+  "[id='southbound-dependencies-toggle-listbox']";
 export const southdependenciesDropdownBtn =
-  "button[aria-label='southbound-dependencies-toggle']";
+  "[data-ouia-component-id='southbound-dependencies-toggle']";
 export const date = "Import Time";
 export const importStatus = "Status";
 export const selectBox = "input[type=checkbox]";
@@ -55,10 +77,9 @@ export const kebabMenuAction = "#action";
 export const topKebabMenu = "#toolbar-kebab";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
-export const profileEdit = ".pf-m-1-col > .pf-v5-c-button";
-export const appContributorSelect =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
-export const appSelectionButton = "button.pf-v5-c-menu-toggle__button";
+export const profileEdit = ".pf-m-1-col > .pf-v6-c-button";
+export const appContributorSelect = "#contributors-select-toggle-input";
+export const appSelectionButton = "button.pf-v6-c-menu-toggle__button";
 // This is on the Application imports page.
 export const sideKebabMenu = "button[aria-label='Kebab toggle']";
 
@@ -77,27 +98,27 @@ export const packaging = "input[name=packaging]";
 export const createEntitiesCheckbox = "#create-entities-checkbox";
 
 //Fields related to application details page
-export enum appDetailsView {
-  applicationTag = "span.pf-v5-c-label__content",
-  closeDetailsPage = "button[aria-label='Close drawer panel']",
-  tagFilter = "#filter-control-source-typeahead-select-input",
-  tagCategory = "div[class='pf-v5-c-content'] > h4",
-  tagCategoryFilter = "#filter-control-tagCategory-typeahead-select-input",
-}
+export const appDetailsView = {
+  applicationTag: "span.pf-v6-c-label__content",
+  closeDetailsPage: "button[aria-label='Close drawer panel']",
+  tagFilter: filterToggleInput(categorySource),
+  tagCategory: "div[class='pf-v6-c-content'] > h4",
+  tagCategoryFilter: filterToggleInput(categoryTagCategory),
+};
 
 // Fields related to copy assessment modal
 export const copyAssessmentTableTd = ".pf-m-compact> tbody > tr > td";
 export const copyAssessmentTableTr = ".pf-m-compact> tbody > tr";
 export const copyAssessmentPagination =
   "#bulk-copy-assessment-review-pagination-top";
-export const copyAssessmentModal = "div.pf-v5-c-modal-box";
+export const copyAssessmentModal = "div.pf-v6-c-modal-box";
 
 // Fields related to application import
-export const appImportForm = "form.pf-v5-c-form";
+export const appImportForm = "form.pf-v6-c-form";
 export const ViewArchetypes = "View archetypes";
 export const customActionButton = "#custom-action-button";
 export const manageColumnsModal = "[id*='pf-modal-part']";
-export const labelTagText = ".pf-v5-c-label__text";
+export const labelTagText = ".pf-v6-c-label__text";
 
 export enum taskIcon {
   success = "span.pf-m-success",

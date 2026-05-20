@@ -67,7 +67,10 @@ export class AnalysisWizardHelpers {
    * @param source - Source to select (e.g., "Source code", "Binary")
    */
   static selectSourceofAnalysis(source: string): void {
-    selectAnalysisMode("#analysis-source-toggle", source);
+    selectAnalysisMode(
+      '[data-ouia-component-id="analysis-source-toggle"]',
+      source
+    );
   }
 
   /**
@@ -170,7 +173,7 @@ export class AnalysisWizardHelpers {
       const folder = customRule[i].split(".").pop();
       uploadFile(`${folder}/${customRule[i]}`);
       cy.wait(2000);
-      cy.get("span.pf-v5-c-progress__measure", { timeout: 150000 }).should(
+      cy.get("span.pf-v6-c-progress__measure", { timeout: 150000 }).should(
         "contain",
         "100%"
       );

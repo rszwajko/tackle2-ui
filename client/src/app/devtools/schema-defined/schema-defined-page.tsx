@@ -9,12 +9,12 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
   Dropdown,
   DropdownItem,
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
   EmptyStateVariant,
   Flex,
   FlexItem,
@@ -23,10 +23,8 @@ import {
   MenuToggle,
   MenuToggleElement,
   PageSection,
-  PageSectionVariants,
   Stack,
   StackItem,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import { EllipsisVIcon } from "@patternfly/react-icons";
@@ -73,6 +71,9 @@ export const SchemaDefinedPage: React.FC = () => {
   const [parsedSchema, setParsedSchema] = useState<
     JsonSchemaObject | undefined
   >(example1 as JsonSchemaObject);
+  const [editorLanguage, setEditorLanguage] = useState<
+    Language.json | Language.yaml
+  >(Language.json);
 
   const [currentDocument, setCurrentDocument] = useState<object | null>(null);
 
@@ -148,14 +149,48 @@ export const SchemaDefinedPage: React.FC = () => {
     );
   };
 
+  const EditorActions = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <Dropdown
+        onSelect={() => setIsOpen(false)}
+        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+          <MenuToggle
+            ref={toggleRef}
+            isExpanded={isOpen}
+            onClick={() => setIsOpen((current) => !current)}
+            variant="plain"
+          >
+            <EllipsisVIcon aria-hidden="true" />
+          </MenuToggle>
+        )}
+        isOpen={isOpen}
+        onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+      >
+        <DropdownList>
+          {[Language.json, Language.yaml].map((language, index) => (
+            <DropdownItem
+              key={`language-${index}`}
+              onClick={() =>
+                setEditorLanguage(language as Language.json | Language.yaml)
+              }
+            >
+              {language === Language.json ? "JSON" : "YAML"}
+            </DropdownItem>
+          ))}
+        </DropdownList>
+      </Dropdown>
+    );
+  };
+
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection hasBodyWrapper={false}>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
-            <TextContent>
+            <Content>
               <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
-            </TextContent>
+            </Content>
           </FlexItem>
           <FlexItem align={{ default: "alignRight" }}>
             <SchemaStatusAlert status={schemaStatus} />
@@ -170,7 +205,7 @@ export const SchemaDefinedPage: React.FC = () => {
           </FlexItem>
         </Flex>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           {/* Schema Editor & Schema Defined Field - Main Section */}
           <StackItem isFilled>
@@ -200,12 +235,15 @@ export const SchemaDefinedPage: React.FC = () => {
 
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
-                  <CardTitle>SchemaDefinedFields</CardTitle>
+                  <CardHeader actions={{ actions: <EditorActions /> }}>
+                    <CardTitle>SchemaDefinedFields</CardTitle>
+                  </CardHeader>
                   <CardBody className="full-height-container">
                     <SchemaDefinedField
                       id="demo-schema-field"
                       jsonDocument={currentDocument ?? {}}
                       jsonSchema={parsedSchema}
+                      editorLanguage={editorLanguage}
                       onDocumentChanged={handleDocumentChange}
                     />
                   </CardBody>
@@ -224,11 +262,12 @@ export const SchemaDefinedPage: React.FC = () => {
                   </CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
-                      <EmptyState variant={EmptyStateVariant.xs} isFullHeight>
-                        <EmptyStateHeader
-                          titleText={t("message.noDocument")}
-                          headingLevel="h4"
-                        />
+                      <EmptyState
+                        headingLevel="h4"
+                        titleText={t("message.noDocument")}
+                        variant={EmptyStateVariant.xs}
+                        isFullHeight
+                      >
                         <EmptyStateBody>
                           Current document is empty.
                         </EmptyStateBody>

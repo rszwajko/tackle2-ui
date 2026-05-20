@@ -39,6 +39,7 @@ import { Stakeholders } from "../controls/stakeholders";
 
 export class MigrationWave {
   name: string;
+  id?: number;
   startDate: Date;
   endDate: Date;
   stakeHolders?: Stakeholders[];
@@ -143,10 +144,12 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
-    callWithin(modal, () => selectItemsPerPage(100));
-    cy.get(itemsSelectInsideDialog).click();
-    cy.contains(button, selectNone).click();
-    callWithin(modal, () => selectItemsPerPage(100));
+    callWithin(modal, () => {
+      selectItemsPerPage(100);
+      cy.get(itemsSelectInsideDialog).click();
+    }).then(() => {
+      cy.get("ul[role='menu']").contains(button, selectNone).click();
+    });
 
     this.applications.forEach((app) => {
       cy.get(tdTag)
@@ -164,9 +167,9 @@ export class MigrationWave {
 
     cy.get(submitButton, { timeout: 15 * SEC })
       .should("exist")
+      .scrollIntoView()
       .should("be.visible")
       .should("not.be.disabled")
-      .scrollIntoView()
       .wait(500) // Brief wait to ensure button is stable
       .click();
 
@@ -184,10 +187,16 @@ export class MigrationWave {
     }
 
     cy.contains(manageApplications).click();
-    cy.get(itemsSelectInsideDialog).click();
-    cy.contains(button, selectNone).click();
-    clickJs(submitButton);
-    this.applications = [];
+    callWithin(modal, () => {
+      cy.get(itemsSelectInsideDialog).click();
+    }).then(() => {
+      cy.get("ul[role='menu']").contains(button, selectNone).click();
+    });
+
+    callWithin(modal, () => {
+      clickJs(submitButton);
+      this.applications = [];
+    });
   }
 
   public static fillName(name: string): void {
@@ -276,11 +285,13 @@ export class MigrationWave {
   private static fillStakeHolder(stakeHolderName: string) {
     inputText(MigrationWaveView.stakeHoldersInput, stakeHolderName);
     cy.get("button").contains(stakeHolderName).click();
+    cy.get(MigrationWaveView.stakeHoldersToggle).click();
   }
 
   private static fillStakeHolderGroup(stakeHolderGroupName: string) {
     inputText(MigrationWaveView.stakeHolderGroupsInput, stakeHolderGroupName);
     cy.get("button").contains(stakeHolderGroupName).click();
+    cy.get(MigrationWaveView.stakeHolderGroupsToggle).click();
   }
 
   static formatDateMMddYYYY(date: Date): string {
@@ -289,6 +300,15 @@ export class MigrationWave {
       month: "2-digit",
       day: "2-digit",
     }).format(date);
+  }
+
+  static parseUTCDateToLocal(isoString: string): Date {
+    const utcDate = new Date(isoString);
+    return new Date(
+      utcDate.getUTCFullYear(),
+      utcDate.getUTCMonth(),
+      utcDate.getUTCDate()
+    );
   }
 
   public expandActionsMenu() {
@@ -389,13 +409,11 @@ export class MigrationWave {
 
     applications.forEach((application) => {
       cy.contains(application.name)
-        .parent()
+        .parent("tr")
         .within(() => {
           cy.get(MigrationWaveView.unlinkApplicationButton).click({
             force: true,
           });
-          // Need to wait until the application is unlinked from Jira and reflected in the wave
-          cy.wait(3 * SEC);
         });
     });
   }
@@ -419,6 +437,80 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
+  }
+
+  /** Create a migration wave via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    startDate: Date,
+    endDate: Date,
+    stakeholderIds?: number[],
+    stakeholderGroupIds?: number[],
+    applicationIds?: number[],
+    headers?: Record<string, string>
+  ): Cypress.Chainable<MigrationWave> {
+    const formattedStartDate = new Date(
+      Date.UTC(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate()
+      )
+    );
+
+    const formattedEndDate = new Date(
+      Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+    );
+
+    const body: Record<string, unknown> = {
+      name,
+      startDate: formattedStartDate.toISOString(),
+      endDate: formattedEndDate.toISOString(),
+    };
+
+    if (stakeholderIds && stakeholderIds.length > 0) {
+      body.stakeholders = stakeholderIds.map((id) => ({ id }));
+    }
+    if (stakeholderGroupIds && stakeholderGroupIds.length > 0) {
+      body.stakeholderGroups = stakeholderGroupIds.map((id) => ({ id }));
+    }
+    if (applicationIds && applicationIds.length > 0) {
+      body.applications = applicationIds.map((id) => ({ id }));
+    }
+
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/migrationwaves",
+        body,
+        ...(headers && { headers }),
+      })
+      .then((res) => {
+        const parsedStartDate = res.body.startDate
+          ? MigrationWave.parseUTCDateToLocal(res.body.startDate)
+          : startDate;
+        const parsedEndDate = res.body.endDate
+          ? MigrationWave.parseUTCDateToLocal(res.body.endDate)
+          : endDate;
+
+        if (isNaN(parsedStartDate.getTime())) {
+          throw new Error(
+            `Invalid startDate: API returned ${res.body.startDate}, using fallback ${startDate}`
+          );
+        }
+        if (isNaN(parsedEndDate.getTime())) {
+          throw new Error(
+            `Invalid endDate: API returned ${res.body.endDate}, using fallback ${endDate}`
+          );
+        }
+
+        const wave = new MigrationWave(
+          res.body.name,
+          parsedStartDate,
+          parsedEndDate
+        );
+        wave.id = res.body.id;
+        return wave;
+      });
   }
 
   /** Delete all migration waves via the API. */

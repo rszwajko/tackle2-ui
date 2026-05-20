@@ -39,11 +39,12 @@ import {
   analysisData,
 } from "../../../types/types";
 import {
+  additionalSourceLabelsToggle,
   cancelButton,
   createProfileButton,
   description as profileDescriptionInput,
   includeLabelsInput,
-  includeLabelsMenuItem,
+  includeLabelsSelectListbox,
   name as profileNameInput,
   pencilAction,
   ruleLabelToExclude,
@@ -183,7 +184,8 @@ export class AnalysisProfile {
 
   protected labelsToInclude(label: string) {
     click(includeLabelsInput);
-    cy.get(includeLabelsMenuItem).contains(label).click();
+    cy.get(includeLabelsSelectListbox).contains("button", label).click();
+    cy.get(additionalSourceLabelsToggle).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
@@ -385,6 +387,28 @@ export class AnalysisProfile {
       if (this.excludeRuleLabels) {
         cy.contains(this.excludeRuleLabels, { timeout: 5 * SEC });
       }
+    });
+  }
+
+  /** Delete all analysis profiles via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/analysis/profiles",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((profile: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/analysis/profiles/${profile.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
     });
   }
 }

@@ -1,19 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import * as jsYaml from "js-yaml";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Spinner,
-} from "@patternfly/react-core";
+import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
 
 import { jsonSchemaToYupSchema } from "./utils";
-
-export { Language } from "@patternfly/react-code-editor";
 
 type ControlledEditor = {
   focus: () => void;
@@ -33,7 +26,27 @@ export interface ISchemaAsCodeEditorProps {
    * Set to "100%" to make the editor take up the full height of its container.
    */
   height?: string;
+  /** Language for the editor. Defaults to Language.json. */
+  editorLanguage?: Language.json | Language.yaml;
 }
+
+const jsonDocumentToCode = (
+  jsonDocument: object,
+  editorLanguage: Language.json | Language.yaml
+) => {
+  return editorLanguage === Language.yaml
+    ? jsYaml.dump(jsonDocument, { indent: 2 })
+    : JSON.stringify(jsonDocument, null, 2);
+};
+
+const codeToJsonDocument = (
+  code: string,
+  editorLanguage: Language.json | Language.yaml
+): unknown => {
+  return editorLanguage === Language.yaml
+    ? jsYaml.load(code)
+    : JSON.parse(code);
+};
 
 export const SchemaAsCodeEditor = ({
   id,
@@ -42,14 +55,14 @@ export const SchemaAsCodeEditor = ({
   onDocumentChanged,
   isReadOnly = false,
   height = "600px",
+  editorLanguage = Language.json,
 }: ISchemaAsCodeEditorProps) => {
   const { t } = useTranslation();
   const editorRef = useRef<ControlledEditor>();
 
-  const [currentCode, setCurrentCode] = useState(
-    JSON.stringify(jsonDocument, null, 2)
+  const [currentCode, setCurrentCode] = useState(() =>
+    jsonDocumentToCode(jsonDocument, editorLanguage)
   );
-  // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
   const focusAndHomePosition = () => {
@@ -73,12 +86,17 @@ export const SchemaAsCodeEditor = ({
     setCurrentCode(newValue);
     if (onDocumentChanged) {
       try {
-        const asJson = JSON.parse(newValue);
-        if (!validator || validator.isValidSync(asJson)) {
-          onDocumentChanged(asJson);
+        const parsed = codeToJsonDocument(newValue, editorLanguage);
+
+        if (
+          parsed &&
+          typeof parsed === "object" &&
+          (!validator || validator.isValidSync(parsed))
+        ) {
+          onDocumentChanged(parsed as object);
         }
       } catch {
-        // ignore invalid JSON, the change will be ignored
+        // ignore invalid document, the change will be ignored
       }
     }
   };
@@ -94,11 +112,15 @@ export const SchemaAsCodeEditor = ({
       isReadOnly={isReadOnly}
       height={height}
       downloadFileName="my-schema-download"
-      language={Language.json}
+      language={editorLanguage}
       code={currentCode}
+      options={{
+        fontFamily: '"Red Hat Mono", "Courier New", Courier, monospace',
+      }}
       onChange={handleCodeChange}
       onEditorDidMount={(editor, monaco) => {
         editorRef.current = editor as ControlledEditor;
+        document.fonts?.ready?.then(() => monaco.editor.remeasureFonts());
         if (jsonSchema) {
           monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,
@@ -123,13 +145,13 @@ export const SchemaAsCodeEditor = ({
       showEditor={!!currentCode}
       emptyState={
         <div className="simple-task-viewer-empty-state">
-          <EmptyState variant={EmptyStateVariant.sm} isFullHeight>
-            <EmptyStateHeader
-              titleText={t("message.loadingDocumentTitle")}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
+          <EmptyState
+            headingLevel="h4"
+            icon={Spinner}
+            titleText={t("message.loadingDocumentTitle")}
+            variant={EmptyStateVariant.sm}
+            isFullHeight
+          ></EmptyState>
         </div>
       }
     />

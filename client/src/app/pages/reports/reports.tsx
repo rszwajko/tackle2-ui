@@ -5,22 +5,18 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Content,
   Flex,
   FlexItem,
-  MenuToggle,
   PageSection,
-  PageSectionVariants,
-  Select,
-  SelectOption,
   Stack,
   StackItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { StateError } from "@app/components/StateError";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchAssessments } from "@app/queries/assessments";
@@ -64,17 +60,14 @@ export const Reports: React.FC = () => {
     error: applicationsFetchError,
   } = useFetchApplications();
 
-  const [isQuestionnaireSelectOpen, setIsQuestionnaireSelectOpen] =
-    React.useState<boolean>(false);
-
   const [selectedQuestionnaireId, setSelectedQuestionnaireId] =
     React.useState<number>(ALL_QUESTIONNAIRES);
 
   const pageHeaderSection = (
-    <PageSection variant={PageSectionVariants.light}>
-      <TextContent>
-        <Text component="h1">{t("terms.reports")}</Text>
-      </TextContent>
+    <PageSection hasBodyWrapper={false}>
+      <Content>
+        <Content component="h1">{t("terms.reports")}</Content>
+      </Content>
     </PageSection>
   );
 
@@ -86,20 +79,12 @@ export const Reports: React.FC = () => {
     return (
       <>
         {pageHeaderSection}
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <StateError />
         </PageSection>
       </>
     );
   }
-
-  const onSelectQuestionnaire = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined
-  ) => {
-    setSelectedQuestionnaireId(value as number);
-    setIsQuestionnaireSelectOpen(false);
-  };
 
   const answeredQuestionnaires: Questionnaire[] =
     isAssessmentsFetching || isQuestionnairesFetching
@@ -134,7 +119,7 @@ export const Reports: React.FC = () => {
   return (
     <>
       {pageHeaderSection}
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={
             isApplicationsFetching ||
@@ -150,61 +135,37 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card isClickable isSelectable>
                   <CardHeader>
-                    <TextContent>
+                    <Content>
                       <Flex>
                         <FlexItem>
-                          <Text component="h3">
+                          <Content component="h3">
                             {t("terms.currentLandscape")}
-                          </Text>
+                          </Content>
                         </FlexItem>
                         <FlexItem>
-                          <Select
-                            id="select-questionnaires"
-                            isOpen={isQuestionnaireSelectOpen}
-                            selected={selectedQuestionnaireId}
-                            onSelect={onSelectQuestionnaire}
-                            onOpenChange={(_isOpen) =>
-                              setIsQuestionnaireSelectOpen(false)
+                          <SimpleSelect
+                            toggleId="select-questionnaires"
+                            toggleAriaLabel="select questionnaires dropdown toggle"
+                            value={selectedQuestionnaireId.toString()}
+                            onSelect={(value) =>
+                              setSelectedQuestionnaireId(Number(value))
                             }
-                            toggle={(toggleRef) => (
-                              <MenuToggle
-                                ref={toggleRef}
-                                aria-label="select questionnaires dropdown toggle"
-                                onClick={() => {
-                                  setIsQuestionnaireSelectOpen(
-                                    !isQuestionnaireSelectOpen
-                                  );
-                                }}
-                                isExpanded={isQuestionnaireSelectOpen}
-                              >
-                                {selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                                  ? "All questionnaires"
-                                  : questionnairesById[selectedQuestionnaireId]
-                                      ?.name}
-                              </MenuToggle>
-                            )}
-                            shouldFocusToggleOnSelect
-                          >
-                            <SelectOption
-                              key={ALL_QUESTIONNAIRES}
-                              value={ALL_QUESTIONNAIRES}
-                            >
-                              All questionnaires
-                            </SelectOption>
-                            {...answeredQuestionnaires.map(
-                              (answeredQuestionnaire) => (
-                                <SelectOption
-                                  key={answeredQuestionnaire.id}
-                                  value={answeredQuestionnaire.id}
-                                >
-                                  {answeredQuestionnaire.name}
-                                </SelectOption>
-                              )
-                            )}
-                          </Select>
+                            options={[
+                              {
+                                value: ALL_QUESTIONNAIRES.toString(),
+                                label: "All questionnaires",
+                              },
+                              ...answeredQuestionnaires.map(
+                                (answeredQuestionnaire) => ({
+                                  value: answeredQuestionnaire.id.toString(),
+                                  label: answeredQuestionnaire.name,
+                                })
+                              ),
+                            ]}
+                          />
                         </FlexItem>
                       </Flex>
-                    </TextContent>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <ApplicationLandscape
@@ -217,9 +178,11 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <TextContent>
-                      <Text component="h3">{t("terms.identifiedRisks")}</Text>
-                    </TextContent>
+                    <Content>
+                      <Content component="h3">
+                        {t("terms.identifiedRisks")}
+                      </Content>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <IdentifiedRisksTable />

@@ -43,19 +43,18 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
     setFilterValue(trimmedValue ? [trimmedValue.replace(/\s+/g, " ")] : []);
   };
 
-  const id = `${category.categoryKey}-input`;
   return (
     <ToolbarFilter
-      chips={filterValue || []}
-      deleteChip={() => setFilterValue([])}
+      id={`filter-control-${category.categoryKey}`}
+      labels={filterValue || []}
+      deleteLabel={() => setFilterValue([])}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
       <InputGroup>
         <InputGroupItem isFill>
           <TextInput
-            name={id}
-            id="search-input"
+            ouiaId={`search-for-${category.categoryKey}-input`}
             type={isNumeric ? "number" : "search"}
             onChange={(_, value) => setInputValue(value)}
             aria-label={`${category.title} filter`}
@@ -70,14 +69,13 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
         </InputGroupItem>
         <InputGroupItem>
           <Button
+            icon={<SearchIcon />}
             variant={ButtonVariant.control}
-            id="search-button"
+            ouiaId={`search-for-${category.categoryKey}-button`}
             aria-label="search button for search input"
             onClick={onFilterSubmit}
             isDisabled={isDisabled}
-          >
-            <SearchIcon />
-          </Button>
+          />
         </InputGroupItem>
       </InputGroup>
     </ToolbarFilter>

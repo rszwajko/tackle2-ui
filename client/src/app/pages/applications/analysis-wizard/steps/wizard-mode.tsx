@@ -1,19 +1,12 @@
 import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Form,
-  FormGroup,
-  Radio,
-  Text,
-  TextContent,
-  Title,
-} from "@patternfly/react-core";
+import { Content, Form, FormGroup, Radio, Title } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Application } from "@app/api/models";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useAvailableAnalysisProfiles } from "@app/hooks/useAvailableAnalysisProfiles";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { useFetchArchetypes } from "@app/queries/archetypes";
@@ -88,7 +81,7 @@ export const WizardMode: React.FC<WizardModeProps> = ({
 
   const profileOptions = availableProfiles.map((profile) => ({
     value: String(profile.id),
-    children: profile.name,
+    label: profile.name,
   }));
 
   return (
@@ -97,12 +90,12 @@ export const WizardMode: React.FC<WizardModeProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.wizardMode")}
         </Title>
-        <Text>{t("wizard.label.selectWizardMode")}</Text>
-      </TextContent>
+        <Content component="p">{t("wizard.label.selectWizardMode")}</Content>
+      </Content>
 
       <FormGroup
         role="radiogroup"
@@ -141,13 +134,12 @@ export const WizardMode: React.FC<WizardModeProps> = ({
               fieldId="analysis-profile-select"
               isRequired
             >
-              <SimpleSelectBasic
-                selectId="analysis-profile-select"
+              <SimpleSelect
+                isFullWidth
                 toggleId="analysis-profile-select-toggle"
-                toggleAriaLabel="Analysis profile selection dropdown toggle"
-                aria-label="Select analysis profile"
+                toggleAriaLabel="Analysis profile selection dropdown"
                 value={selectedProfile ? String(selectedProfile.id) : undefined}
-                onChange={(value) => {
+                onSelect={(value) => {
                   const profile = availableProfiles.find(
                     (p) => String(p.id) === value
                   );
@@ -157,9 +149,9 @@ export const WizardMode: React.FC<WizardModeProps> = ({
                 placeholderText={t("wizard.label.selectAnalysisProfile")}
               />
               {selectedProfile?.description && (
-                <Text component="small" className={spacing.mtSm}>
+                <Content component="small" className={spacing.mtSm}>
                   {selectedProfile.description}
-                </Text>
+                </Content>
               )}
             </FormGroup>
           )}

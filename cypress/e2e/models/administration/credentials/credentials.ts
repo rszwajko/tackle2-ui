@@ -29,6 +29,16 @@ import {
   trTag,
   unsetAsDefaultAction,
 } from "../../../types/constants";
+import {
+  categoryCreatedBy,
+  categoryDefaultCredential,
+  categoryName,
+  categoryType,
+  filterCategory,
+  filterToggle,
+  searchButton,
+  searchInput,
+} from "../../../types/filter-categories";
 import { CredentialsData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
 import {
@@ -37,12 +47,6 @@ import {
   credentialNameInput,
   defaultIcon,
   descriptionInput,
-  filterCatCreatedBy,
-  filterCatDefaultCredential,
-  filterCatType,
-  filterCategory,
-  filterSelectType,
-  filteredBy,
   isDefaultCheckbox,
   modalBoxBody,
   passwordInput,
@@ -216,26 +220,32 @@ export class Credentials {
   }
 
   static ApplyFilterByName(value: string) {
-    selectFromDropList(filteredBy, filterCategory);
-    inputText(commonView.searchInput, value);
-    click(commonView.searchButton);
+    selectFromDropList(commonView.filteredBy, filterCategory(categoryName));
+    inputText(searchInput(categoryName), value);
+    click(searchButton(categoryName));
   }
 
   static applyFilterByType(type: string) {
-    selectFromDropList(filteredBy, filterCatType);
-    selectFromDropListByText(filterSelectType, type);
+    selectFromDropList(commonView.filteredBy, filterCategory(categoryType));
+    selectFromDropListByText(filterToggle(categoryType), type);
   }
 
   static applyFilterCreatedBy(value: string) {
-    selectFromDropList(filteredBy, filterCatCreatedBy);
-    inputText(commonView.searchInput, value);
-    click(commonView.searchButton);
+    selectFromDropList(
+      commonView.filteredBy,
+      filterCategory(categoryCreatedBy)
+    );
+    inputText(searchInput(categoryCreatedBy), value);
+    click(searchButton(categoryCreatedBy));
   }
 
   static applyFilterDefaultCredential(value: DefaultCredentialFilter) {
-    selectFromDropList(filteredBy, filterCatDefaultCredential);
+    selectFromDropList(
+      commonView.filteredBy,
+      filterCategory(categoryDefaultCredential)
+    );
     selectFromDropListByText(
-      filterSelectType,
+      filterToggle(categoryDefaultCredential),
       value,
       commonView.actionMenuItem
     );

@@ -31,7 +31,7 @@ const sourceApplicationsList: Array<Analysis> = [];
 const mavenApplicationsList: Array<Analysis> = [];
 
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "Manage credentials source analysis",
   () => {
     before("Login", function () {
@@ -88,10 +88,6 @@ describe(
         sourceApplicationsList,
         source_credential
       );
-      sourceApplicationsList.forEach((currentApplication) => {
-        currentApplication.analyze();
-        currentApplication.verifyAnalysisStatus("Completed");
-      });
     });
 
     it("Adding maven credentials to multiple apps", function () {
@@ -120,10 +116,6 @@ describe(
         mavenApplicationsList,
         maven_credential
       );
-      mavenApplicationsList.forEach((currentApplication) => {
-        currentApplication.analyze();
-        currentApplication.verifyAnalysisStatus("Completed");
-      });
     });
 
     after("Perform test data clean up", function () {

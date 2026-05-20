@@ -65,18 +65,21 @@ import { rightSideMenu, sourceDropdown } from "../../../views/analysis.view";
 import {
   appContributorSelect,
   appDetailsView,
+  applicationBusinessServiceClearButton,
   applicationBusinessServiceSelect,
   applicationCommentInput,
+  applicationDependenciesCloseButton,
   applicationDescriptionInput,
   applicationNameInput,
   applicationOwnerInput,
   applicationTagsSelect,
   artifact,
   branch,
-  closeForm,
   group,
   kebabMenu,
+  northdependenciesChipGroup,
   northdependenciesDropdownBtn,
+  northdependenciesSelectListbox,
   packaging,
   profileEdit,
   repoTypeSelect,
@@ -84,7 +87,9 @@ import {
   selectBox,
   sideKebabMenu,
   sourceRepository,
+  southdependenciesChipGroup,
   southdependenciesDropdownBtn,
+  southdependenciesSelectListbox,
   tagsColumnSelector,
   taskIcon,
   version,
@@ -356,12 +361,7 @@ export class Application {
   removeBusinessService(): void {
     cy.wait(2000);
     performRowActionByIcon(this.name, commonView.pencilAction);
-    cy.get(applicationBusinessServiceSelect)
-      .closest("div")
-      .next("button")
-      .then(($a) => {
-        if ($a.hasClass(commonView.dropdownClearSelection)) $a.click();
-      });
+    cy.get(applicationBusinessServiceClearButton).click();
     submitForm();
   }
 
@@ -399,13 +399,13 @@ export class Application {
     this.selectApplicationRow();
     cy.get(rightSideMenu, { timeout: 10 * SEC }).should("be.visible");
     cy.get(rightSideMenu).within(() => {
-      cy.get("span.pf-v5-c-tabs__item-text", { timeout: 10 * SEC }).should(
+      cy.get("span.pf-v6-c-tabs__item-text", { timeout: 10 * SEC }).should(
         "be.visible"
       );
       clickTab(tab);
     });
     if (tab == "Tags")
-      cy.get("div[class='pf-v5-c-toolbar__item']", { timeout: 60 * SEC });
+      cy.get("div[class='pf-v6-c-toolbar__item']", { timeout: 60 * SEC });
   }
 
   closeApplicationDetails(): void {
@@ -509,32 +509,32 @@ export class Application {
       .closest(trTag)
       .within(() => {
         click(sideKebabMenu);
-        doesExistButton(
-          assessAppButton,
-          rbacRules["Application actions"]["Assess"]
-        );
-        doesExistButton(
-          reviewAppButton,
-          rbacRules["Application actions"]["Review"]
-        );
-        doesExistText(
-          "Discard assessment",
-          rbacRules["Application actions"]["Discard assessment"]
-        );
-        doesExistText(
-          "Discard review",
-          rbacRules["Application actions"]["Discard review"]
-        );
-        doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
-        doesExistText(
-          "Manage dependencies",
-          rbacRules["Application actions"]["Manage dependencies"]
-        );
-        doesExistText(
-          "Manage credentials",
-          rbacRules["Application actions"]["Manage credentials"]
-        );
       });
+    doesExistButton(
+      assessAppButton,
+      rbacRules["Application actions"]["Assess"]
+    );
+    doesExistButton(
+      reviewAppButton,
+      rbacRules["Application actions"]["Review"]
+    );
+    doesExistText(
+      "Discard assessment",
+      rbacRules["Application actions"]["Discard assessment"]
+    );
+    doesExistText(
+      "Discard review",
+      rbacRules["Application actions"]["Discard review"]
+    );
+    doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
+    doesExistText(
+      "Manage dependencies",
+      rbacRules["Application actions"]["Manage dependencies"]
+    );
+    doesExistText(
+      "Manage credentials",
+      rbacRules["Application actions"]["Manage credentials"]
+    );
   }
 
   validateUploadBinary(rbacRules: RbacValidationRules): void {
@@ -752,7 +752,7 @@ export class Application {
       .closest(trTag)
       .within(() => {
         cy.get(columnSelector).within(() => {
-          cy.get(".pf-v5-svg")
+          cy.get(".pf-v6-svg")
             .eq(1)
             .should("have.attr", "role", "img")
             .and("be.visible");
@@ -835,22 +835,38 @@ export class Application {
     Application.open();
     performRowActionByIcon(this.name, kebabMenu);
     clickByText(button, "Manage dependencies");
+    cy.get(northdependenciesDropdownBtn, { timeout: 30 * SEC })
+      .should("be.visible")
+      .and("be.enabled");
   }
 
-  // Selects the application as dependency from dropdown. Arg dropdownNum value 0 selects northbound, whereas value 1 selects southbound
-  selectNorthDependency(appNameList: Array<string>): void {
-    appNameList.forEach(function (app) {
-      cy.get(northdependenciesDropdownBtn).click();
-      cy.contains("button", app).click();
+  selectDependency({
+    dependencyToggle,
+    dependencyChipGroup,
+    dependencySelectListbox,
+    appNameList,
+    shouldExist = true,
+  }: {
+    dependencyToggle: string;
+    dependencyChipGroup: string;
+    dependencySelectListbox: string;
+    appNameList: Array<string>;
+    shouldExist?: boolean;
+  }): void {
+    cy.get(dependencyToggle).click();
+    appNameList.forEach((app) => {
+      cy.get(dependencySelectListbox)
+        .contains("span", app)
+        .closest("li")
+        .find("button")
+        .click();
+      if (shouldExist) {
+        cy.get(dependencyChipGroup, { timeout: 30 * SEC })
+          .find(`span[aria-label='${app}']`)
+          .should("exist");
+      }
     });
-  }
-
-  // Selects the application as dependency from dropdown. Arg dropdownNum value 0 selects northbound, whereas value 1 selects southbound
-  selectDependency(dropdownLocator: string, appNameList: Array<string>): void {
-    appNameList.forEach(function (app) {
-      cy.get(dropdownLocator).click();
-      cy.contains("button", app).click();
-    });
+    cy.get(dependencyToggle).click();
   }
 
   // Add north or south bound dependency for an application
@@ -860,32 +876,40 @@ export class Application {
   ): void {
     if (northbound || southbound) {
       this.openManageDependencies();
-      if (northbound.length > 0) {
-        this.selectDependency(northdependenciesDropdownBtn, northbound);
-        cy.wait(SEC);
+      if (northbound?.length > 0) {
+        this.selectDependency({
+          dependencyToggle: northdependenciesDropdownBtn,
+          dependencyChipGroup: northdependenciesChipGroup,
+          dependencySelectListbox: northdependenciesSelectListbox,
+          appNameList: northbound,
+        });
       }
-      if (southbound.length > 0) {
-        this.selectDependency(southdependenciesDropdownBtn, southbound);
-        cy.wait(SEC);
+      if (southbound?.length > 0) {
+        this.selectDependency({
+          dependencyToggle: southdependenciesDropdownBtn,
+          dependencyChipGroup: southdependenciesChipGroup,
+          dependencySelectListbox: southdependenciesSelectListbox,
+          appNameList: southbound,
+        });
       }
-      cy.wait(2 * SEC);
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
-  removeDep(dependency, dependencyType) {
-    cy.get("div")
-      .contains(`Add ${dependencyType} dependencies`)
-      .parent("div")
-      .siblings()
-      .find("span")
-      .should("contain.text", dependency)
-      .parent("div")
+  removeDep(dependency, dependencyChipGroup, isSingleDependency: boolean) {
+    cy.get(dependencyChipGroup, { timeout: 10 * SEC })
+      .find(`span[aria-label='${dependency}']`)
+      .closest("li")
       .find("button")
-      .trigger("click");
-    if (dependencyType === "northbound")
-      cy.get(northdependenciesDropdownBtn).click();
-    else cy.get(southdependenciesDropdownBtn).click();
+      .click();
+
+    if (isSingleDependency) {
+      cy.get(dependencyChipGroup).should("not.exist");
+    } else {
+      cy.get(dependencyChipGroup, { timeout: 10 * SEC })
+        .find(`span[aria-label='${dependency}']`)
+        .should("not.exist");
+    }
   }
 
   // Remove north or south bound dependency for an application
@@ -896,15 +920,20 @@ export class Application {
     if (northbound || southbound) {
       this.openManageDependencies();
       if (northbound.length > 0) {
-        this.removeDep(northbound[0], "northbound");
-        cy.wait(SEC);
+        this.removeDep(
+          northbound[0],
+          northdependenciesChipGroup,
+          northbound.length === 1
+        );
       }
       if (southbound.length > 0) {
-        this.removeDep(southbound[0], "southbound");
-        cy.wait(SEC);
+        this.removeDep(
+          southbound[0],
+          southdependenciesChipGroup,
+          southbound.length === 1
+        );
       }
-      cy.wait(2 * SEC);
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
@@ -915,18 +944,17 @@ export class Application {
   ): void {
     if (northboundApps || southboundApps) {
       this.openManageDependencies();
-      cy.wait(2 * SEC);
       if (northboundApps && northboundApps.length > 0) {
         northboundApps.forEach((app) => {
-          this.dependencyExists("northbound", app);
+          this.dependencyExists(northdependenciesChipGroup, app);
         });
       }
       if (southboundApps && southboundApps.length > 0) {
         southboundApps.forEach((app) => {
-          this.dependencyExists("southbound", app);
+          this.dependencyExists(southdependenciesChipGroup, app);
         });
       }
-      click(closeForm);
+      click(applicationDependenciesCloseButton);
     }
   }
 
@@ -965,14 +993,13 @@ export class Application {
     validateTextPresence(commonView.alertBody, alertBodyMessage);
   }
 
-  // Checks if app name is displayed in the dropdown under respective dependency
-  protected dependencyExists(dependencyType: string, appName: string): void {
-    cy.get("div")
-      .contains(`Add ${dependencyType} dependencies`)
-      .parent("div")
-      .siblings()
-      .find("span")
-      .should("contain.text", appName);
+  protected dependencyExists(
+    dependencyChipGroup: string,
+    appName: string
+  ): void {
+    cy.get(dependencyChipGroup, { timeout: 30 * SEC })
+      .find(`span[aria-label='${appName}']`)
+      .should("exist");
   }
 
   validateExcludedIssues(appIssues: AppIssue[]): void {

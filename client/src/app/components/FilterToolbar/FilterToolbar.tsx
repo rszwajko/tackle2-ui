@@ -194,9 +194,6 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         variant="filter-group"
         toggleIcon={<FilterIcon />}
         breakpoint={breakpoint}
-        spaceItems={
-          showFiltersSideBySide ? { default: "spaceItemsMd" } : undefined
-        }
       >
         {!showFiltersSideBySide && (
           <ToolbarItem>
@@ -204,7 +201,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
               onOpenChange={(flag) => setIsCategoryDropdownOpen(flag)}
               toggle={(toggleRef) => (
                 <MenuToggle
-                  id="filtered-by"
+                  ouiaId="filtered-by"
                   ref={toggleRef}
                   onClick={() =>
                     setIsCategoryDropdownOpen(!isCategoryDropdownOpen)

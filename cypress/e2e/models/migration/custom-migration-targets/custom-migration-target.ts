@@ -20,6 +20,10 @@ import {
   deleteAction,
   editAction,
 } from "../../../types/constants";
+import {
+  categoryProvider,
+  filterToggleListbox,
+} from "../../../types/filter-categories";
 import { RulesManualFields, RulesRepositoryFields } from "../../../types/types";
 import { submitButton } from "../../../views/common.view";
 import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
@@ -118,7 +122,7 @@ export class CustomMigrationTarget {
   }
 
   public static uploadImage(imagePath: string) {
-    cy.get("div[class='pf-v5-c-file-upload__file-details']")
+    cy.get("div[class='pf-v6-c-file-upload__file-details']")
       .next('input[type="file"]', { timeout: 2 * SEC })
       .selectFile(`fixtures/${imagePath}`, {
         timeout: 120 * SEC,
@@ -167,9 +171,9 @@ export class CustomMigrationTarget {
      * There may be a pre-selected filter so
      * the only deterministic way to eliminate pre-selected filters is to make sure there is one
      */
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
+    cy.get(`${filterToggleListbox(categoryProvider)} > li`)
       .contains(Languages.Java)
-      .closest(".pf-v5-c-menu__list-item")
+      .closest(".pf-v6-c-menu__list-item")
       .find("input[type=checkbox]")
       .check();
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
@@ -177,9 +181,9 @@ export class CustomMigrationTarget {
 
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
 
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
+    cy.get(`${filterToggleListbox(categoryProvider)} > li`)
       .contains(language)
-      .closest(".pf-v5-c-menu__list-item")
+      .closest(".pf-v6-c-menu__list-item")
       .find("input[type=checkbox]")
       .check();
 
@@ -245,7 +249,7 @@ export class CustomMigrationTarget {
 
   validateSourceTechnology(sources: string[]): void {
     sources.forEach((source) => {
-      cy.get("span.pf-v5-c-label__text").should("contain.text", source);
+      cy.get("span.pf-v6-c-label__text").should("contain.text", source);
     });
   }
 }

@@ -66,7 +66,7 @@ export const HookFormPFGroupController = <
         error?.message && (isDirty || isTouched) && !errorsSuppressed;
       return (
         <FormGroup
-          labelIcon={labelIcon}
+          labelHelp={labelIcon}
           label={label}
           fieldId={fieldId}
           className={className}
@@ -79,7 +79,7 @@ export const HookFormPFGroupController = <
             <FormHelperText id={`${fieldId}-helper`}>
               <HelperText>
                 <HelperTextItem
-                  data-testid={helperTextTestId}
+                  data-ouia-component-id={helperTextTestId}
                   variant={shouldDisplayError ? "error" : "default"}
                 >
                   {shouldDisplayError ? error.message : helperText}

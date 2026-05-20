@@ -4,20 +4,16 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Modal,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -27,6 +23,7 @@ import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { toDisplayValue } from "@app/components/FilterToolbar/components/selectUtils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -40,7 +37,7 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { IssueManagerOptions, findOption } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import TrackerStatus from "./components/tracker-status";
@@ -158,25 +155,26 @@ export const JiraTrackers: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.jiraConfig")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("terms.jiraConfig")}</Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(trackers || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}
@@ -229,18 +227,18 @@ export const JiraTrackers: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={
-                        <>
-                          {t("composed.noDataStateTitle", {
-                            what: t("terms.jiraConfig").toLowerCase(),
-                          })}
-                        </>
-                      }
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.jiraConfig").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.create"),
@@ -266,10 +264,9 @@ export const JiraTrackers: React.FC = () => {
                           {tracker.url}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          {toOptionLike(
-                            tracker.kind,
-                            IssueManagerOptions
-                          )?.toString()}
+                          {toDisplayValue(
+                            findOption(tracker.kind, IssueManagerOptions)
+                          )}
                         </Td>
                         <Td
                           width={10}

@@ -10,7 +10,8 @@ export const ProxyViewSelectorsByType = {
     port: '[name="httpPort"]',
     enabledSwitch: "#httpProxy",
     identityRequired: "#http-identity-required",
-    credentialsSelectToggle: "#http-proxy-credentials-select-toggle",
+    credentialsSelectToggle:
+      '[data-ouia-component-id="http-proxy-credentials-select-toggle"]',
     hostHelper: "#httpHost-helper",
   },
   [ProxyType.https]: {
@@ -18,11 +19,12 @@ export const ProxyViewSelectorsByType = {
     port: '[name="httpsPort"]',
     enabledSwitch: "#httpsProxy",
     identityRequired: "#https-identity-required",
-    credentialsSelectToggle: "#https-proxy-credentials-select-toggle",
+    credentialsSelectToggle:
+      '[data-ouia-component-id="https-proxy-credentials-select-toggle"]',
     hostHelper: "#httpsHost-helper",
   },
 };
 
-export const navLink = "a.pf-v5-c-nav__link";
+export const navLink = "a.pf-v6-c-nav__link";
 export const port = "#port";
-export const helper = 'span[class="pf-v5-c-helper-text__item-text"]';
+export const helper = 'span[class="pf-v6-c-helper-text__item-text"]';

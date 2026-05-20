@@ -24,18 +24,19 @@ import {
   tdTag,
   trTag,
 } from "../../../types/constants";
+import {
+  categoryName,
+  filterCategory,
+  searchButton,
+  searchInput,
+} from "../../../types/filter-categories";
 import { JiraConnectionData } from "../../../types/types";
 import {
   confirmButton,
   confirmCancelButton,
+  filteredBy,
   navLink,
 } from "../../../views/common.view";
-import {
-  filterCategory,
-  filteredBy,
-  searchButton,
-} from "../../../views/credentials.view";
-import { searchInput } from "../../../views/issue.view";
 import {
   createJiraButton,
   instanceName,
@@ -210,6 +211,30 @@ export class Jira {
   }
 
   /**
+   * Deletes all Jira tracker instances via API
+   */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/trackers",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/trackers/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /**
    * This method validates all fields values of Jira connection after creation
    */
   public validateState(expectedToFail = false): void {
@@ -250,9 +275,9 @@ export class Jira {
   }
 
   static applyFilterByName(value: string) {
-    selectFromDropList(filteredBy, filterCategory);
-    inputText(searchInput, value);
-    click(searchButton);
+    selectFromDropList(filteredBy, filterCategory(categoryName));
+    inputText(searchInput(categoryName), value);
+    click(searchButton(categoryName));
   }
 
   public getAllProjects(): Cypress.Chainable<JiraProject[]> {

@@ -131,7 +131,7 @@ describe(
     });
 
     it("All issues - Filtering issues by Archetype", function () {
-      Issues.applyFilter(dynamicReportFilter.archetype, archetypeName);
+      Issues.applyFilter(dynamicReportFilter.archetypes, archetypeName);
       this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
         (issue: AppIssue) => {
           Issues.validateFilter(issue);
@@ -244,7 +244,7 @@ describe(
           ]
         );
         // Wait up to 3 sec until spinner will be away
-        cy.get("div.pf-v5-l-bullseye", { timeout: 3 * SEC }).should(
+        cy.get("div.pf-v6-l-bullseye", { timeout: 3 * SEC }).should(
           "not.exist"
         );
         selectItemsPerPage(100);

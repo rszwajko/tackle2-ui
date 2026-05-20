@@ -11,8 +11,7 @@ import {
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
 export interface SimpleSelectProps {
-  id?: string;
-  isScrollable: boolean;
+  isScrollable?: boolean;
   options: FilterSelectOptionProps[];
   value?: string;
   onSelect: (value: string) => void;
@@ -20,20 +19,19 @@ export interface SimpleSelectProps {
   isDisabled?: boolean;
   isFullWidth?: boolean;
   ariaLabel?: string;
-  toggleId?: string;
+  toggleId: string;
   toggleAriaLabel?: string;
   toggleStatus?: MenuToggleProps["status"];
 }
 
 const SimpleSelect: FC<SimpleSelectProps> = ({
-  id,
-  isScrollable,
+  isScrollable = true,
   options,
   value: selectedValue,
   onSelect,
   placeholderText = "Select...",
   isDisabled,
-  isFullWidth,
+  isFullWidth = true,
   ariaLabel,
   toggleId,
   toggleAriaLabel,
@@ -53,7 +51,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
     return (
       <MenuToggle
         aria-label={toggleAriaLabel ?? ariaLabel}
-        id={toggleId}
+        ouiaId={toggleId}
         ref={toggleRef}
         onClick={() => {
           setIsFilterDropdownOpen(!isFilterDropdownOpen);
@@ -69,7 +67,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
   };
   return (
     <Select
-      id={id}
+      ouiaId={`${toggleId}-select`}
       isScrollable={isScrollable}
       aria-label={ariaLabel ?? toggleAriaLabel}
       toggle={toggle}
@@ -82,7 +80,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
       isOpen={isFilterDropdownOpen}
       shouldFocusToggleOnSelect
     >
-      <SelectList>
+      <SelectList id={`${toggleId}-listbox`}>
         {options.map(({ label, value, optionProps }) => (
           <SelectOption
             {...optionProps}

@@ -17,6 +17,7 @@
     "cancelTasks": "Cancel tasks",
     "checkDocumentation": "Check documentation",
     "clearAllFilters": "Clear all filters",
+    "clearInputValue": "Clear input value",
     "clearRepositoryNotSupported": "This action is disabled when RWX volumes are not available",
     "close": "Close",
     "continue": "Continue",
@@ -254,6 +255,7 @@
     "generatorsAvailable": "Available Generators",
     "generatorsChosen": "Chosen Generators",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
+    "invalidQuestionnaireImported": "Invalid questionnaire error: {{error}}",
     "inheritedAssessmentTooltip_one": "This application is inheriting an assessment from an archetype.",
     "inheritedAssessmentTooltip_other": "This application is inheriting assessments from {{count}} archetypes.",
     "inheritedReviewTooltip_one": "This application is inheriting a review from an archetype.",
@@ -265,6 +267,7 @@
     "loadingTripleDot": "Loading...",
     "manageColumnsDescription": "Select the columns you want to display in the table view.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
+    "cyclicDependenciesNotAllowed": "Cyclic dependencies are not allowed.",
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
     "noArchetypesCreatedTitle": "No archetypes have been created",
     "noArchetypesCreatedDescription": "Create a new archetype to get started.",
@@ -274,6 +277,7 @@
     "noDataAvailableBody": "No data available to be shown here.",
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
+    "noResultsFoundBodyFor": "No results found for \"{{input}}\"",
     "noResultsFoundTitle": "No results found",
     "noAnalysisProfileSelected": "No analysis profile selected",
     "analysisProfileInUseWarning_one": "This analysis profile is referenced by archetype {{archetypes}}. Deleting it will remove the reference from this archetype.",
@@ -443,6 +447,7 @@
     "currentLandscape": "Current landscape",
     "customTarget": "Custom migration target",
     "customTargets": "Custom migration targets",
+    "customTargetsChoice": "Select variant for migration target {{targetName}}",
     "customTargetsDetails": "Create and manage custom migration targets. You can also drag and drop the cards to rearrange them. Note that any changes to the layout here will be reflected in the Analysis wizard",
     "reportDownloadSetting": "Allow reports to be downloaded after running an analysis.",
     "date": "Date",
@@ -717,7 +722,8 @@
     "repositoryTypeRequiredWhen": "Repository type is required when URL, branch, or path is specified.",
     "repositoryUrlRequired": "Repository URL is required.",
     "repositoryUrlRequiredWhen": "Repository URL is required when branch or path is specified.",
-    "repositoryUrlInvalid": "Must be a valid repository URL."
+    "repositoryUrlInvalid": "Must be a valid repository URL.",
+    "invalidHostname": "The value must be a valid hostname. Do not include schemes (http://), ports, or paths."
   },
   "wizard": {
     "sourceMode": {
@@ -956,7 +962,7 @@
     "title": "Generate Assets",
     "description_one": "Generate deployment assets for application {{first}}.",
     "description_other": "Generate deployment assets for {{count}} selected applications.",
-    "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
+    "noApplicationsReady": "No applications are ready for asset generation. Applications must have an assets repository configured.",
     "noTasksSubmitted": "No asset generation tasks were submitted.",
     "toast": {
       "submittedOk": "Asset generation tasks submitted",
@@ -993,8 +999,8 @@
     "review": {
       "stepTitle": "Review",
       "title": "Review details",
-      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's discovery manifest, target profile, input parameters, and generator settings.",
-      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' discovery manifests, target profile, input parameters, and generator settings.",
+      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's profile, target profile, input parameters, and generator settings.",
+      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' profiles, target profile, input parameters, and generator settings.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
     },

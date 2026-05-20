@@ -304,7 +304,7 @@ export class Assessment {
         .within(() => {
           cy.wait(SEC);
           if (archetypeName) {
-            cy.get("span.pf-v5-c-label__text").each((item) => {
+            cy.get("span.pf-v6-c-label__text").each((item) => {
               if (Cypress.$(item).text().includes(name)) {
                 if (list[i] == "Proposed action")
                   expect(Cypress.$(item).text()).to.be.oneOf(actionList);
@@ -380,7 +380,8 @@ export class Assessment {
 
   public static deleteAssessments(): void {
     cy.get(tableRowActions, { timeout: 30 * SEC }).each(($el) => {
-      cy.wrap($el).find(plainButton).click();
+      cy.wait(2 * SEC);
+      cy.get(plainButton, { timeout: 30 * SEC, withinSubject: $el }).click();
     });
   }
 

@@ -22,7 +22,8 @@ import {
   closeRowDetails,
   createMultipleBusinessServices,
   createMultipleStakeholders,
-  deleteByList,
+  deleteAllBusinessServices,
+  deleteAllStakeholders,
   exists,
   existsWithinRow,
   expandRowDetails,
@@ -47,11 +48,11 @@ import {
 } from "../../../../types/constants";
 import {
   applicationBusinessServiceSelect,
-  applicationContributorsAction,
+  applicationContributorsChipGroup,
   applicationContributorsInput,
-  applicationContributorsText,
   applicationDescriptionInput,
   applicationNameInput,
+  applicationOwnerClearButton,
   applicationOwnerInput,
 } from "../../../../views/applicationinventory.view";
 import * as commonView from "../../../../views/common.view";
@@ -108,9 +109,7 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
         expect(value).to.contain(stakeHoldersList[0].name);
       });
 
-    cy.get(applicationOwnerInput)
-      .closest("div")
-      .next("button")
+    cy.get(applicationOwnerClearButton)
       .click()
       .then(() => {
         cy.get(applicationOwnerInput)
@@ -133,10 +132,10 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
       .and("contain", stakeHoldersList[1].name);
 
     // Unassign contributor#1 and verify only contributor#2 is listed
-    cy.get(applicationContributorsText)
-      .contains(stakeHoldersList[0].name)
-      .parent()
-      .next(applicationContributorsAction)
+    cy.get(applicationContributorsChipGroup)
+      .find(`span[aria-label='${stakeHoldersList[0].name}']`)
+      .closest("li")
+      .find("button")
       .click();
     cy.get(applicationContributorsInput)
       .closest("div")
@@ -271,7 +270,7 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(businessservicesList);
-    deleteByList(stakeHoldersList);
+    deleteAllBusinessServices();
+    deleteAllStakeholders();
   });
 });

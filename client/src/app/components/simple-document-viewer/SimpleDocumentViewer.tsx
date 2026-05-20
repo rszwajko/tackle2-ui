@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Spinner,
-} from "@patternfly/react-core";
+import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
 import { TaskAttachment } from "@app/api/models";
@@ -16,7 +10,8 @@ import {
   useFetchTaskByIdAndFormat,
 } from "@app/queries/tasks";
 
-import { AttachmentToggle } from "./AttachmentToggle";
+import SimpleSelect from "../FilterToolbar/components/SimpleSelect";
+
 import { LanguageToggle } from "./LanguageToggle";
 import { RefreshControl } from "./RefreshControl";
 
@@ -200,29 +195,39 @@ export const SimpleDocumentViewer = ({
       emptyState={
         <div className="simple-task-viewer-empty-state">
           <EmptyState
+            headingLevel="h4"
+            icon={Spinner}
+            titleText={t("message.loadingCurrentLanguage", {
+              currentLanguage,
+            })}
             variant={EmptyStateVariant.sm}
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
-          >
-            <EmptyStateHeader
-              titleText={t("message.loadingCurrentLanguage", {
-                currentLanguage,
-              })}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
+          ></EmptyState>
         </div>
       }
       customControls={[
-        <AttachmentToggle
+        <div
           key="attachmentToggle"
-          documents={configuredDocuments.map((it) => ({
-            ...it,
-            isSelected: it.id === selectedDocument.id,
-          }))}
-          onSelect={onSelect}
-        />,
+          className="simple-task-viewer-attachment-toggle"
+        >
+          <SimpleSelect
+            toggleId="attachmentToggle"
+            toggleAriaLabel="Attachment toggle"
+            isFullWidth
+            options={configuredDocuments.map(({ id, name, description }) => ({
+              value: id.toString(),
+              label: name,
+              optionProps: {
+                description,
+              },
+            }))}
+            value={selectedDocument?.id?.toString()}
+            onSelect={(value) =>
+              onSelect(Number.isInteger(Number(value)) ? Number(value) : value)
+            }
+          />
+        </div>,
         <RefreshControl
           key="refresh"
           isVisible={code !== ""}

@@ -18,11 +18,10 @@ import {
   migrationRoutes,
   universalRoutes,
 } from "@app/Routes";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import keycloak from "@app/keycloak";
 import { checkAccess } from "@app/utils/rbac-utils";
 
-import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
 
 const PersonaDefinition = {
@@ -109,15 +108,18 @@ const PersonaSidebar: FC<{
 
   const history = useHistory();
   return (
-    <PageSidebar theme={LayoutTheme}>
+    <PageSidebar>
       <div className="perspective">
-        <SimpleSelectBasic
+        <SimpleSelect
+          toggleId="persona-select"
+          toggleAriaLabel="Select persona dropdown"
+          isFullWidth
           value={selectedPersona}
           options={personaOptions.map((value) => ({
             value,
-            children: PersonaDefinition[value]?.label,
+            label: PersonaDefinition[value]?.label,
           }))}
-          onChange={(value) => {
+          onSelect={(value) => {
             const startPath =
               PersonaDefinition[value as PersonaType]?.startPath;
             if (value !== selectedPersona && startPath) {
@@ -127,7 +129,7 @@ const PersonaSidebar: FC<{
         />
       </div>
       <PageSidebarBody>
-        <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <Nav id="nav-primary" aria-label="Nav">
           {children}
         </Nav>
       </PageSidebarBody>

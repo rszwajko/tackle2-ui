@@ -10,26 +10,24 @@ import {
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormAutocomplete,
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { RepositoryFields } from "@app/components/repository-fields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
-import { toOptionLike } from "@app/utils/model-utils";
 import { wrapAsEvent } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
-
 export interface ApplicationFormProps {
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
@@ -67,7 +65,6 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
     tagItems,
     stakeholdersOptions,
     repositoryKindOptions,
-    stakeholders,
     businessServiceOptions,
     platformFromName,
     platformOptions,
@@ -103,7 +100,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBasicExpanded(!isBasicExpanded)}
         isExpanded={isBasicExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFTextInput
             control={control}
             name="name"
@@ -123,27 +120,16 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.businessService")}
             fieldId="businessService"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectOne", {
                   what: t("terms.businessService").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="business-service-toggle"
-                id="business-service-select"
                 toggleAriaLabel="Business service select dropdown toggle"
-                aria-label={name}
-                value={
-                  value
-                    ? toOptionLike(value, businessServiceOptions)
-                    : undefined
-                }
+                ariaLabel={name}
+                value={value}
                 options={businessServiceOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onClear={() => onChange("")}
+                onSelect={(selection) => onChange(selection ?? "")}
               />
             )}
           />
@@ -167,26 +153,16 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.owner")}
             fieldId="owner"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectAn", {
                   what: t("terms.owner").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="owner-toggle"
-                id="owner-select"
                 toggleAriaLabel="Owner select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, stakeholdersOptions) : undefined
-                }
+                ariaLabel={name}
+                value={value || undefined}
                 options={stakeholdersOptions}
-                onClear={() => onChange("")}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onBlur={onChange}
+                onSelect={(selection) => onChange(selection || null)}
               />
             )}
           />
@@ -196,50 +172,29 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.contributors")}
             fieldId="contributors"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <MultiSelect
                 placeholderText={t("composed.selectMany", {
                   what: t("terms.contributors").toLowerCase(),
                 })}
-                id="contributors-select"
-                variant="typeaheadmulti"
                 toggleId="contributors-select-toggle"
                 toggleAriaLabel="contributors dropdown toggle"
                 aria-label={name}
-                value={value
-                  .map((formContributor) =>
-                    stakeholders?.find(
-                      (stakeholder) => stakeholder.name === formContributor
-                    )
-                  )
-                  .map((matchingStakeholder) =>
-                    matchingStakeholder
-                      ? {
-                          value: matchingStakeholder.name,
-                          toString: () => matchingStakeholder.name,
-                        }
-                      : undefined
-                  )
-                  .filter((e) => e !== undefined)}
+                hasChips={true}
+                values={value}
                 options={stakeholdersOptions}
-                onChange={(selection) => {
-                  const selectionWithValue =
-                    selection as OptionWithValue<string>;
-
+                onSelect={(selection) => {
+                  if (!selection) {
+                    return;
+                  }
                   const currentValue = value || [];
-                  const e = currentValue.find(
-                    (f) => f === selectionWithValue.value
-                  );
+                  const e = currentValue.find((f) => f === selection);
                   if (e) {
-                    onChange(
-                      currentValue.filter((f) => f !== selectionWithValue.value)
-                    );
+                    onChange(currentValue.filter((f) => f !== selection));
                   } else {
-                    onChange([...currentValue, selectionWithValue.value]);
+                    onChange([...currentValue, selection]);
                   }
                 }}
                 onClear={() => onChange([])}
-                noResultsFoundText={t("message.noResultsFoundTitle")}
               />
             )}
           />
@@ -259,7 +214,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
         isExpanded={isSourceCodeExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <RepositoryFields
             form={form}
             prefix="source"
@@ -289,7 +244,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
         isExpanded={isBinaryExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFTextInput
             control={control}
             name="group"
@@ -320,7 +275,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <span className="pf-v5-c-icon pf-m-info">
+                <span className="pf-v6-c-icon pf-m-info">
                   <QuestionCircleIcon />
                 </span>
               </Popover>
@@ -335,39 +290,29 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourcePlatformExpanded(!isSourcePlatformExpanded)}
         isExpanded={isSourcePlatformExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFGroupController
             control={control}
             name="sourcePlatform"
             label={t("terms.sourcePlatform")}
             fieldId="sourcePlatform"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectOne", {
                   what: t("terms.sourcePlatform").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="source-platform-toggle"
-                id="source-platform-select"
                 toggleAriaLabel="Source platform select dropdown toggle"
-                aria-label={name}
-                value={value ? toOptionLike(value, platformOptions) : undefined}
+                ariaLabel={name}
+                value={value || undefined}
                 options={platformOptions}
-                onChange={(selection) => {
-                  const name = (selection as OptionWithValue<string>).value;
-                  if (name !== value) {
-                    onChange(name);
+                onSelect={(selection) => {
+                  if (selection !== value) {
+                    onChange(selection ?? null);
                     setValue("coordinatesDocument", null, {
                       shouldValidate: true,
                     });
                   }
-                }}
-                onClear={() => {
-                  onChange(null);
-                  setValue("coordinatesDocument", null, {
-                    shouldValidate: true,
-                  });
                 }}
               />
             )}
@@ -409,7 +354,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setAssetRepositoryExpanded(!isAssetRepositoryExpanded)}
         isExpanded={isAssetRepositoryExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <RepositoryFields
             form={form}
             prefix="assets"

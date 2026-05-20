@@ -17,7 +17,6 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
-  createMultipleApplications,
   deleteAllCredentials,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
@@ -27,15 +26,15 @@ import {
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Credentials } from "../../../models/administration/credentials/credentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
-import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import {
   CredentialType,
   JiraIssueTypes,
   JiraType,
-  SEC,
 } from "../../../types/constants";
+
+import { getWaveIssuesByIssueType, pullJiraIssuesByWaves } from "./common";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -57,7 +56,7 @@ let projectName = "";
  * This suite is almost identical to jira_datacenter but putting both tests in the same suite would make the code harder to read
  */
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "Export Migration Wave to Jira Cloud",
   function () {
     before("Create test data", function () {
@@ -99,20 +98,34 @@ describe(
 
     Object.values(JiraIssueTypes).forEach((issueType) => {
       it(`Create wave to export as ${issueType}`, function () {
-        const apps = createMultipleApplications(2);
-        applications.push(...apps);
-        appsMap[issueType] = apps;
+        getAuthHeaders().then((headers) => {
+          Application.createMultipleViaApi(
+            2,
+            undefined,
+            undefined,
+            undefined,
+            headers
+          )
+            .then((apps) => {
+              applications.push(...apps);
+              appsMap[issueType] = apps;
 
-        const migrationWave = new MigrationWave(
-          data.getRandomWord(8),
-          now,
-          end,
-          null,
-          null,
-          apps
-        );
-        migrationWave.create();
-        wavesMap[issueType] = migrationWave;
+              const applicationIds = apps.map((app) => app.id);
+              return MigrationWave.createViaApi(
+                data.getRandomWord(8),
+                now,
+                end,
+                undefined,
+                undefined,
+                applicationIds,
+                headers
+              );
+            })
+            .then((wave) => {
+              wave.applications = appsMap[issueType];
+              wavesMap[issueType] = wave;
+            });
+        });
       });
     });
 
@@ -147,32 +160,34 @@ describe(
       });
     });
 
-    Object.values(JiraIssueTypes).forEach((issueType) => {
-      it(`Assert exports for ${issueType}`, function () {
-        cy.wait(30 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
-        jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
-          const waveIssues = issues.filter((issue) => {
-            return (
-              (issue.fields.summary.includes(
-                wavesMap[issueType].applications[0].name
-              ) ||
-                issue.fields.summary.includes(
-                  wavesMap[issueType].applications[1].name
-                )) &&
-              issue.fields.issuetype.name.toUpperCase() ===
-                (issueType as string).toUpperCase()
-            );
+    it("Assert exports for all issue types", function () {
+      pullJiraIssuesByWaves(jiraCloudInstance, projectName, wavesMap).then(
+        (issuesByIssueType) => {
+          Object.entries(issuesByIssueType).forEach(([issueType, issues]) => {
+            expect(
+              Cypress._.uniqBy(issues, ({ app }) => app),
+              `Issues for ${issueType} are not exported`
+            ).to.have.length(2);
           });
-          Application.open();
-
-          jiraCloudInstance.deleteIssues(waveIssues.map((issue) => issue.id));
-
-          expect(waveIssues).to.have.length(2);
-        });
-      });
+        }
+      );
     });
 
     after("Clear test data", function () {
+      if (projectName) {
+        getWaveIssuesByIssueType({
+          jiraInstance: jiraCloudInstance,
+          projectName,
+          wavesMap,
+          usedAppsCount: 2,
+        }).then((issuesByIssueType) => {
+          jiraCloudInstance.deleteIssues(
+            Object.values(issuesByIssueType).flatMap((issues) =>
+              issues.map((issue) => issue.issue.id)
+            )
+          );
+        });
+      }
       getAuthHeaders().then((headers) => {
         MigrationWave.deleteAllViaApi(headers);
         Application.deleteAllViaApi(headers);

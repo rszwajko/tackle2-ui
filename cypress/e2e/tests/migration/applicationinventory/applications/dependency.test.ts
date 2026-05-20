@@ -22,11 +22,16 @@ import {
   login,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
+import { SEC } from "../../../../types/constants";
 import {
-  closeForm,
+  applicationDependenciesCloseButton,
   cyclicDependenciesErrorMsg,
+  northdependenciesChipGroup,
   northdependenciesDropdownBtn,
+  northdependenciesSelectListbox,
+  southdependenciesChipGroup,
   southdependenciesDropdownBtn,
+  southdependenciesSelectListbox,
 } from "../../../../views/applicationinventory.view";
 import { helper } from "../../../../views/common.view";
 
@@ -56,8 +61,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     applicationsList[1].removeDependencies(northboundApps, southboundApps);
   });
 
-  it.skip("Bug Tackle-3113: Cyclic dependencies for applications", function () {
-    // https://github.com/konveyor/tackle2-ui/issues/3113
+  it("Cyclic dependencies for applications", function () {
     const northboundApps: Array<string> = [applicationsList[0].name];
     const southboundApps: Array<string> = [applicationsList[2].name];
 
@@ -66,21 +70,32 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
 
     // Adding app[2] as northbound dependency for app[0] should yield cyclic error
     applicationsList[0].openManageDependencies();
-    applicationsList[0].selectDependency(northdependenciesDropdownBtn, [
-      applicationsList[2].name,
-    ]);
+    applicationsList[0].selectDependency({
+      dependencyToggle: northdependenciesDropdownBtn,
+      dependencyChipGroup: northdependenciesChipGroup,
+      dependencySelectListbox: northdependenciesSelectListbox,
+      appNameList: [applicationsList[2].name],
+      shouldExist: false,
+    });
 
-    cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);
-    click(closeForm);
+    cy.get(helper, { timeout: 30 * SEC }).should(
+      "contain.text",
+      cyclicDependenciesErrorMsg
+    );
+    click(applicationDependenciesCloseButton);
 
     // Adding app[0] as southbound dependency for app[2] should yield cyclic error
     applicationsList[2].openManageDependencies();
-    applicationsList[2].selectDependency(southdependenciesDropdownBtn, [
-      applicationsList[0].name,
-    ]);
+    applicationsList[2].selectDependency({
+      dependencyToggle: southdependenciesDropdownBtn,
+      dependencyChipGroup: southdependenciesChipGroup,
+      dependencySelectListbox: southdependenciesSelectListbox,
+      appNameList: [applicationsList[0].name],
+      shouldExist: false,
+    });
 
     cy.get(helper).should("contain.text", cyclicDependenciesErrorMsg);
-    click(closeForm);
+    click(applicationDependenciesCloseButton);
   });
 
   after("Perform test data clean up", function () {

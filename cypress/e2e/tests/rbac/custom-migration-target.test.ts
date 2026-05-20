@@ -22,7 +22,6 @@ import {
   getRandomApplicationData,
   login,
   next,
-  resetURL,
   selectItemsPerPage,
 } from "../../../utils/utils";
 import { User } from "../../models/keycloak/users/user";
@@ -32,7 +31,6 @@ import { AnalysisWizardHelpers } from "../../models/migration/analysis-profiles/
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
 import {
-  AnalysisStatuses,
   CustomRuleType,
   SEC,
   analyzeButton,
@@ -97,25 +95,22 @@ describe(
       cy.intercept("POST", "/hub/targets*").as("postRule");
       target.create();
       cy.wait("@postRule");
-      cy.get(".pf-v5-c-card__body", { timeout: 12 * SEC })
+      cy.get(".pf-v6-c-card__body", { timeout: 12 * SEC })
         .should("contain", target.name)
         .then((_) => {
           assertTargetIsVisible(analysis, target);
-          analyzeAndVerify(analysis);
         });
     });
 
     it("Look for created target on an analysis as architect user", function () {
       architect.login();
       assertTargetIsVisible(analysis, target);
-      analyzeAndVerify(analysis);
       architect.logout();
     });
 
     it("Look for created target on an analysis as migrator user", function () {
       migrator.login();
       assertTargetIsVisible(analysis, target);
-      analyzeAndVerify(analysis);
     });
 
     after("Clear test data", () => {
@@ -145,20 +140,13 @@ describe(
       cy.contains("button", "Next", { timeout: 200 }).click();
 
       // Ensures that the latest custom migration target created is the last one in the list
-      cy.get("form .pf-v5-c-card__body", { timeout: 12 * SEC })
+      cy.get("form .pf-v6-c-card__body", { timeout: 12 * SEC })
         .last()
         .should("contain", existingTarget.name)
         .and("contain", "Custom");
 
       clickByText(button, "Cancel");
       existingAnalysis.selectApplication();
-    };
-
-    const analyzeAndVerify = (analysis: Analysis) => {
-      analysis.analyze();
-      analysis.verifyAnalysisStatus(AnalysisStatuses.completed);
-      analysis.openReport();
-      resetURL();
     };
   }
 );

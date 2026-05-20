@@ -5,18 +5,19 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
+  Divider,
+  DividerVariant,
   DropdownItem,
   FormSelect,
   FormSelectOption,
-  Modal,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { DropdownSeparator } from "@patternfly/react-core/deprecated";
+import { Modal } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,
@@ -705,7 +706,9 @@ export const ApplicationsTable: FC = () => {
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
-    (index) => <DropdownSeparator key={`breakpoint-${index}`} />,
+    (index) => (
+      <Divider key={`breakpoint-${index}`} component={DividerVariant.li} />
+    ),
     [
       [
         importWriteAccess && (
@@ -955,7 +958,8 @@ export const ApplicationsTable: FC = () => {
     >
       <div
         style={{
-          backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+          backgroundColor:
+            "var(--pf-t--global--background--color--primary--default)",
         }}
       >
         <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
@@ -964,7 +968,7 @@ export const ApplicationsTable: FC = () => {
             <FilterToolbar<DecoratedApplication, string>
               {...filterToolbarProps}
             />
-            <ToolbarGroup variant="button-group">
+            <ToolbarGroup variant="action-group">
               <ToolbarItem>
                 <RBAC
                   allowedPermissions={applicationsWriteScopes}
@@ -1017,7 +1021,7 @@ export const ApplicationsTable: FC = () => {
                 </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
-            <ToolbarGroup variant="icon-button-group">
+            <ToolbarGroup variant="action-group-plain">
               {toolbarKebabItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown
@@ -1640,7 +1644,7 @@ export const ApplicationsTable: FC = () => {
           </Button>,
         ]}
       >
-        <TextContent>{"Select format"}</TextContent>
+        <Content>{"Select format"}</Content>
         <FormSelect
           value={selectedFormat}
           onChange={onChange}

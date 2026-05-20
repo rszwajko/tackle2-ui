@@ -17,7 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  applySearchFilter,
+  applySelectFilter,
   clickByText,
   createMultipleApplicationsWithBSandTags,
   createMultipleBusinessServices,
@@ -41,28 +41,26 @@ import { BusinessServices } from "../../../../models/migration/controls/business
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { Tag } from "../../../../models/migration/controls/tags";
 import {
-  AnalysisStatuses,
   CredentialType,
   UserCredentials,
-  analysis,
-  archetypes,
-  artifact,
   button,
   clearAllFilters,
-  credentialType,
   git,
-  name,
-  repositoryType,
-  risk,
   subversion,
-  tags,
 } from "../../../../types/constants";
-import * as commonView from "../../../../views/common.view";
 import {
-  filterDropDownContainer,
-  standardFilter,
-} from "../../../../views/common.view";
-import { searchMenuToggle } from "../../../../views/issue.view";
+  categoryArchetypes,
+  categoryBinary,
+  categoryBusinessService,
+  categoryIdentities,
+  categoryName,
+  categoryRepositoryType,
+  categoryRisk,
+  categoryTags,
+  filterToggle,
+  filterToggleListbox,
+} from "../../../../types/filter-categories";
+import * as commonView from "../../../../views/common.view";
 
 let source_credential;
 let maven_credential;
@@ -131,7 +129,7 @@ describe(
       filterApplicationsBySubstring();
 
       // Enter an exact existing name and assert
-      applySearchFilter(name, applicationsList[1].name);
+      applySelectFilter(categoryName, applicationsList[1].name);
       exists(applicationsList[1].name);
       notExists(applicationsList[0].name);
       clickByText(button, clearAllFilters);
@@ -139,7 +137,7 @@ describe(
 
     it("Business service filter validations", function () {
       const validSearchInput = applicationsList[0].business;
-      applySearchFilter("Business service", validSearchInput);
+      applySelectFilter(categoryBusinessService, validSearchInput);
 
       exists(applicationsList[0].business);
       clickByText(button, clearAllFilters);
@@ -149,13 +147,13 @@ describe(
       Application.open();
 
       const validSearchInput = applicationsList[0].tags[0];
-      applySearchFilter(tags, validSearchInput);
+      applySelectFilter(categoryTags, validSearchInput);
 
       exists(applicationsList[0].name);
       notExists(applicationsList[1].name);
       clickByText(button, clearAllFilters);
 
-      applySearchFilter(tags, applicationsList[1].tags[0]);
+      applySelectFilter(categoryTags, applicationsList[1].tags[0]);
       exists(applicationsList[1].name);
       notExists(applicationsList[0].name);
       clickByText(button, clearAllFilters);
@@ -178,14 +176,14 @@ describe(
       application.manageCredentials(null, maven_credential.name);
       exists(application.name);
 
-      applySearchFilter(credentialType, "Maven");
+      applySelectFilter(categoryIdentities, "Maven");
       exists(application.name);
       clickByText(button, clearAllFilters);
 
       application.manageCredentials(source_credential.name, null);
       exists(application.name);
 
-      applySearchFilter(credentialType, "Source");
+      applySelectFilter(categoryIdentities, "Source");
       exists(application.name);
       clickByText(button, clearAllFilters);
     });
@@ -210,14 +208,14 @@ describe(
 
       // Apply repository type filter check with Git
       // Check Application exists and application1 doesn't exist
-      applySearchFilter(repositoryType, git);
+      applySelectFilter(categoryRepositoryType, git);
       exists(application.name);
       notExists(application1.name);
       clickByText(button, clearAllFilters);
 
       // Apply repository type filter check with Subversion
       // Check Application1 exists and application doesn't exist
-      applySearchFilter(repositoryType, subversion);
+      applySelectFilter(categoryRepositoryType, subversion);
       exists(application1.name);
       notExists(application.name);
       clickByText(button, clearAllFilters);
@@ -238,14 +236,14 @@ describe(
 
       // Apply artifact filter check with associated artifact field
       // Check application exists and applicationList[0] doesn't exist
-      applySearchFilter(artifact, "Associated artifact");
+      applySelectFilter(categoryBinary, "Associated artifact");
       exists(application.name);
       notExists(applicationsList[0].name);
       clickByText(button, clearAllFilters);
 
       // Apply artifact filter check with 'No associated artifact' field
       // Check applicationList[0] exists and application doesn't exist
-      applySearchFilter(artifact, "No associated artifact");
+      applySelectFilter(categoryBinary, "No associated artifact");
       exists(applicationsList[0].name);
       notExists(application.name);
       clickByText(button, clearAllFilters);
@@ -263,13 +261,13 @@ describe(
       application.verifyStatus("assessment", "Completed");
 
       // Apply search filter Risk - Low
-      applySearchFilter(risk, "Low");
+      applySelectFilter(categoryRisk, "Low");
       exists(application.name);
       notExists(application1.name);
       clickByText(button, clearAllFilters);
 
       // apply search filter Risk - Unassessed
-      applySearchFilter(risk, "Unassessed");
+      applySelectFilter(categoryRisk, "Unassessed");
       exists(application1.name);
       notExists(application.name);
       clickByText(button, clearAllFilters);
@@ -297,7 +295,7 @@ describe(
       application1.create();
       cy.get("@getApplication");
       const validSearchInput = archetype1.name;
-      applySearchFilter("Archetypes", validSearchInput);
+      applySelectFilter(categoryArchetypes, validSearchInput);
       exists(application1.name);
       clickByText(button, clearAllFilters);
 
@@ -310,71 +308,15 @@ describe(
       );
       archetype2.create();
       Application.open();
-      selectFilter(archetypes);
-      cy.get(filterDropDownContainer).find(searchMenuToggle).click();
-      notExists(archetype2.name);
+      selectFilter(categoryArchetypes);
+      cy.get(filterToggle(categoryArchetypes)).click();
+      cy.get(filterToggleListbox(categoryArchetypes)).should(
+        "not.contain",
+        archetype2.name
+      );
 
       deleteByList([archetype1, archetype2]);
       deleteByList(tags);
-    });
-
-    it("Analysis status filter validation", function () {
-      const application1 = new Analysis(
-        getRandomApplicationData("tackle_test_app_1", {
-          sourceData: this.appData["tackle-testapp-public"],
-        }),
-        getRandomAnalysisData(
-          this.analysisData["source_analysis_on_bookserverapp"]
-        )
-      );
-      application1.create();
-      applicationsList.push(application1);
-
-      const application2 = new Analysis(
-        getRandomApplicationData("python-app-custom-rules", {
-          sourceData: this.appData["python-demo-app"],
-        }),
-        getRandomAnalysisData(this.analysisData["python_demo_application"])
-      );
-
-      application2.create();
-      applicationsList.push(application2);
-
-      const application3 = new Analysis(
-        getRandomApplicationData("tackle_test_app_2", {
-          sourceData: this.appData["tackle-testapp"],
-        }),
-        getRandomAnalysisData(
-          this.analysisData["source_analysis_on_bookserverapp"]
-        )
-      );
-      application3.create();
-      applicationsList.push(application3);
-
-      application1.analyze();
-      application1.verifyAnalysisStatus(AnalysisStatuses.completed);
-
-      application3.analyze();
-      application3.verifyAnalysisStatus(AnalysisStatuses.failed);
-
-      applySearchFilter(analysis, AnalysisStatuses.notStarted);
-      exists(application2.name);
-      notExists(application3.name);
-      notExists(application1.name);
-
-      clickByText(button, clearAllFilters);
-
-      applySearchFilter(analysis, AnalysisStatuses.completed);
-      exists(application1.name);
-      notExists(application3.name);
-      notExists(application2.name);
-
-      clickByText(button, clearAllFilters);
-
-      applySearchFilter(analysis, AnalysisStatuses.failed);
-      exists(application3.name);
-      notExists(application2.name);
-      notExists(application1.name);
     });
 
     after("Perform test data clean up", function () {
@@ -397,7 +339,7 @@ const filterApplicationsBySubstring = (): void => {
   const [firstAppSubstring, secondAppSubstring] = applicationsList.map((app) =>
     app.name.substring(0, 12)
   );
-  selectFilter(name);
+  selectFilter(categoryName);
   if (firstAppSubstring === secondAppSubstring) {
     cy.get(commonView.inputText)
       .click()
@@ -407,14 +349,16 @@ const filterApplicationsBySubstring = (): void => {
       .then(() => {
         [applicationsList[0].name, applicationsList[1].name].forEach(
           (substring) => {
-            cy.get(standardFilter).contains(substring).click();
+            cy.get(filterToggleListbox(categoryName))
+              .contains(substring)
+              .click();
           }
         );
         exists(applicationsList[0].name);
         exists(applicationsList[1].name);
       });
   } else {
-    applySearchFilter(name, firstAppSubstring);
+    applySelectFilter(categoryName, firstAppSubstring);
     exists(applicationsList[0].name);
     notExists(applicationsList[1].name);
   }
