@@ -15,7 +15,6 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 import {
@@ -23,20 +22,12 @@ import {
   TagIcon,
   WarningTriangleIcon,
 } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  IAction,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -58,9 +49,9 @@ import {
 } from "@app/components/TableControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import keycloak from "@app/keycloak";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -75,8 +66,7 @@ import {
   useFetchTaskDashboard,
 } from "@app/queries/tasks";
 import {
-  RBAC,
-  RBAC_TYPE,
+  ScopeGate,
   analysesReadScopes,
   applicationsWriteScopes,
   assessmentWriteScopes,
@@ -86,9 +76,11 @@ import {
   reviewsWriteScopes,
   tasksReadScopes,
   tasksWriteScopes,
-} from "@app/rbac";
-import { filterAndAddSeparator } from "@app/utils/grouping";
-import { checkAccess } from "@app/utils/rbac-utils";
+} from "@app/scopes";
+import {
+  addSeparatorForOverflow,
+  filterAndAddSeparator,
+} from "@app/utils/grouping";
 import { normalizeRisk } from "@app/utils/type-utils";
 import {
   formatPath,
@@ -122,7 +114,6 @@ export const ApplicationsTable: FC = () => {
   const { pushNotification } = useContext(NotificationsContext);
 
   const history = useHistory();
-  const token = keycloak.tokenParsed;
 
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
@@ -694,16 +685,15 @@ export const ApplicationsTable: FC = () => {
     setTasksToCancel(runningTasksToCancel);
   };
 
-  const userScopes: string[] = token?.scope.split(" ") || [],
-    importWriteAccess = checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
-    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
-    credentialsReadAccess = checkAccess(userScopes, credentialsReadScopes),
-    dependenciesWriteAccess = checkAccess(userScopes, dependenciesWriteScopes),
-    analysesReadAccess = checkAccess(userScopes, analysesReadScopes),
-    tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
-    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
-    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
+  const importWriteAccess = useHasSomeScopes(importsWriteScopes);
+  const applicationWriteAccess = useHasSomeScopes(applicationsWriteScopes);
+  const assessmentWriteAccess = useHasSomeScopes(assessmentWriteScopes);
+  const credentialsReadAccess = useHasSomeScopes(credentialsReadScopes);
+  const dependenciesWriteAccess = useHasSomeScopes(dependenciesWriteScopes);
+  const analysesReadAccess = useHasSomeScopes(analysesReadScopes);
+  const tasksReadAccess = useHasSomeScopes(tasksReadScopes);
+  const tasksWriteAccess = useHasSomeScopes(tasksWriteScopes);
+  const reviewsWriteAccess = useHasSomeScopes(reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
     (index) => (
@@ -970,10 +960,7 @@ export const ApplicationsTable: FC = () => {
             />
             <ToolbarGroup variant="action-group">
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={applicationsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={applicationsWriteScopes}>
                   <Button
                     type="button"
                     id="create-application"
@@ -985,13 +972,10 @@ export const ApplicationsTable: FC = () => {
                   >
                     {t("actions.createNew")}
                   </Button>
-                </RBAC>
+                </ScopeGate>
               </ToolbarItem>
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={tasksWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={tasksWriteScopes}>
                   <ToolbarItem>
                     <ConditionalTooltip
                       isTooltipEnabled={selectedRowsHaveExistingAnalysis}
@@ -1018,7 +1002,7 @@ export const ApplicationsTable: FC = () => {
                       </Button>
                     </ConditionalTooltip>
                   </ToolbarItem>
-                </RBAC>
+                </ScopeGate>
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup variant="action-group-plain">
@@ -1082,8 +1066,7 @@ export const ApplicationsTable: FC = () => {
                     }}
                   />
                 )}
-                <Th screenReaderText="primary action" />
-                <Th screenReaderText="secondary actions" />
+                <Th screenReaderText={t("actions.rowActions")} />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -1193,42 +1176,56 @@ export const ApplicationsTable: FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-                    <Td isActionCell id="pencil-action">
-                      {applicationWriteAccess && (
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={filterAndAddSeparator<IAction>(
-                          (_index) => ({ isSeparator: true }),
+                    <Td isActionCell>
+                      <OverflowActionMenu
+                        toggleId="row-actions"
+                        toggleAriaLabel={t("actions.rowActions")}
+                        items={addSeparatorForOverflow(
+                          (index, isShared) => ({
+                            isSeparator: true,
+                            itemKey: `separator-${index}`,
+                            isShared,
+                          }),
                           [
+                            [
+                              applicationWriteAccess && {
+                                title: t("actions.edit"),
+                                "aria-label": t("actions.edit"),
+                                variant: "plain",
+                                icon: <PencilAltIcon />,
+                                itemKey: "edit",
+                                isShared: true,
+                                ouiaId: "pencil-action",
+                                useOnlyIconWhenShared: true,
+                                tooltipProps: {
+                                  content: t("actions.edit"),
+                                },
+                                onClick: () =>
+                                  setSaveApplicationModalState(application),
+                              },
+                            ],
                             [
                               assessmentWriteAccess && {
                                 title: t("actions.assess"),
+                                itemKey: "assess",
                                 onClick: () => assessSelectedApp(application),
                               },
                               assessmentWriteAccess &&
                                 (application.assessments?.length ?? 0) > 0 && {
                                   title: t("actions.discardAssessment"),
+                                  itemKey: "discardAssessment",
                                   onClick: () =>
                                     setAssessmentToDiscard(application),
                                 },
                               reviewsWriteAccess && {
                                 title: t("actions.review"),
+                                itemKey: "review",
                                 onClick: () => reviewSelectedApp(application),
                               },
                               reviewsWriteAccess &&
                                 application?.review && {
                                   title: t("actions.discardReview"),
+                                  itemKey: "discardReview",
                                   onClick: () =>
                                     setReviewToDiscard(application),
                                 },
@@ -1236,6 +1233,7 @@ export const ApplicationsTable: FC = () => {
                             [
                               dependenciesWriteAccess && {
                                 title: t("actions.manageDependencies"),
+                                itemKey: "manageDependencies",
                                 onClick: () =>
                                   setApplicationDependenciesToManage(
                                     application
@@ -1244,6 +1242,7 @@ export const ApplicationsTable: FC = () => {
                               credentialsReadAccess &&
                                 applicationWriteAccess && {
                                   title: t("actions.manageCredentials"),
+                                  itemKey: "manageCredentials",
                                   onClick: () =>
                                     setSaveApplicationsCredentialsModalState([
                                       application,
@@ -1254,6 +1253,7 @@ export const ApplicationsTable: FC = () => {
                               analysesReadAccess &&
                                 !!application.tasks.currentAnalyzer && {
                                   title: t("actions.analysisDetails"),
+                                  itemKey: "analysisDetails",
                                   onClick: () => {
                                     const taskId =
                                       application.tasks.currentAnalyzer?.id;
@@ -1274,6 +1274,7 @@ export const ApplicationsTable: FC = () => {
                                 tasksWriteAccess &&
                                 isTaskCancellable(application) && {
                                   title: t("actions.cancelAnalysis"),
+                                  itemKey: "cancelAnalysis",
                                   onClick: () => cancelAnalysis(application),
                                 },
                             ],
@@ -1281,6 +1282,7 @@ export const ApplicationsTable: FC = () => {
                               applicationWriteAccess &&
                                 tasksWriteAccess && {
                                   title: t("actions.retrieveConfigurations"),
+                                  itemKey: "retrieveConfigurations",
                                   onClick: () =>
                                     handleRetrieveConfigurations(application),
                                   isDisabled:
@@ -1289,6 +1291,7 @@ export const ApplicationsTable: FC = () => {
                               applicationWriteAccess &&
                                 tasksWriteAccess && {
                                   title: t("actions.generateAssets"),
+                                  itemKey: "generateAssets",
                                   onClick: () =>
                                     handleGenerateAssets(application),
                                   isDisabled:
@@ -1298,6 +1301,7 @@ export const ApplicationsTable: FC = () => {
                             [
                               applicationWriteAccess && {
                                 title: t("actions.delete"),
+                                itemKey: "delete",
                                 onClick: () =>
                                   setApplicationsToDelete([application]),
                                 isDanger: true,

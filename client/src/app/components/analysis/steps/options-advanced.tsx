@@ -19,6 +19,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
 import { TargetLabelSchema } from "@app/api/schemas";
+import { useHasSomeScopes } from "@app/auth";
 import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
@@ -26,8 +27,8 @@ import {
 } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
+import { analysisProfileWriteScopes } from "@app/scopes";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import {
   duplicateNameCheck,
@@ -40,7 +41,7 @@ import { useTargetLabels } from "../hooks/useTargetLabels";
 
 import { CustomRulesStepState } from "./custom-rules";
 
-export interface AdvancedOptionsValues {
+interface AdvancedOptionsValues {
   additionalTargetLabels: TargetLabel[];
   additionalSourceLabels: TargetLabel[];
 
@@ -56,7 +57,7 @@ export interface AdvancedOptionsState extends AdvancedOptionsValues {
   isValid: boolean;
 }
 
-export const useAdvancedOptionsSchema = ({
+const useAdvancedOptionsSchema = ({
   existingProfiles = [],
   showSaveAsProfile = true,
 }: {
@@ -102,7 +103,7 @@ interface OptionsAdvancedProps {
   showSaveAsProfile?: boolean;
 }
 
-export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
+const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   selectedTargets,
   customRules,
   onStateChanged,
@@ -160,7 +161,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   );
 
   const customLabels = parseAndGroupLabels(customRules.customLabels);
-  const canSaveAsProfile = useIsArchitect();
+  const canWriteProfile = useHasSomeScopes(analysisProfileWriteScopes);
 
   return (
     <Form
@@ -345,7 +346,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         className={spacing.mtMd}
       />
 
-      {showSaveAsProfile && canSaveAsProfile && (
+      {showSaveAsProfile && canWriteProfile && (
         <>
           <Checkbox
             className={spacing.mtMd}

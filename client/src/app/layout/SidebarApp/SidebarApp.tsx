@@ -18,9 +18,9 @@ import {
   migrationRoutes,
   universalRoutes,
 } from "@app/Routes";
+import { useHasSomeScopes } from "@app/auth";
+import { adminViewScopes } from "@app/auth/roles-to-scopes";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
-import keycloak from "@app/keycloak";
-import { checkAccess } from "@app/utils/rbac-utils";
 
 import "./SidebarApp.css";
 
@@ -92,9 +92,7 @@ const PersonaSidebar: FC<{
   selectedPersona: PersonaType;
   setLastPersona: (persona: PersonaType) => void;
 }> = ({ children, selectedPersona, setLastPersona }) => {
-  const token = keycloak.tokenParsed || undefined;
-  const userRoles = token?.realm_access?.roles || [];
-  const adminAccess = checkAccess(userRoles, ["tackle-admin"]);
+  const adminAccess = useHasSomeScopes(adminViewScopes);
 
   useEffect(() => {
     setLastPersona(selectedPersona);
@@ -137,7 +135,7 @@ const PersonaSidebar: FC<{
   );
 };
 
-export const MigrationSidebar = ({
+const MigrationSidebar = ({
   setLastPersona,
 }: {
   setLastPersona: (persona: PersonaType) => void;
@@ -240,7 +238,7 @@ export const MigrationSidebar = ({
   );
 };
 
-export const AdminSidebar = ({
+const AdminSidebar = ({
   setLastPersona,
 }: {
   setLastPersona: (persona: PersonaType) => void;

@@ -32,7 +32,7 @@ import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
@@ -149,10 +149,7 @@ export const JobFunctions: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <RBAC
-                allowedPermissions={controlsWriteScopes}
-                rbacType={RBAC_TYPE.Scope}
-              >
+              <ScopeGate requiredScopes={controlsWriteScopes}>
                 <Button
                   type="button"
                   id="create-job-function"
@@ -162,7 +159,7 @@ export const JobFunctions: React.FC = () => {
                 >
                   {t("actions.createNew")}
                 </Button>
-              </RBAC>
+              </ScopeGate>
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
                   idPrefix="job-function-table"
@@ -177,7 +174,7 @@ export const JobFunctions: React.FC = () => {
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} width={90} />
-                  <Th screenReaderText="row actions" />
+                  <Th screenReaderText={t("actions.rowActions")} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -224,10 +221,14 @@ export const JobFunctions: React.FC = () => {
                           {jobFunction.name}
                         </Td>
                         <ControlTableActionsColumn
-                          isDeleteEnabled={!!jobFunction.stakeholders}
-                          deleteTooltipMessage={t(
-                            "message.cannotDeleteJobFunctionWithStakeholders"
-                          )}
+                          isDeleteEnabled={!jobFunction.stakeholders?.length}
+                          deleteTooltipMessage={
+                            jobFunction.stakeholders?.length
+                              ? t(
+                                  "message.cannotDeleteJobFunctionWithStakeholders"
+                                )
+                              : undefined
+                          }
                           onEdit={() => setCreateUpdateModalState(jobFunction)}
                           onDelete={() => deleteRow(jobFunction)}
                         />

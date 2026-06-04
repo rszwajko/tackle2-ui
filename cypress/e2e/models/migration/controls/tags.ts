@@ -23,7 +23,7 @@ import {
   confirm,
   expandRowDetails,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -48,11 +48,6 @@ import {
 } from "../../../views/tags.view";
 
 import { TagCategory } from "./tagcategory";
-
-export function clickTags(): void {
-  clickByText(navMenu, controls);
-  clickByText(navTab, tags);
-}
 
 export function fillName(name: string): void {
   inputText(nameInput, name);
@@ -129,7 +124,7 @@ export class Tag {
   ): void {
     Tag.openList();
     expandRowDetails(this.tagCategory);
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
     if (cancel) {
       cancelForm();
     } else {

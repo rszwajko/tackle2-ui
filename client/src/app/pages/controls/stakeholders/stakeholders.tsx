@@ -45,7 +45,7 @@ import {
   useDeleteStakeholderMutation,
   useFetchStakeholders,
 } from "@app/queries/stakeholders";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
@@ -211,10 +211,7 @@ export const Stakeholders: React.FC = () => {
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="action-group">
-                <RBAC
-                  allowedPermissions={controlsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={controlsWriteScopes}>
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -226,7 +223,7 @@ export const Stakeholders: React.FC = () => {
                       {t("actions.createNew")}
                     </Button>
                   </ToolbarItem>
-                </RBAC>
+                </ScopeGate>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
@@ -248,7 +245,7 @@ export const Stakeholders: React.FC = () => {
                     width={20}
                   />
                   <Th {...getThProps({ columnKey: "groupCount" })} width={20} />
-                  <Th screenReaderText="row actions" width={10} />
+                  <Th screenReaderText={t("actions.rowActions")} width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -311,6 +308,7 @@ export const Stakeholders: React.FC = () => {
                             {stakeholder.stakeholderGroups?.length}
                           </Td>
                           <ControlTableActionsColumn
+                            isDeleteEnabled
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholder)
                             }

@@ -1,3 +1,5 @@
+import { kebabToggleButton } from "./common.view";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -15,14 +17,13 @@ limitations under the License.
 */
 export const createTagButton = "Create tag";
 export const createTagCategoryButton = "Create tag category";
-export const colorHelper = "div[id=color-helper]";
 export const dropdownMenuToggle =
   '[data-ouia-component-id="tag-type-select-toggle"]';
 export const dropdownMenuTypeToggle =
   '[data-ouia-component-id="type-select-toggle"]';
 export const tagsHelper = "div.pf-v6-c-helper-text";
 export const nameInput = "input[name=name]";
-export const tagMenuButton = 'button[aria-label="Kebab toggle"]';
+export const tagMenuButton = kebabToggleButton;
 export const tagCategory = "td[data-label='Tag category']";
 export enum tagLabels {
   name = 'td[data-label="Tag name"]',

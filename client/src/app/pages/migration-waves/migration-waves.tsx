@@ -12,13 +12,11 @@ import {
   EmptyStateBody,
   MenuToggle,
   MenuToggleElement,
-  OverflowMenu,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import {
@@ -27,7 +25,6 @@ import {
   PencilAltIcon,
 } from "@patternfly/react-icons";
 import {
-  ActionsColumn,
   ExpandableRowContent,
   Table,
   Tbody,
@@ -38,6 +35,7 @@ import {
 } from "@patternfly/react-table";
 
 import { MigrationWave, Ref, Ticket, WaveWithStatus } from "@app/api/models";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -52,6 +50,7 @@ import {
 } from "@app/components/TableControls";
 import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
@@ -63,6 +62,8 @@ import {
 } from "@app/queries/migration-waves";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchTrackers } from "@app/queries/trackers";
+import { migrationWaveWriteScopes } from "@app/scopes";
+import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { toRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -265,8 +266,7 @@ export const MigrationWaves: React.FC = () => {
     currentPageItems,
   });
 
-  // TODO: Check RBAC access
-  const rbacWriteAccess = true; // checkAccess(userScopes, migrationWaveWriteScopes);
+  const rbacWriteAccess = useHasSomeScopes(migrationWaveWriteScopes);
 
   return (
     <>
@@ -292,22 +292,19 @@ export const MigrationWaves: React.FC = () => {
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="action-group">
-                  {/* <RBAC
-                    allowedPermissions={[]}
-                    rbacType={RBAC_TYPE.Scope}
-                  > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-migration-wave"
-                      aria-label="Create new migration-wave"
-                      variant={ButtonVariant.primary}
-                      onClick={openCreateWaveModal}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
+                  {rbacWriteAccess && (
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="create-migration-wave"
+                        aria-label="Create new migration-wave"
+                        variant={ButtonVariant.primary}
+                        onClick={openCreateWaveModal}
+                      >
+                        {t("actions.createNew")}
+                      </Button>
+                    </ToolbarItem>
+                  )}
                   {rbacWriteAccess ? (
                     <ToolbarItem id="toolbar-kebab">
                       <Dropdown
@@ -378,7 +375,7 @@ export const MigrationWaves: React.FC = () => {
                     <Th {...getThProps({ columnKey: "applications" })} />
                     <Th {...getThProps({ columnKey: "stakeholders" })} />
                     <Th {...getThProps({ columnKey: "status" })} />
-                    <Th screenReaderText="row actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -468,73 +465,96 @@ export const MigrationWaves: React.FC = () => {
                             ? migrationWave.status
                             : "--"}
                         </Td>
-                        <Td isActionCell id="action">
+                        <Td isActionCell>
                           {rbacWriteAccess && (
-                            <OverflowMenu breakpoint="sm">
-                              <Tooltip content={t("actions.edit")}>
-                                <Button
-                                  aria-label={t("actions.edit")}
-                                  variant="plain"
-                                  icon={<PencilAltIcon />}
-                                  onClick={() =>
-                                    setWaveModalState(migrationWave)
-                                  }
-                                />
-                              </Tooltip>
-                              <ActionsColumn
-                                items={[
-                                  {
-                                    title: t("composed.manage", {
-                                      what: t(
-                                        "terms.applications"
-                                      ).toLowerCase(),
-                                    }),
-                                    onClick: () => {
-                                      setWaveToManageModalState(migrationWave);
+                            <OverflowActionMenu
+                              toggleId="row-actions"
+                              toggleAriaLabel={t("actions.rowActions")}
+                              items={addSeparatorForOverflow(
+                                (index, isShared) => ({
+                                  isSeparator: true,
+                                  itemKey: `separator-${index}`,
+                                  isShared,
+                                }),
+                                [
+                                  [
+                                    {
+                                      title: t("actions.edit"),
+                                      "aria-label": t("actions.edit"),
+                                      itemKey: "edit",
+                                      isShared: true,
+                                      variant: "plain",
+                                      icon: <PencilAltIcon />,
+                                      ouiaId: "pencil-action",
+                                      useOnlyIconWhenShared: true,
+                                      tooltipProps: {
+                                        content: t("actions.edit"),
+                                      },
+                                      onClick: () =>
+                                        setWaveModalState(migrationWave),
                                     },
-                                    isAriaDisabled: !applications?.length,
-                                    tooltipProps: !applications?.length
-                                      ? {
-                                          content: t(
-                                            "message.noApplicationsForAssignment"
-                                          ),
-                                        }
-                                      : undefined,
-                                  },
-                                  {
-                                    title: t("terms.exportToIssue"),
-                                    onClick: () =>
-                                      setApplicationsToExport(
-                                        migrationWave.fullApplications
-                                      ),
-                                    isAriaDisabled:
-                                      migrationWave.applications?.length < 1 ||
-                                      !hasExportableApplications(
-                                        tickets,
-                                        migrationWave?.applications
-                                      ),
-                                    tooltipProps:
-                                      migrationWave.applications?.length < 1 ||
-                                      !hasExportableApplications(
-                                        tickets,
-                                        migrationWave?.applications
-                                      )
+                                  ],
+                                  [
+                                    {
+                                      itemKey: "manageApplications",
+                                      title: t("composed.manage", {
+                                        what: t(
+                                          "terms.applications"
+                                        ).toLowerCase(),
+                                      }),
+                                      onClick: () => {
+                                        setWaveToManageModalState(
+                                          migrationWave
+                                        );
+                                      },
+                                      isAriaDisabled: !applications?.length,
+                                      tooltipProps: !applications?.length
                                         ? {
                                             content: t(
-                                              "message.noApplicationsForExport"
+                                              "message.noApplicationsForAssignment"
                                             ),
                                           }
                                         : undefined,
-                                  },
-                                  {
-                                    title: t("actions.delete"),
-                                    onClick: () =>
-                                      setMigrationWaveToDelete(migrationWave),
-                                    isDanger: true,
-                                  },
-                                ]}
-                              />
-                            </OverflowMenu>
+                                    },
+                                    {
+                                      title: t("terms.exportToIssue"),
+                                      itemKey: "exportToIssue",
+                                      onClick: () =>
+                                        setApplicationsToExport(
+                                          migrationWave.fullApplications
+                                        ),
+                                      isAriaDisabled:
+                                        migrationWave.applications?.length <
+                                          1 ||
+                                        !hasExportableApplications(
+                                          tickets,
+                                          migrationWave?.applications
+                                        ),
+                                      tooltipProps:
+                                        migrationWave.applications?.length <
+                                          1 ||
+                                        !hasExportableApplications(
+                                          tickets,
+                                          migrationWave?.applications
+                                        )
+                                          ? {
+                                              content: t(
+                                                "message.noApplicationsForExport"
+                                              ),
+                                            }
+                                          : undefined,
+                                    },
+                                    {
+                                      itemKey: "delete",
+                                      title: t("actions.delete"),
+                                      onClick: () =>
+                                        setMigrationWaveToDelete(migrationWave),
+                                      isDanger: true,
+                                    },
+                                  ],
+                                ]
+                              )}
+                            />
                           )}
                         </Td>
                       </TableRowContentWithControls>

@@ -14,12 +14,12 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
-import { CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Tracker } from "@app/api/models";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -31,12 +31,14 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchTickets } from "@app/queries/tickets";
 import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
+import { ScopeGate, trackerWriteScopes } from "@app/scopes";
 import { IssueManagerOptions, findOption } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -47,6 +49,7 @@ import useUpdatingTrackerIds from "./useUpdatingTrackerIds";
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const canWrite = useHasSomeScopes(trackerWriteScopes);
 
   const [trackerModalState, setTrackerModalState] = React.useState<
     "create" | Tracker | null
@@ -175,22 +178,19 @@ export const JiraTrackers: React.FC = () => {
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="action-group">
-                  {/* <RBAC
-                    allowedPermissions={[]}
-                    rbacType={RBAC_TYPE.Scope}
-                  > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-Tracker"
-                      aria-label="Create new tracker"
-                      variant={ButtonVariant.primary}
-                      onClick={() => setTrackerModalState("create")}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
+                  {canWrite && (
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="create-Tracker"
+                        aria-label="Create new tracker"
+                        variant={ButtonVariant.primary}
+                        onClick={() => setTrackerModalState("create")}
+                      >
+                        {t("actions.createNew")}
+                      </Button>
+                    </ToolbarItem>
+                  )}
                   {/* {jiraDropdownItems.length ? (
                     <ToolbarItem>
                       <KebabDropdown
@@ -218,7 +218,7 @@ export const JiraTrackers: React.FC = () => {
                     <Th {...getThProps({ columnKey: "url" })} />
                     <Th {...getThProps({ columnKey: "kind" })} />
                     <Th {...getThProps({ columnKey: "connection" })} />
-                    <Th screenReaderText="row actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -281,20 +281,54 @@ export const JiraTrackers: React.FC = () => {
                             )}
                           />
                         </Td>
-                        <Td width={20}>
-                          <AppTableActionButtons
-                            onEdit={() => setTrackerModalState(tracker)}
-                            onDelete={() => {
-                              if (includesTracker(tracker.id)) {
-                                pushNotification({
-                                  title: t("message.trackerInUse"),
-                                  variant: "danger",
-                                });
-                              } else {
-                                setTrackerToDelete(tracker);
-                              }
-                            }}
-                          />
+                        <Td width={20} isActionCell>
+                          <ScopeGate requiredScopes={trackerWriteScopes}>
+                            <OverflowActionMenu
+                              breakpoint="lg"
+                              toggleId="row-actions"
+                              toggleAriaLabel={t("actions.rowActions")}
+                              items={[
+                                {
+                                  title: t("actions.edit"),
+                                  onClick: () => setTrackerModalState(tracker),
+                                  itemKey: "edit",
+                                  variant: "plain",
+                                  ouiaId: "pencil-action",
+                                  icon: <PencilAltIcon />,
+                                  useOnlyIconWhenShared: true,
+                                  isShared: true,
+                                  "aria-label": t("actions.edit"),
+                                  tooltipProps: {
+                                    content: t("actions.edit"),
+                                  },
+                                },
+                                {
+                                  title: t("actions.delete"),
+                                  onClick: () => {
+                                    if (includesTracker(tracker.id)) {
+                                      pushNotification({
+                                        title: t("message.trackerInUse"),
+                                        variant: "danger",
+                                      });
+                                    } else {
+                                      setTrackerToDelete(tracker);
+                                    }
+                                  },
+                                  ouiaId: "trash-action",
+                                  itemKey: "delete",
+                                  isDanger: true,
+                                  icon: <TrashIcon />,
+                                  useOnlyIconWhenShared: true,
+                                  isShared: true,
+                                  tooltipProps: {
+                                    content: t("actions.delete"),
+                                  },
+                                  "aria-label": t("actions.delete"),
+                                  variant: "plain",
+                                },
+                              ]}
+                            />
+                          </ScopeGate>
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

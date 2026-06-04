@@ -4,6 +4,8 @@ import {
   filterToggleInput,
 } from "../types/filter-categories";
 
+import { kebabToggleButton } from "./common.view";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -19,7 +21,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const actionButton = "button[aria-label='kebab dropdown toggle']";
 export const applicationsActionButton =
   "button[aria-label='Application actions']";
 
@@ -34,8 +35,6 @@ export const tagsColumnSelector = "td[data-label='Tags']";
 export const applicationContributorsInput = "#contributors-select-toggle-input";
 export const applicationContributorsChipGroup =
   "[data-ouia-component-id='contributors-select-toggle-chip-group']";
-export const applicationContributorsText = ".pf-v6-c-chip__text";
-export const applicationContributorsAction = ".pf-v6-c-chip__actions";
 export const applicationOwnerInput = "#owner-toggle-input";
 export const applicationOwnerClearButton =
   "[data-ouia-component-id='owner-toggle-clear-button']";
@@ -48,9 +47,6 @@ export const applicationTagsSelect = "[placeholder='Select tags']";
 export const applicationCommentInput = "textarea[name=comments]";
 export const businessColumnSelector = "td[data-label='Business Service']";
 export const csvFileName = "Filename";
-export const FileName = "File name";
-export const closeForm = "button[aria-label='close']";
-export const copy = "button[aria-label='Copy']";
 export const cyclicDependenciesErrorMsg =
   "Cyclic dependencies are not allowed.";
 export const applicationDependenciesCloseButton =
@@ -70,18 +66,13 @@ export const southdependenciesDropdownBtn =
 export const date = "Import Time";
 export const importStatus = "Status";
 export const selectBox = "input[type=checkbox]";
-export const tags = "span";
 export const user = "User";
-export const kebabMenu = "#row-actions";
-export const kebabMenuAction = "#action";
-export const topKebabMenu = "#toolbar-kebab";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
 export const profileEdit = ".pf-m-1-col > .pf-v6-c-button";
 export const appContributorSelect = "#contributors-select-toggle-input";
 export const appSelectionButton = "button.pf-v6-c-menu-toggle__button";
-// This is on the Application imports page.
-export const sideKebabMenu = "button[aria-label='Kebab toggle']";
+export const sideKebabMenu = kebabToggleButton;
 
 //Fields related to analysis - source mode
 export const sourceRepository = "input[id=sourceRepository]";
@@ -107,16 +98,7 @@ export const appDetailsView = {
 };
 
 // Fields related to copy assessment modal
-export const copyAssessmentTableTd = ".pf-m-compact> tbody > tr > td";
-export const copyAssessmentTableTr = ".pf-m-compact> tbody > tr";
-export const copyAssessmentPagination =
-  "#bulk-copy-assessment-review-pagination-top";
-export const copyAssessmentModal = "div.pf-v6-c-modal-box";
-
-// Fields related to application import
 export const appImportForm = "form.pf-v6-c-form";
-export const ViewArchetypes = "View archetypes";
-export const customActionButton = "#custom-action-button";
 export const manageColumnsModal = "[id*='pf-modal-part']";
 export const labelTagText = ".pf-v6-c-label__text";
 

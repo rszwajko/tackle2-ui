@@ -48,7 +48,7 @@ import {
   useDeleteTagMutation,
   useFetchTagCategories,
 } from "@app/queries/tags";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 import {
   dedupeFunction,
   getAxiosErrorMessage,
@@ -250,10 +250,7 @@ export const Tags: React.FC = () => {
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="action-group">
-                <RBAC
-                  allowedPermissions={controlsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={controlsWriteScopes}>
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -276,7 +273,7 @@ export const Tags: React.FC = () => {
                       {t("actions.createTagCategory")}
                     </Button>
                   </ToolbarItem>
-                </RBAC>
+                </ScopeGate>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
@@ -356,12 +353,13 @@ export const Tags: React.FC = () => {
                         >
                           {tagCategory.tags?.length || 0}
                         </Td>
-                        {/* TODO: Convert to pencil-action / row-actions Td isActionCell */}
                         <ControlTableActionsColumn
-                          isDeleteEnabled={!!tagCategory.tags?.length}
-                          deleteTooltipMessage={t(
-                            "message.cannotDeleteNonEmptyTagCategory"
-                          )}
+                          isDeleteEnabled={!tagCategory.tags?.length}
+                          deleteTooltipMessage={
+                            tagCategory.tags?.length
+                              ? t("message.cannotDeleteNonEmptyTagCategory")
+                              : undefined
+                          }
                           onEdit={() => setTagCategoryModalState(tagCategory)}
                           onDelete={() => setTagCategoryToDelete(tagCategory)}
                         />
