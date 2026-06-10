@@ -52,6 +52,24 @@ const config: Configuration = mergeWithRules({
       disableDotRule: true,
     },
     hot: true,
+    webSocketServer: {
+      options: {
+        //prevents conflicts with web sockets from the app
+        port: 9004,
+        // just to differentiate WebPack sockets
+        path: "/webpackWebSockets",
+      },
+    },
+    proxy: [
+      {
+        // proxy also the root URL ('/')
+        context: () => true,
+        target: KONVEYOR_ENV.TACKLE_HUB_URL,
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      },
+    ],
   },
 
   module: {
