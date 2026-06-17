@@ -21,8 +21,8 @@ import {
   cleanupDownloads,
   deleteAllAnalysisProfiles,
   deleteApplicationTableRows,
-  deleteBulkApplicationsByApi,
   exists,
+  getAuthHeaders,
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
@@ -178,6 +178,7 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   });
 
   it("Download static HTML report", function () {
+    login();
     cy.visit("/");
     cleanupDownloads();
     GeneralConfig.enableDownloadReport();
@@ -188,9 +189,11 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   after("Perform test data clean up", function () {
     login();
     cy.visit("/");
-    deleteBulkApplicationsByApi(applicationIds);
-    credentialsList.forEach((credential) => credential.delete());
-    profilesToDelete.forEach((profile) => profile.delete());
+    getAuthHeaders().then((headers) => {
+      staticReportApp.deleteViaApi(headers);
+      credentialsList.forEach((cred) => cred.deleteViaApi(headers));
+      profilesToDelete.forEach((profile) => profile.delete());
+    });
   });
 });
 

@@ -27,7 +27,7 @@ import {
   createMultipleTags,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
-  deleteByList,
+  getAuthHeaders,
   login,
   seedDependenciesData,
   selectItemsPerPage,
@@ -55,12 +55,12 @@ import { rightSideMenu } from "../../../../views/analysis.view";
 const bookServerAppName = "DependenciesFilteringApp1";
 const dayTraderAppName = "DependenciesFilteringApp2";
 
-let businessServiceList: BusinessServices[];
+let businessServiceList: BusinessServices[] = [];
 let archetype: Archetype;
-let stakeholders: Stakeholders[];
-let stakeholderGroups: Stakeholdergroups[];
-let tags: Tag[];
-let tagNames: string[];
+let stakeholders: Stakeholders[] = [];
+let stakeholderGroups: Stakeholdergroups[] = [];
+let tags: Tag[] = [];
+let tagNames: string[] = [];
 
 describe(
   ["@tier3", "@tier3_D"],
@@ -233,7 +233,8 @@ describe(
 
     sortByList.forEach((column) => {
       it(`Sort dependencies by ${column}`, function () {
-        Dependencies.openList();
+        Dependencies.openList(100);
+        cy.wait(2000);
         validateSortBy(column);
       });
     });
@@ -244,12 +245,18 @@ describe(
     });
 
     after("Perform test data clean up", function () {
+      login();
+      cy.visit("/");
       cleanupDependenciesData();
-      archetype.delete();
-      deleteByList(stakeholders);
-      deleteByList(stakeholderGroups);
-      deleteByList(tags);
-      deleteByList(businessServiceList);
+      getAuthHeaders().then((headers) => {
+        if (archetype?.id != null && archetype.id > 0) {
+          archetype.deleteViaApi(headers);
+        }
+        stakeholders.forEach((sh) => sh.deleteViaApi(headers));
+        stakeholderGroups.forEach((sg) => sg.deleteViaApi(headers));
+        tags.forEach((tag) => tag.deleteViaApi(headers));
+        businessServiceList.forEach((bs) => bs.deleteViaApi(headers));
+      });
     });
   }
 );
